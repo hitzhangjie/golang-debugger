@@ -13,6 +13,8 @@ import (
 	//"github.com/derekparker/dbg/proctl"
 	"../helper"
 	"../proctl"
+	"fmt"
+	"unsafe"
 )
 
 var testfile string
@@ -63,7 +65,8 @@ func TestFindReturnAddress(t *testing.T) {
 	)
 
 	helper.WithTestProcess("testprog", t, func(p *proctl.DebuggedProcess) {
-		testsourcefile := testfile + ".go"
+		//testsourcefile := testfile + ".go"
+		testsourcefile := "/home/zhangjie/gg/debug/_fixtures/testprog.go" // use abs path
 		start, _, err := gsd.LineToPC(testsourcefile, 9)
 		if err != nil {
 			t.Fatal(err)
@@ -84,24 +87,33 @@ func TestFindReturnAddress(t *testing.T) {
 			t.Fatal(err)
 		}
 
+		fde, err := fdes.FDEForPC(start)
+		if err != nil {
+			t.Fatal(err)
+		}
+
 		end, _, err := gsd.LineToPC(testsourcefile, 19)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		ret, err := fdes.FindReturnAddressOffset(start)
+		ret := fde.ReturnAddressOffset(start)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		addr := regs.Rsp + ret
+		fmt.Println(fde.CIE.ReturnAddressRegister)
+
+		//addr := uint64(int64(regs.Rsp) + ret)
+		addr := uint64(int64(regs.Rsp) + ret - int64(unsafe.Sizeof(uintptr(0))))
 		data := make([]byte, 8)
 
 		syscall.PtracePeekText(p.Pid, uintptr(addr), data)
 		addr = binary.LittleEndian.Uint64(data)
 
 		if addr != end {
-			t.Fatalf("return address not found correctly, expected %#v got %#v", end, ret)
+			t.Fatalf("return address not found correctly, expected %#v got %#v", end, addr)
 		}
 	})
 }
+
