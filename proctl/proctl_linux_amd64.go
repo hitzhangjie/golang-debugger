@@ -129,11 +129,7 @@ func (dbp *DebuggedProcess) Break(addr uintptr) (*BreakPoint, error) {
 func (dbp *DebuggedProcess) Clear(pc uint64) (*BreakPoint, error) {
 	bp, ok := dbp.PCtoBP(pc)
 	if !ok {
-		if bp != nil {
-			return nil, fmt.Errorf("No breakpoint currently set for %s", bp.FunctionName)
-		} else {
-			return nil, fmt.Errorf("No breakpoint currently set for addr %#x", pc)
-		}
+		return nil, fmt.Errorf("No breakpoint currently set for addr %#x", pc)
 	}
 	_, err := syscall.PtracePokeData(dbp.Pid, uintptr(bp.Addr), bp.OriginalData)
 	if err != nil {
@@ -260,4 +256,3 @@ func (dbp *DebuggedProcess) PCtoBP(pc uint64) (*BreakPoint, bool) {
 	bp, ok := dbp.BreakPoints[fmt.Sprintf("%s:%d", f, l)]
 	return bp, ok
 }
-

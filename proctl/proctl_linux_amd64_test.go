@@ -1,11 +1,10 @@
 package proctl
 
 import (
-	"os/exec"
 	"syscall"
 	"testing"
 	"bytes"
-	"fmt"
+	"../helper"
 )
 
 type testfunc func(p *DebuggedProcess)
@@ -20,44 +19,8 @@ func dataAtAddr(pid int, addr uint64) ([]byte, error) {
 	return data, nil
 }
 
-func getRegisters(p *DebuggedProcess, t *testing.T) *syscall.PtraceRegs {
-	regs, err := p.Registers()
-	if err != nil {
-		t.Fatal("Registers():", err)
-	}
-
-	return regs
-}
-
-func withTestProcess(name string, t *testing.T, fn testfunc) {
-	cmd, err := StartTestProcess(name)
-	if err != nil {
-		t.Fatal("Starting test process:", err)
-	}
-
-	pid := cmd.Process.Pid
-	p, err := NewDebugProcess(pid)
-	if err != nil {
-		t.Fatal("NewDebugProcess():", err)
-	}
-	defer cmd.Process.Kill()
-
-	fn(p)
-}
-
-func StartTestProcess(name string) (*exec.Cmd, error) {
-	cmd := exec.Command("../fixtures/" + name)
-
-	err := cmd.Start()
-	if err != nil {
-		return nil, err
-	}
-
-	return cmd, nil
-}
-
 func TestAttachProcess(t *testing.T) {
-	withTestProcess("testprog", t, func(p *DebuggedProcess) {
+	helper.WithTestProcess("testprog", t, func(p *DebuggedProcess) {
 		if !p.ProcessState.Sys().(syscall.WaitStatus).Stopped() {
 			t.Errorf("Process was not stopped correctly")
 		}
@@ -65,8 +28,11 @@ func TestAttachProcess(t *testing.T) {
 }
 
 func TestStep(t *testing.T) {
-	withTestProcess("testprog", t, func(p *DebuggedProcess) {
-		regs := getRegisters(p, t)
+	helper.WithTestProcess("testprog", t, func(p *DebuggedProcess) {
+		if p.ProcessState.Exited() {
+			t.Fatal("Process already exited")
+		}
+		regs := helper.GetRegisters(p, t)
 		rip := regs.PC()
 
 		err := p.Step()
@@ -74,7 +40,7 @@ func TestStep(t *testing.T) {
 			t.Fatal("Step():", err)
 		}
 
-		regs = getRegisters(p, t)
+		regs = helper.GetRegisters(p, t)
 
 		if rip >= regs.PC() {
 			t.Errorf("Expected %#v to be greater than %#v", regs.PC(), rip)
@@ -83,7 +49,7 @@ func TestStep(t *testing.T) {
 }
 
 func TestContinue(t *testing.T) {
-	withTestProcess("continuetestprog", t, func(p *DebuggedProcess) {
+	helper.WithTestProcess("continuetestprog", t, func(p *DebuggedProcess) {
 		if p.ProcessState.Exited() {
 			t.Fatal("Process already exited")
 		}
@@ -100,7 +66,7 @@ func TestContinue(t *testing.T) {
 }
 
 func TestBreakPoint(t *testing.T) {
-	withTestProcess("testprog", t, func(p *DebuggedProcess) {
+	helper.WithTestProcess("testprog", t, func(p *DebuggedProcess) {
 		sleepytimefunc := p.GoSymTable.LookupFunc("main.sleepytime")
 		sleepyaddr := sleepytimefunc.Entry
 
@@ -115,7 +81,7 @@ func TestBreakPoint(t *testing.T) {
 			t.Fatal("Continue():", err)
 		}
 
-		regs := getRegisters(p, t)
+		regs := helper.GetRegisters(p, t)
 
 		pc := regs.PC()
 		if pc != breakpc {
@@ -127,7 +93,7 @@ func TestBreakPoint(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		regs = getRegisters(p, t)
+		regs = helper.GetRegisters(p, t)
 
 		pc = regs.PC()
 		if pc == breakpc {
@@ -137,7 +103,7 @@ func TestBreakPoint(t *testing.T) {
 }
 
 func testBreakPointWithNonExistantFunction(t *testing.T) {
-	withTestProcess("testprog", t, func(p *DebuggedProcess) {
+	helper.WithTestProcess("testprog", t, func(p *DebuggedProcess) {
 		_, err := p.Break(uintptr(0))
 		if err == nil {
 			t.Fatal("Should not be able to break at non existant function")
@@ -146,7 +112,7 @@ func testBreakPointWithNonExistantFunction(t *testing.T) {
 }
 
 func TestClearBreakPoint(t *testing.T) {
-	withTestProcess("testprog", t, func(p *DebuggedProcess) {
+	helper.WithTestProcess("testprog", t, func(p *DebuggedProcess) {
 		fn := p.GoSymTable.LookupFunc("main.sleepytime")
 		bp, err := p.Break(uintptr(fn.Entry))
 		if err != nil {

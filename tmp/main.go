@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"time"
+	"debug/dwarf"
+	"io"
 )
 
 func main() {
@@ -37,11 +39,24 @@ func main() {
 		if entry == nil {
 			break;
 		}
-		fmt.Printf("%#v\n", entry)
-		time.Sleep(time.Millisecond * 500)
-	}
 
-	//fmt.Printf("Dwarf: %#v\n", dbg)
+		fmt.Printf("DIE: %#v\n", entry)
+
+		time.Sleep(time.Millisecond * 500)
+
+		lr, _ := dbg.LineReader(entry)
+		if lr != nil {
+			le := dwarf.LineEntry{}
+			for {
+				e := lr.Next(&le)
+				if e == io.EOF {
+					break;
+				}
+				fmt.Printf("\t\tline: %#v\n", le)
+			}
+			time.Sleep(time.Millisecond * 500)
+		}
+	}
 	fmt.Println()
 
 	// read symbols
