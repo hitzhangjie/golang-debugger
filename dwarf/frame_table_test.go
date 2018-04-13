@@ -104,8 +104,12 @@ func TestFindReturnAddress(t *testing.T) {
 
 		fmt.Println(fde.CIE.ReturnAddressRegister)
 
+		// why do we need minus 8 from rsp + ret?
+		// Because golang CIE uses R16 as the return_address_register, R16 is defined as cfa-8 in x86_64.
+
 		//addr := uint64(int64(regs.Rsp) + ret)
 		addr := uint64(int64(regs.Rsp) + ret - int64(unsafe.Sizeof(uintptr(0))))
+
 		data := make([]byte, 8)
 
 		syscall.PtracePeekText(p.Pid, uintptr(addr), data)
