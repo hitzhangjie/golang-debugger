@@ -1,13 +1,16 @@
-package proctl
+package proctl_test
 
 import (
+	"bytes"
+	"path/filepath"
 	"syscall"
 	"testing"
-	"bytes"
-	"../helper"
-)
 
-type testfunc func(p *DebuggedProcess)
+	//"github.com/derekparker/dbg/_helper"
+	//"github.com/derekparker/dbg/proctl"
+	helper "../_helper"
+	"../proctl"
+)
 
 func dataAtAddr(pid int, addr uint64) ([]byte, error) {
 	data := make([]byte, 1)
@@ -19,8 +22,30 @@ func dataAtAddr(pid int, addr uint64) ([]byte, error) {
 	return data, nil
 }
 
+func assertNoError(err error, t *testing.T, s string) {
+	if err != nil {
+		t.Fatal(s, ":", err)
+	}
+}
+
+func currentPC(p *proctl.DebuggedProcess, t *testing.T) uint64 {
+	pc, err := p.CurrentPC()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return pc
+}
+
+func currentLineNumber(p *proctl.DebuggedProcess, t *testing.T) int {
+	pc := currentPC(p, t)
+	_, l, _ := p.GoSymTable.PCToLine(pc)
+
+	return l
+}
+
 func TestAttachProcess(t *testing.T) {
-	helper.WithTestProcess("testprog", t, func(p *DebuggedProcess) {
+	helper.WithTestProcess("../_fixtures/testprog", t, func(p *proctl.DebuggedProcess) {
 		if !p.ProcessState.Sys().(syscall.WaitStatus).Stopped() {
 			t.Errorf("Process was not stopped correctly")
 		}
@@ -28,10 +53,11 @@ func TestAttachProcess(t *testing.T) {
 }
 
 func TestStep(t *testing.T) {
-	helper.WithTestProcess("testprog", t, func(p *DebuggedProcess) {
+	helper.WithTestProcess("../_fixtures/testprog", t, func(p *proctl.DebuggedProcess) {
 		if p.ProcessState.Exited() {
 			t.Fatal("Process already exited")
 		}
+
 		regs := helper.GetRegisters(p, t)
 		rip := regs.PC()
 
@@ -49,7 +75,7 @@ func TestStep(t *testing.T) {
 }
 
 func TestContinue(t *testing.T) {
-	helper.WithTestProcess("continuetestprog", t, func(p *DebuggedProcess) {
+	helper.WithTestProcess("../_fixtures/continuetestprog", t, func(p *proctl.DebuggedProcess) {
 		if p.ProcessState.Exited() {
 			t.Fatal("Process already exited")
 		}
@@ -66,7 +92,7 @@ func TestContinue(t *testing.T) {
 }
 
 func TestBreakPoint(t *testing.T) {
-	helper.WithTestProcess("testprog", t, func(p *DebuggedProcess) {
+	helper.WithTestProcess("../_fixtures/testprog", t, func(p *proctl.DebuggedProcess) {
 		sleepytimefunc := p.GoSymTable.LookupFunc("main.sleepytime")
 		sleepyaddr := sleepytimefunc.Entry
 
@@ -102,8 +128,8 @@ func TestBreakPoint(t *testing.T) {
 	})
 }
 
-func testBreakPointWithNonExistantFunction(t *testing.T) {
-	helper.WithTestProcess("testprog", t, func(p *DebuggedProcess) {
+func TestBreakPointWithNonExistantFunction(t *testing.T) {
+	helper.WithTestProcess("../_fixtures/testprog", t, func(p *proctl.DebuggedProcess) {
 		_, err := p.Break(uintptr(0))
 		if err == nil {
 			t.Fatal("Should not be able to break at non existant function")
@@ -112,7 +138,7 @@ func testBreakPointWithNonExistantFunction(t *testing.T) {
 }
 
 func TestClearBreakPoint(t *testing.T) {
-	helper.WithTestProcess("testprog", t, func(p *DebuggedProcess) {
+	helper.WithTestProcess("../_fixtures/testprog", t, func(p *proctl.DebuggedProcess) {
 		fn := p.GoSymTable.LookupFunc("main.sleepytime")
 		bp, err := p.Break(uintptr(fn.Entry))
 		if err != nil {
@@ -143,3 +169,46 @@ func TestClearBreakPoint(t *testing.T) {
 		}
 	})
 }
+
+func TestNext(t *testing.T) {
+	var (
+		ln  int
+		err error
+	)
+
+	testcases := []struct {
+		begin, end int
+	}{
+		{20, 22},
+		{22, 23},
+		{23, 25},
+		{25, 20},
+	}
+
+	fp, err := filepath.Abs("../_fixtures/testnextprog.go")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	helper.WithTestProcess("../_fixtures/testnextprog", t, func(p *proctl.DebuggedProcess) {
+		pc, _, _ := p.GoSymTable.LineToPC(fp, testcases[0].begin)
+		_, err := p.Break(uintptr(pc))
+		assertNoError(err, t, "Break() returned an error")
+		assertNoError(p.Continue(), t, "Continue() returned an error")
+
+		for _, tc := range testcases {
+			ln = currentLineNumber(p, t)
+			if ln != tc.begin {
+				t.Fatalf("Program not stopped at correct spot expected %d was %d", tc.begin, ln)
+			}
+
+			assertNoError(p.Next(), t, "Next() returned an error")
+
+			ln = currentLineNumber(p, t)
+			if ln != tc.end {
+				t.Fatalf("Program did not continue to correct next location expected %d was %d", tc.end, ln)
+			}
+		}
+	})
+}
+

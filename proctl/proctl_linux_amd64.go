@@ -8,6 +8,11 @@ import (
 	"fmt"
 	"os"
 	"syscall"
+
+	//"github.com/derekparker/dbg/dwarf/frame"
+	//"github.com/derekparker/dbg/dwarf/line"
+	"../dwarf/frame"
+	"../dwarf/line"
 )
 
 // Struct representing a debugged process. Holds onto pid, register values,
@@ -20,6 +25,8 @@ type DebuggedProcess struct {
 	Executable   *elf.File
 	Symbols      []elf.Symbol
 	GoSymTable   *gosym.Table
+	FrameEntries frame.FrameDescriptionEntries
+	DebugLine    *line.DebugLineInfo
 	BreakPoints  map[string]*BreakPoint
 }
 
@@ -71,6 +78,16 @@ func NewDebugProcess(pid int) (*DebuggedProcess, error) {
 // uses that to parse the Go symbol table.
 func (dbp *DebuggedProcess) LoadInformation() error {
 	err := dbp.findExecutable()
+	if err != nil {
+		return err
+	}
+
+	err = dbp.parseDebugFrame()
+	if err != nil {
+		return err
+	}
+
+	err = dbp.parseDebugLine()
 	if err != nil {
 		return err
 	}
@@ -182,6 +199,27 @@ func (dbp *DebuggedProcess) Step() (err error) {
 	return nil
 }
 
+// Step over function calls.
+func (dbp *DebuggedProcess) Next() error {
+	pc, err := dbp.CurrentPC()
+	if err != nil {
+		return err
+	}
+
+	_, _, addr := dbp.DebugLine.NextLocAfterPC(pc)
+	_, err = dbp.Break(uintptr(addr))
+	if err != nil {
+		return err
+	}
+
+	err = dbp.Continue()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Continue process until next breakpoint.
 func (dbp *DebuggedProcess) Continue() error {
 	// Stepping first will ensure we are able to continue
@@ -192,6 +230,15 @@ func (dbp *DebuggedProcess) Continue() error {
 	}
 
 	return dbp.handleResult(syscall.PtraceCont(dbp.Pid, 0))
+}
+
+func (dbp *DebuggedProcess) CurrentPC() (uint64, error) {
+	regs, err := dbp.Registers()
+	if err != nil {
+		return 0, err
+	}
+
+	return regs.Rip, nil
 }
 
 func (dbp *DebuggedProcess) handleResult(err error) error {
@@ -224,6 +271,26 @@ func (dbp *DebuggedProcess) findExecutable() error {
 
 	dbp.Executable = elffile
 
+	return nil
+}
+
+func (dbp *DebuggedProcess) parseDebugLine() error {
+	debugLine, err := dbp.Executable.Section(".debug_line").Data()
+	if err != nil {
+		return err
+	}
+
+	dbp.DebugLine = line.Parse(debugLine)
+	return nil
+}
+
+func (dbp *DebuggedProcess) parseDebugFrame() error {
+	debugFrame, err := dbp.Executable.Section(".debug_frame").Data()
+	if err != nil {
+		return err
+	}
+
+	dbp.FrameEntries = frame.Parse(debugFrame)
 	return nil
 }
 

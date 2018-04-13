@@ -14,9 +14,14 @@ func helloworld() {
 }
 
 func main() {
+	i := 1
+
 	for {
+		i += i * (i ^ 3) / 100
+
 		sleepytime()
 		helloworld()
+
+		i--
 	}
 }
-

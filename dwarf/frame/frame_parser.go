@@ -8,6 +8,8 @@ import (
 	"encoding/binary"
 	"io"
 	"unicode/utf8"
+
+	"../util"
 )
 
 type parsefunc func(*parseContext) parsefunc
@@ -34,67 +36,6 @@ func Parse(data []byte) FrameDescriptionEntries {
 	}
 
 	return pctx.Entries
-}
-
-// decodeULEB128 decodes an unsigned Little Endian Base 128
-// represented number.
-func decodeULEB128(buf *bytes.Buffer) (uint64, uint32) {
-	var (
-		result uint64
-		shift  uint64
-		length uint32
-	)
-
-	for {
-		b, err := buf.ReadByte()
-		if err != nil {
-			panic("Could not parse ULEB128 value")
-		}
-		length++
-
-		result |= uint64((uint(b) & 0x7f) << shift)
-
-		// If high order bit is 1.
-		if b&0x80 == 0 {
-			break
-		}
-
-		shift += 7
-	}
-
-	return result, length
-}
-
-// decodeSLEB128 decodes an signed Little Endian Base 128
-// represented number.
-func decodeSLEB128(buf *bytes.Buffer) (int64, uint32) {
-	var (
-		b      byte
-		err    error
-		result int64
-		shift  uint64
-		length uint32
-	)
-
-	for {
-		b, err = buf.ReadByte()
-		if err != nil {
-			panic("Could not parse SLEB128 value")
-		}
-		length++
-
-		result |= int64((int64(b) & 0x7f) << shift)
-		shift += 7
-		if b&0x80 == 0 {
-			break
-		}
-	}
-
-	if (shift < 8*uint64(length)) && (b&0x40 > 0) {
-		result |= -(1 << shift)
-	}
-
-	return result, length
 }
 
 func cieEntry(data []byte) bool {
@@ -168,7 +109,7 @@ func parseAugmentation(ctx *parseContext) parsefunc {
 }
 
 func parseCodeAlignmentFactor(ctx *parseContext) parsefunc {
-	var caf, c = decodeULEB128(ctx.Buf)
+	var caf, c = util.DecodeULEB128(ctx.Buf)
 
 	ctx.Common.CodeAlignmentFactor = caf
 	ctx.Length -= c
@@ -177,7 +118,7 @@ func parseCodeAlignmentFactor(ctx *parseContext) parsefunc {
 }
 
 func parseDataAlignmentFactor(ctx *parseContext) parsefunc {
-	var daf, c = decodeSLEB128(ctx.Buf)
+	var daf, c = util.DecodeSLEB128(ctx.Buf)
 
 	ctx.Common.DataAlignmentFactor = daf
 	ctx.Length -= c
@@ -186,7 +127,7 @@ func parseDataAlignmentFactor(ctx *parseContext) parsefunc {
 }
 
 func parseReturnAddressRegister(ctx *parseContext) parsefunc {
-	reg, c := decodeULEB128(ctx.Buf)
+	reg, c := util.DecodeULEB128(ctx.Buf)
 	ctx.Common.ReturnAddressRegister = uint8(reg)
 	ctx.Length -= c
 
