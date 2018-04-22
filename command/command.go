@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"strings"
 
-	//"github.com/derekparker/dbg/proctl"
 	"../proctl"
 )
 
@@ -25,9 +24,9 @@ func DebugCommands() *Commands {
 	cmds := map[string]cmdfunc{
 		"exit":     exitFunc,
 		"continue": cont,
+		"next":     next,
 		"break":    breakpoint,
 		"step":     step,
-		"next":     next,
 		"clear":    clear,
 		"":         nullCommand,
 	}

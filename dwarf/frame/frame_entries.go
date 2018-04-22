@@ -42,7 +42,7 @@ func (fde *FrameDescriptionEntry) EstablishFrame(pc uint64) *FrameContext {
 
 func (fde *FrameDescriptionEntry) ReturnAddressOffset(pc uint64) int64 {
 	frame := fde.EstablishFrame(pc)
-	// cie.return_address_register = r16, it's offset(N) rule
+
 	return frame.cfa.offset + frame.regs[fde.CIE.ReturnAddressRegister].offset
 }
 
@@ -57,4 +57,3 @@ func (fdes FrameDescriptionEntries) FDEForPC(pc uint64) (*FrameDescriptionEntry,
 
 	return nil, fmt.Errorf("Could not find FDE for %#v", pc)
 }
-

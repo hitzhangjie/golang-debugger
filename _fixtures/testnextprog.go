@@ -31,4 +31,3 @@ func main() {
 		testnext()
 	}
 }
-

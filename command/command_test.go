@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	//"github.com/derekparker/dbg/proctl"
 	"../proctl"
 )
 
@@ -52,4 +51,3 @@ func TestCommandReplayWithoutPreviousCommand(t *testing.T) {
 		t.Error("Null command not returned", err)
 	}
 }
-

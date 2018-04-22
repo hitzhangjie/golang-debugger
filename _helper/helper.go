@@ -1,4 +1,3 @@
-// Start a debugged process and run testfunc on it.
 package helper
 
 import (
@@ -7,7 +6,6 @@ import (
 	"syscall"
 	"testing"
 
-	//"github.com/derekparker/dbg/proctl"
 	"../proctl"
 )
 

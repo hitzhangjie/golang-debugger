@@ -8,18 +8,11 @@ import (
 	"syscall"
 	"testing"
 
-	//"github.com/derekparker/dbg/_helper"
-	//"github.com/derekparker/dbg/dwarf/_helper"
-	//"github.com/derekparker/dbg/dwarf/frame"
-	//"github.com/derekparker/dbg/proctl"
-
-	"../../_helper"
-	"../_helper"
+	"../../_helper" // helper
+	"../_helper"    // dwarfhelper
 	"../frame"
 	"../../proctl"
 )
-
-var testfile string
 
 func grabDebugFrameSection(fp string, t *testing.T) []byte {
 	p, err := filepath.Abs(fp)
@@ -91,15 +84,9 @@ func TestFindReturnAddress(t *testing.T) {
 		syscall.PtracePeekText(p.Pid, uintptr(addr), data)
 		addr = binary.LittleEndian.Uint64(data)
 
-		end, _, err := gsd.LineToPC(testsourcefile, 19)
-		if err != nil {
-			t.Fatal(err)
-		}
-		//end := uint64(0x400d9f)
+		end := uint64(0x400d9f)
 		if addr != end {
 			t.Fatalf("return address not found correctly, expected %#v got %#v", end, addr)
 		}
 	})
 }
-
-

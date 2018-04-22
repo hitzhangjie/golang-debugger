@@ -7,8 +7,7 @@ import (
 	"bytes"
 	"encoding/binary"
 
-	//"github.com/derekparker/dbg/dwarf/util"
-	"../../dwarf/util"
+	"../util"
 )
 
 type parsefunc func(*parseContext) parsefunc
@@ -143,4 +142,3 @@ func parseInitialInstructions(ctx *parseContext) parsefunc {
 
 	return parseLength
 }
-

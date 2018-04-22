@@ -1,4 +1,3 @@
-// Parse .gosymtab and .gopclntab to build the Symbol Table
 package dwarfhelper
 
 import (

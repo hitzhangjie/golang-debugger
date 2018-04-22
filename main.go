@@ -10,8 +10,6 @@ import (
 
 	"./command"
 	"./proctl"
-	//"github.com/derekparker/dbg/command"
-	//"github.com/derekparker/dbg/proctl"
 )
 
 type term struct {

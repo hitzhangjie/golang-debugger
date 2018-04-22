@@ -5,7 +5,6 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	//"github.com/derekparker/dbg/dwarf/util"
 	"../util"
 )
 
@@ -418,4 +417,3 @@ func louser(frame *FrameContext) {
 func hiuser(frame *FrameContext) {
 	frame.buf.Next(1)
 }
-

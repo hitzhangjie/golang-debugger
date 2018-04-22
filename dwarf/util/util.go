@@ -71,4 +71,3 @@ func ParseString(data *bytes.Buffer) (string, uint32) {
 
 	return str[:len(str)-1], uint32(len(str))
 }
-

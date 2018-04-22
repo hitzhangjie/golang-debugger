@@ -4,8 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 
-	//"github.com/derekparker/dbg/dwarf/util"
-	"../../dwarf/util"
+	"../util"
 )
 
 type DebugLinePrologue struct {

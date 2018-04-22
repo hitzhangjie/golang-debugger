@@ -35,4 +35,3 @@ func TestParseString(t *testing.T) {
 		t.Fatalf("String was not parsed correctly %#v", str)
 	}
 }
-

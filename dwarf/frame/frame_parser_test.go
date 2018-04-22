@@ -3,10 +3,7 @@ package frame_test
 import (
 	"testing"
 
-	//"github.com/derekparker/dbg/dwarf/frame"
 	"../frame"
-
-	"fmt"
 )
 
 func TestParse(t *testing.T) {
@@ -15,8 +12,6 @@ func TestParse(t *testing.T) {
 		fe   = frame.Parse(data)[0]
 		ce   = fe.CIE
 	)
-
-	fmt.Println("CIE length:", ce.Length)
 
 	if ce.Length != 16 {
 		t.Error("Length was not parsed correctly, got ", ce.Length)
@@ -38,9 +33,7 @@ func TestParse(t *testing.T) {
 		t.Fatalf("Data Alignment Factor was not parsed correctly got %#v", ce.DataAlignmentFactor)
 	}
 
-	fmt.Println("FDE length:", fe.Length)
-
-	if fe.Length != 28 {
+	if fe.Length != 32 {
 		t.Fatal("Length was not parsed correctly, got ", fe.Length)
 	}
 

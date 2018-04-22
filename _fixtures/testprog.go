@@ -14,10 +14,8 @@ func helloworld() {
 }
 
 func main() {
-
 	for {
 		sleepytime()
 		helloworld()
 	}
-
 }

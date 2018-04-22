@@ -8,6 +8,7 @@ import (
 
 	//"github.com/derekparker/dbg/_helper"
 	//"github.com/derekparker/dbg/proctl"
+
 	"../_helper"
 	"../proctl"
 )
@@ -198,22 +199,21 @@ func TestNext(t *testing.T) {
 	}
 
 	helper.WithTestProcess("../_fixtures/testnextprog", t, func(p *proctl.DebuggedProcess) {
-		pc, _, _ := p.GoSymTable.LineToPC(fp, testcases[0].begin-1)
-
-		_, err = p.Break(uintptr(pc))
+		pc, _, _ := p.GoSymTable.LineToPC(fp, testcases[0].begin)
+		_, err := p.Break(uintptr(pc))
 		assertNoError(err, t, "Break() returned an error")
 		assertNoError(p.Continue(), t, "Continue() returned an error")
 
 		for _, tc := range testcases {
 			ln = currentLineNumber(p, t)
-			if ln != tc.begin-1 {
+			if ln != tc.begin {
 				t.Fatalf("Program not stopped at correct spot expected %d was %d", tc.begin, ln)
 			}
 
 			assertNoError(p.Next(), t, "Next() returned an error")
 
 			ln = currentLineNumber(p, t)
-			if ln != tc.end-1 {
+			if ln != tc.end {
 				t.Fatalf("Program did not continue to correct next location expected %d was %d", tc.end, ln)
 			}
 		}

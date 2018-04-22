@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	//"github.com/derekparker/dbg/dwarf/_helper"
-	"../../dwarf/_helper"
+	"../_helper"
 )
 
 var testfile string
