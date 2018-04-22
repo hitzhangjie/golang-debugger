@@ -13,6 +13,8 @@ import (
 	//"github.com/derekparker/dbg/dwarf/line"
 	"../dwarf/frame"
 	"../dwarf/line"
+	"encoding/binary"
+	"bytes"
 )
 
 // Struct representing a debugged process. Holds onto pid, register values,
@@ -39,6 +41,16 @@ type BreakPoint struct {
 	Line         int
 	Addr         uint64
 	OriginalData []byte
+}
+
+type BreakPointExistsError struct {
+	file string
+	line int
+	addr uintptr
+}
+
+func (bpe BreakPointExistsError) Error() string {
+	return fmt.Sprintf("Breakpoint exists at %s:%d at %x", bpe.file, bpe.line, bpe.addr)
 }
 
 // Returns a new DebuggedProcess struct with sensible defaults.
@@ -75,7 +87,10 @@ func NewDebugProcess(pid int) (*DebuggedProcess, error) {
 }
 
 // Finds the executable from /proc/<pid>/exe and then
-// uses that to parse the Go symbol table.
+// uses that to parse the following information:
+// * Dwarf .debug_frame section
+// * Dwarf .debug_line section
+// * Go symbol table.
 func (dbp *DebuggedProcess) LoadInformation() error {
 	err := dbp.findExecutable()
 	if err != nil {
@@ -121,6 +136,10 @@ func (dbp *DebuggedProcess) Break(addr uintptr) (*BreakPoint, error) {
 	_, err := syscall.PtracePeekData(dbp.Pid, addr, originalData)
 	if err != nil {
 		return nil, err
+	}
+
+	if bytes.Equal(originalData, int3) {
+		return nil, BreakPointExistsError{f, l, addr}
 	}
 
 	_, err = syscall.PtracePokeData(dbp.Pid, addr, int3)
@@ -201,23 +220,43 @@ func (dbp *DebuggedProcess) Step() (err error) {
 
 // Step over function calls.
 func (dbp *DebuggedProcess) Next() error {
+	addrs := make([]uint64, 0, 3)
 	pc, err := dbp.CurrentPC()
 	if err != nil {
 		return err
 	}
 
-	_, _, addr := dbp.DebugLine.NextLocAfterPC(pc)
-	_, err = dbp.Break(uintptr(addr))
+	pc-- // account for breakpoint instruction
+
+	fde, err := dbp.FrameEntries.FDEForPC(pc)
 	if err != nil {
 		return err
 	}
 
-	err = dbp.Continue()
-	if err != nil {
-		return err
+	loc := dbp.DebugLine.NextLocAfterPC(pc)
+	if !fde.AddressRange.Cover(loc.Address) {
+		// Next line is outside current frame, use return addr.
+		addr := dbp.ReturnAddressFromOffset(fde.ReturnAddressOffset(pc))
+		loc = dbp.DebugLine.LocationInfoForPC(addr)
+	}
+	addrs = append(addrs, loc.Address)
+
+	if loc.Delta < 0 {
+		// We are likely in a loop, set breakpoints at entry and exit.
+		entry := dbp.DebugLine.LoopEntryLocation(loc.Line)
+		exit := dbp.DebugLine.LoopExitLocation(pc)
+		addrs = append(addrs, entry.Address, exit.Address)
 	}
 
-	return nil
+	for _, addr := range addrs {
+		if _, err := dbp.Break(uintptr(addr)); err != nil {
+			if _, ok := err.(BreakPointExistsError); !ok {
+				return err
+			}
+		}
+	}
+
+	return dbp.Continue()
 }
 
 // Continue process until next breakpoint.
@@ -322,4 +361,18 @@ func (dbp *DebuggedProcess) PCtoBP(pc uint64) (*BreakPoint, bool) {
 	f, l, _ := dbp.GoSymTable.PCToLine(pc)
 	bp, ok := dbp.BreakPoints[fmt.Sprintf("%s:%d", f, l)]
 	return bp, ok
+}
+
+// Takes an offset from RSP and returns the address of the
+// instruction the currect function is going to return to.
+func (dbp *DebuggedProcess) ReturnAddressFromOffset(offset int64) uint64 {
+	regs, err := dbp.Registers()
+	if err != nil {
+		panic("Could not obtain register values")
+	}
+
+	retaddr := int64(regs.Rsp) + offset
+	data := make([]byte, 8)
+	syscall.PtracePeekText(dbp.Pid, uintptr(retaddr), data)
+	return binary.LittleEndian.Uint64(data)
 }

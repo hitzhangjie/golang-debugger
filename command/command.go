@@ -27,6 +27,7 @@ func DebugCommands() *Commands {
 		"continue": cont,
 		"break":    breakpoint,
 		"step":     step,
+		"next":     next,
 		"clear":    clear,
 		"":         nullCommand,
 	}
@@ -80,6 +81,23 @@ func cont(p *proctl.DebuggedProcess, ars ...string) error {
 
 func step(p *proctl.DebuggedProcess, args ...string) error {
 	err := p.Step()
+	if err != nil {
+		return err
+	}
+
+	regs, err := p.Registers()
+	if err != nil {
+		return err
+	}
+
+	f, l, _ := p.GoSymTable.PCToLine(regs.PC())
+	fmt.Printf("Stopped at: %s:%d\n", f, l)
+
+	return nil
+}
+
+func next(p *proctl.DebuggedProcess, args ...string) error {
+	err := p.Next()
 	if err != nil {
 		return err
 	}
@@ -154,4 +172,3 @@ func breakpoint(p *proctl.DebuggedProcess, args ...string) error {
 
 	return nil
 }
-

@@ -159,20 +159,6 @@ func (frame *FrameContext) ExecuteUntilPC(instructions []byte) {
 	}
 }
 
-func (frame *FrameContext) NextLocation() uint64 {
-	loc := frame.loc
-
-	for frame.buf.Len() > 0 {
-		executeDwarfInstruction(frame)
-
-		if frame.loc > loc {
-			return frame.loc
-		}
-	}
-
-	return 0
-}
-
 func executeDwarfInstruction(frame *FrameContext) {
 	instruction, err := frame.buf.ReadByte()
 	if err != nil {

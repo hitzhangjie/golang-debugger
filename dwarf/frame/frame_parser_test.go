@@ -40,7 +40,7 @@ func TestParse(t *testing.T) {
 
 	fmt.Println("FDE length:", fe.Length)
 
-	if fe.Length != 44 {
+	if fe.Length != 28 {
 		t.Fatal("Length was not parsed correctly, got ", fe.Length)
 	}
 

@@ -8,7 +8,7 @@ import (
 
 	//"github.com/derekparker/dbg/_helper"
 	//"github.com/derekparker/dbg/proctl"
-	helper "../_helper"
+	"../_helper"
 	"../proctl"
 )
 
@@ -179,10 +179,17 @@ func TestNext(t *testing.T) {
 	testcases := []struct {
 		begin, end int
 	}{
+		{17, 19},
+		{19, 20},
 		{20, 22},
-		{22, 23},
-		{23, 25},
-		{25, 20},
+		{22, 19},
+		{19, 20},
+		{20, 22},
+		{22, 19},
+		{19, 25},
+		{25, 26},
+		{26, 30},
+		{30, 31},
 	}
 
 	fp, err := filepath.Abs("../_fixtures/testnextprog.go")
@@ -191,24 +198,24 @@ func TestNext(t *testing.T) {
 	}
 
 	helper.WithTestProcess("../_fixtures/testnextprog", t, func(p *proctl.DebuggedProcess) {
-		pc, _, _ := p.GoSymTable.LineToPC(fp, testcases[0].begin)
-		_, err := p.Break(uintptr(pc))
+		pc, _, _ := p.GoSymTable.LineToPC(fp, testcases[0].begin-1)
+
+		_, err = p.Break(uintptr(pc))
 		assertNoError(err, t, "Break() returned an error")
 		assertNoError(p.Continue(), t, "Continue() returned an error")
 
 		for _, tc := range testcases {
 			ln = currentLineNumber(p, t)
-			if ln != tc.begin {
+			if ln != tc.begin-1 {
 				t.Fatalf("Program not stopped at correct spot expected %d was %d", tc.begin, ln)
 			}
 
 			assertNoError(p.Next(), t, "Next() returned an error")
 
 			ln = currentLineNumber(p, t)
-			if ln != tc.end {
+			if ln != tc.end-1 {
 				t.Fatalf("Program did not continue to correct next location expected %d was %d", tc.end, ln)
 			}
 		}
 	})
 }
-

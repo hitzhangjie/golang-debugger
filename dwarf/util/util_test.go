@@ -32,6 +32,7 @@ func TestParseString(t *testing.T) {
 	str, _ := ParseString(bstr)
 
 	if str != "hi" {
-		t.Fatal("String was not parsed correctly")
+		t.Fatalf("String was not parsed correctly %#v", str)
 	}
 }
+

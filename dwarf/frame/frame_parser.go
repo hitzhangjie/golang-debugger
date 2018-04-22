@@ -6,10 +6,9 @@ package frame
 import (
 	"bytes"
 	"encoding/binary"
-	"io"
-	"unicode/utf8"
 
-	"../util"
+	//"github.com/derekparker/dbg/dwarf/util"
+	"../../dwarf/util"
 )
 
 type parsefunc func(*parseContext) parsefunc
@@ -45,7 +44,7 @@ func cieEntry(data []byte) bool {
 func parseLength(ctx *parseContext) parsefunc {
 	var fn parsefunc
 
-	binary.Read(ctx.Buf, binary.LittleEndian, &ctx.Length)
+	ctx.Length = binary.LittleEndian.Uint32(ctx.Buf.Next(4))
 	cieid := ctx.Buf.Next(4)
 
 	if cieEntry(cieid) {
@@ -64,7 +63,7 @@ func parseLength(ctx *parseContext) parsefunc {
 }
 
 func parseInitialLocation(ctx *parseContext) parsefunc {
-	binary.Read(ctx.Buf, binary.LittleEndian, &ctx.Frame.AddressRange.begin)
+	ctx.Frame.AddressRange.begin = binary.LittleEndian.Uint64(ctx.Buf.Next(8))
 
 	ctx.Length -= 8
 
@@ -72,7 +71,7 @@ func parseInitialLocation(ctx *parseContext) parsefunc {
 }
 
 func parseAddressRange(ctx *parseContext) parsefunc {
-	binary.Read(ctx.Buf, binary.LittleEndian, &ctx.Frame.AddressRange.end)
+	ctx.Frame.AddressRange.end = binary.LittleEndian.Uint64(ctx.Buf.Next(8))
 
 	ctx.Length -= 8
 
@@ -83,24 +82,25 @@ func parseFrameInstructions(ctx *parseContext) parsefunc {
 	// The rest of this entry consists of the instructions
 	// so we can just grab all of the data from the buffer
 	// cursor to length.
-	var buf = make([]byte, ctx.Length)
-
-	io.ReadFull(ctx.Buf, buf)
-	ctx.Frame.Instructions = buf
+	ctx.Frame.Instructions = ctx.Buf.Next(int(ctx.Length))
 	ctx.Length = 0
 
 	return parseLength
 }
 
 func parseVersion(ctx *parseContext) parsefunc {
-	binary.Read(ctx.Buf, binary.LittleEndian, &ctx.Common.Version)
+	version, err := ctx.Buf.ReadByte()
+	if err != nil {
+		panic(err)
+	}
+	ctx.Common.Version = version
 	ctx.Length -= 1
 
 	return parseAugmentation
 }
 
 func parseAugmentation(ctx *parseContext) parsefunc {
-	var str, c = parseString(ctx.Buf)
+	var str, c = util.ParseString(ctx.Buf)
 
 	ctx.Common.Augmentation = str
 	ctx.Length -= c
@@ -128,7 +128,7 @@ func parseDataAlignmentFactor(ctx *parseContext) parsefunc {
 
 func parseReturnAddressRegister(ctx *parseContext) parsefunc {
 	reg, c := util.DecodeULEB128(ctx.Buf)
-	ctx.Common.ReturnAddressRegister = uint8(reg)
+	ctx.Common.ReturnAddressRegister = reg
 	ctx.Length -= c
 
 	return parseInitialInstructions
@@ -138,47 +138,9 @@ func parseInitialInstructions(ctx *parseContext) parsefunc {
 	// The rest of this entry consists of the instructions
 	// so we can just grab all of the data from the buffer
 	// cursor to length.
-	var buf = make([]byte, ctx.Length)
-
-	binary.Read(ctx.Buf, binary.LittleEndian, &buf)
-	ctx.Common.InitialInstructions = buf
+	ctx.Common.InitialInstructions = ctx.Buf.Next(int(ctx.Length))
 	ctx.Length = 0
 
 	return parseLength
-}
-
-func parseString(data *bytes.Buffer) (string, uint32) {
-	var (
-		size uint32
-		str  []rune
-		strb []byte
-	)
-
-	for {
-		b, err := data.ReadByte()
-		if err != nil {
-			panic("parseString(): Could not read byte")
-		}
-		size++
-
-		if b == 0x0 {
-			if size == 1 {
-				return "", size
-			}
-
-			break
-		}
-
-		strb = append(strb, b)
-
-		if utf8.FullRune(strb) {
-			r, _ := utf8.DecodeRune(strb)
-			str = append(str, r)
-			size++
-			strb = strb[0:0]
-		}
-	}
-
-	return string(str), size
 }
 

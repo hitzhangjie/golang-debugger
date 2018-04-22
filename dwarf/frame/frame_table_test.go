@@ -17,16 +17,9 @@ import (
 	"../_helper"
 	"../frame"
 	"../../proctl"
-
-	"fmt"
-	"unsafe"
 )
 
 var testfile string
-
-func init() {
-	testfile, _ = filepath.Abs("../../_fixtures/testprog")
-}
 
 func grabDebugFrameSection(fp string, t *testing.T) []byte {
 	p, err := filepath.Abs(fp)
@@ -54,14 +47,15 @@ func grabDebugFrameSection(fp string, t *testing.T) []byte {
 
 func TestFindReturnAddress(t *testing.T) {
 	var (
-		dbframe = grabDebugFrameSection(testfile, t)
-		fdes    = frame.Parse(dbframe)
-		gsd     = dwarfhelper.GosymData(testfile, t)
+		testfile, _ = filepath.Abs("../../_fixtures/testnextprog")
+		dbframe     = grabDebugFrameSection(testfile, t)
+		fdes        = frame.Parse(dbframe)
+		gsd         = dwarfhelper.GosymData(testfile, t)
 	)
 
-	helper.WithTestProcess("../../_fixtures/testprog", t, func(p *proctl.DebuggedProcess) {
+	helper.WithTestProcess(testfile, t, func(p *proctl.DebuggedProcess) {
 		testsourcefile := testfile + ".go"
-		start, _, err := gsd.LineToPC(testsourcefile, 9)
+		start, _, err := gsd.LineToPC(testsourcefile, 22)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -86,32 +80,26 @@ func TestFindReturnAddress(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		end, _, err := gsd.LineToPC(testsourcefile, 19)
-		if err != nil {
-			t.Fatal(err)
-		}
-
 		ret := fde.ReturnAddressOffset(start)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		fmt.Println(fde.CIE.ReturnAddressRegister)
-
-		// why do we need minus 8 from rsp + ret?
-		// Because golang CIE uses R16 as the return_address_register, R16 is defined as cfa-8 in x86_64.
-
-		//addr := uint64(int64(regs.Rsp) + ret)
-		addr := uint64(int64(regs.Rsp) + ret - int64(unsafe.Sizeof(uintptr(0))))
-
+		addr := uint64(int64(regs.Rsp) + ret)
 		data := make([]byte, 8)
 
 		syscall.PtracePeekText(p.Pid, uintptr(addr), data)
 		addr = binary.LittleEndian.Uint64(data)
 
+		end, _, err := gsd.LineToPC(testsourcefile, 19)
+		if err != nil {
+			t.Fatal(err)
+		}
+		//end := uint64(0x400d9f)
 		if addr != end {
 			t.Fatalf("return address not found correctly, expected %#v got %#v", end, addr)
 		}
 	})
 }
+
 
