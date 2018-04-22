@@ -185,6 +185,8 @@ func (dbp *DebuggedProcess) Step() (err error) {
 		return err
 	}
 
+	// check whether previous single byte instruction is int3,
+	// if it indeed is, restore the instruction which was overwritten by int3.
 	bp, ok := dbp.PCtoBP(regs.PC() - 1)
 	if ok {
 		// Clear the breakpoint so that we can continue execution.
@@ -192,6 +194,10 @@ func (dbp *DebuggedProcess) Step() (err error) {
 		if err != nil {
 			return err
 		}
+
+		// Reset instruction pointer to our restored instruction.
+		//regs.Rip -= 1
+		//syscall.PtraceSetRegs(dbp.Pid, regs)
 
 		// Reset program counter to our restored instruction.
 		regs.SetPC(bp.Addr)
