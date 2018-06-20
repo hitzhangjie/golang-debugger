@@ -13,7 +13,7 @@ func main() {
 		a2 = 6
 		a3 = 7.23
 		a4 = []int{1, 2, 3, 4, 5}
-		a5 = [1]int{1}
+		a5 = []int{1, 2, 3, 4, 5}
 		a6 = FooBar{Baz: 8, Bur: "word"}
 		a7 = &FooBar{Baz: 5, Bur: "strum"}
 	)

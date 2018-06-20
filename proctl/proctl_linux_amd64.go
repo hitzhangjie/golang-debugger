@@ -17,6 +17,7 @@ import (
 	"../dwarf/line"
 	"../dwarf/op"
 	"unsafe"
+	"strings"
 )
 
 // Struct representing a debugged process. Holds onto pid, register values,
@@ -408,9 +409,15 @@ func (dbp *DebuggedProcess) extractValue(instructions []byte, typ interface{}) (
 
 	offset := uintptr(int64(regs.Rsp) + off)
 
-	switch typ.(type) {
+	switch t := typ.(type) {
 	case *dwarf.StructType:
-		return dbp.readString(offset)
+		ty := strings.Split(t.String(), " ")
+		switch ty[1] {
+		case "string":
+			return dbp.readString(offset)
+		}
+	case *dwarf.ArrayType:
+		return dbp.readIntArray(offset, t)
 	case *dwarf.IntType:
 		return dbp.readInt(offset)
 	case *dwarf.FloatType:
@@ -437,6 +444,32 @@ func (dbp *DebuggedProcess) readString(addr uintptr) (string, error) {
 	val = val[:i]
 	str := *(*string)(unsafe.Pointer(&val))
 	return str, nil
+}
+
+func (dbp *DebuggedProcess) readIntArray(addr uintptr, t *dwarf.ArrayType) (string, error) {
+	var (
+		number  uint64
+		members = make([]uint64, 0, t.Size()/8)
+	)
+
+	val, err := dbp.readMemory(addr, uintptr(t.Size()))
+	if err != nil {
+		return "", err
+	}
+
+	buf := bytes.NewBuffer(val)
+	for {
+		err := binary.Read(buf, binary.LittleEndian, &number)
+		if err != nil {
+			break
+		}
+
+		members = append(members, number)
+	}
+
+	str := fmt.Sprintf("%s %d", t.String(), members)
+
+	return str, err
 }
 
 func (dbp *DebuggedProcess) readInt(addr uintptr) (string, error) {
