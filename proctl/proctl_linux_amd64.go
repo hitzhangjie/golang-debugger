@@ -222,7 +222,7 @@ func (dbp *DebuggedProcess) Break(addr uintptr) (*BreakPoint, error) {
 func (dbp *DebuggedProcess) Clear(pc uint64) (*BreakPoint, error) {
 	bp, ok := dbp.PCtoBP(pc)
 	if !ok {
-		return nil, fmt.Errorf("No breakpoint currently set for %s", bp.FunctionName)
+		return nil, fmt.Errorf("No breakpoint currently set for %#v", pc)
 	}
 
 	_, err := syscall.PtracePokeData(dbp.Pid, uintptr(bp.Addr), bp.OriginalData)
@@ -271,34 +271,6 @@ func (dbp *DebuggedProcess) Step() (err error) {
 	return nil
 }
 
-func (dbp *DebuggedProcess) NextPotentialLocations(pc uint64) ([]uint64, error) {
-	addrs := make([]uint64, 0, 3)
-
-	fde, err := dbp.FrameEntries.FDEForPC(pc)
-	if err != nil {
-		return nil, err
-	}
-
-	loc := dbp.DebugLine.NextLocAfterPC(pc)
-	addrs = append(addrs, loc.Address)
-
-	if !fde.AddressRange.Cover(loc.Address) {
-		// Next line is outside current frame, use return addr.
-		addr := dbp.ReturnAddressFromOffset(fde.ReturnAddressOffset(pc))
-		loc = dbp.DebugLine.LocationInfoForPC(addr)
-		addrs = append(addrs, loc.Address)
-	}
-
-	if loc.Delta < 0 {
-		// We are likely in a loop, set breakpoints at entry and exit.
-		entry := dbp.DebugLine.LoopEntryLocation(loc.Line)
-		exit := dbp.DebugLine.LoopExitLocation(loc.Address)
-		addrs = append(addrs, entry.Address, exit.Address)
-	}
-
-	return addrs, nil
-}
-
 // Step over function calls.
 func (dbp *DebuggedProcess) Next() error {
 	pc, err := dbp.CurrentPC()
@@ -308,7 +280,7 @@ func (dbp *DebuggedProcess) Next() error {
 
 	pc-- // account for breakpoint instruction
 
-	addrs, err := dbp.NextPotentialLocations(pc)
+	addrs, err := dbp.nextPotentialLocations(pc)
 	if err != nil {
 		return err
 	}
@@ -360,6 +332,33 @@ func (dbp *DebuggedProcess) CurrentPC() (uint64, error) {
 	}
 
 	return regs.Rip, nil
+}
+
+func (dbp *DebuggedProcess) nextPotentialLocations(pc uint64) ([]uint64, error) {
+	var (
+		addrs = make([]uint64, 0, 3)
+		loc   = dbp.DebugLine.NextLocAfterPC(pc)
+	)
+
+	fde, err := dbp.FrameEntries.FDEForPC(pc)
+	if err != nil {
+		return nil, err
+	}
+
+	if !fde.AddressRange.Cover(loc.Address) { // Next line is outside current frame, use return addr.
+		addr := dbp.ReturnAddressFromOffset(fde.ReturnAddressOffset(pc))
+		loc = dbp.DebugLine.LocationInfoForPC(addr)
+		addrs = append(addrs, loc.Address)
+	}
+
+	if loc.Delta < 0 { // We are likely in a loop, set breakpoints at entry and exit.
+		entry := dbp.DebugLine.LoopEntryLocation(loc.Line)
+		exit := dbp.DebugLine.LoopExitLocation(loc.Address)
+		addrs = append(addrs, entry.Address, exit.Address)
+	}
+
+	addrs = append(addrs, loc.Address)
+	return addrs, nil
 }
 
 // Extracts the value from the instructions given in the DW_AT_location entry.
