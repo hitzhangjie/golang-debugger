@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"syscall"
 	"testing"
 	"time"
 )
@@ -32,9 +33,14 @@ func startDebugger(t *testing.T, pid int) *os.Process {
 }
 
 func startTestProg(t *testing.T, proc string) *os.Process {
+	err := exec.Command("go", "build", "-gcflags=-N -l", "-o", proc, proc+".go").Run()
+	if err != nil {
+		t.Fatal("Could not compile", proc, err)
+	}
+	defer os.Remove(proc)
 	cmd := exec.Command(proc)
 
-	err := cmd.Start()
+	err = cmd.Start()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -73,13 +79,8 @@ func TestCleanExit(t *testing.T) {
 	timer := time.NewTimer(5 * time.Second)
 	select {
 	case ps := <-waitchan:
-		// Admittedly, this is weird.
-		// There is/was a bug in Go that marked
-		// a process as done whenever `Wait()` was
-		// called on it, I fixed that, but it seems
-		// there may be another connected bug somewhere
-		// where the process is not marked as exited.
-		if strings.Contains(ps.String(), "exited") {
+		stat := ps.Sys().(syscall.WaitStatus)
+		if stat.Signaled() && strings.Contains(ps.String(), "exited") {
 			t.Fatal("Process has not exited")
 		}
 
