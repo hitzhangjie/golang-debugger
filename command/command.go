@@ -155,6 +155,10 @@ func breakpoint(p *proctl.DebuggedProcess, args ...string) error {
 		}
 	} else {
 		fn = p.GoSymTable.LookupFunc(fname)
+		if fn == nil {
+			return fmt.Errorf("No function named %s", fname)
+		}
+
 		pc = fn.Entry
 	}
 

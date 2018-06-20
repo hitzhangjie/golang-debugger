@@ -1,16 +1,16 @@
 package main
 
 import (
+	"debug/dwarf"
 	"debug/elf"
 	"fmt"
+	"io"
 	"os"
 	"time"
-	"debug/dwarf"
-	"io"
 )
 
 func main() {
-	f, e := elf.Open("../fixtures/testprog")
+	f, e := elf.Open("../_fixtures/testprog")
 	checkError(e)
 	fmt.Println("open ELF file success")
 	fmt.Println()
@@ -37,7 +37,7 @@ func main() {
 	for {
 		entry, _ := r.Next()
 		if entry == nil {
-			break;
+			break
 		}
 
 		fmt.Printf("DIE: %#v\n", entry)
@@ -50,7 +50,7 @@ func main() {
 			for {
 				e := lr.Next(&le)
 				if e == io.EOF {
-					break;
+					break
 				}
 				fmt.Printf("\t\tline: %#v\n", le)
 			}
@@ -61,18 +61,18 @@ func main() {
 
 	// read symbols
 	/*
-	syms, e := f.Symbols()
-	checkError(e)
-	fmt.Printf("Symbols: %v\n\n", syms)
+		syms, e := f.Symbols()
+		checkError(e)
+		fmt.Printf("Symbols: %v\n\n", syms)
 
-	dsyms, e := f.DynamicSymbols()
-	fmt.Printf("Dyn Symbols: %v\n\n", dsyms)
+		dsyms, e := f.DynamicSymbols()
+		fmt.Printf("Dyn Symbols: %v\n\n", dsyms)
 
-	isyms, e := f.ImportedSymbols()
-	fmt.Printf("Import Symbols: %v\n\n", isyms)
+		isyms, e := f.ImportedSymbols()
+		fmt.Printf("Import Symbols: %v\n\n", isyms)
 
-	libs, e := f.ImportedLibraries()
-	fmt.Printf("Import Libraries: %v\n\n", libs)
+		libs, e := f.ImportedLibraries()
+		fmt.Printf("Import Libraries: %v\n\n", libs)
 	*/
 
 	e = f.Close()

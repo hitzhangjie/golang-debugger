@@ -280,11 +280,44 @@ func (dbp *DebuggedProcess) Next() error {
 
 // Continue process until next breakpoint.
 func (dbp *DebuggedProcess) Continue() error {
+	//bugfix:
+	// step() re-inserted the breakpoint at exit phase,
+	// continue() won't go to next breakpoint causing this step().
+
 	// Stepping first will ensure we are able to continue
 	// past a breakpoint if that's currently where we are stopped.
-	err := dbp.Step()
+	//err := dbp.Step()
+
+	regs, err := dbp.Registers()
 	if err != nil {
 		return err
+	}
+
+	// check whether previous single byte instruction is int3,
+	// if it indeed is, restore the instruction which was overwritten by int3.
+	bp, ok := dbp.PCtoBP(regs.PC() - 1)
+	if ok {
+		// Clear the breakpoint so that we can continue execution.
+		_, err = dbp.Clear(bp.Addr)
+		if err != nil {
+			return err
+		}
+
+		// Reset instruction pointer to our restored instruction.
+		//regs.Rip -= 1
+		//syscall.PtraceSetRegs(dbp.Pid, regs)
+
+		// Reset program counter to our restored instruction.
+		regs.SetPC(bp.Addr)
+		err = syscall.PtraceSetRegs(dbp.Pid, regs)
+		if err != nil {
+			return err
+		}
+
+		// Restore breakpoint now that we have passed it.
+		defer func() {
+			_, err = dbp.Break(uintptr(bp.Addr))
+		}()
 	}
 
 	return dbp.handleResult(syscall.PtraceCont(dbp.Pid, 0))
