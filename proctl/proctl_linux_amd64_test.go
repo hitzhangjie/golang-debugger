@@ -44,7 +44,7 @@ func currentLineNumber(p *proctl.DebuggedProcess, t *testing.T) int {
 
 func TestAttachProcess(t *testing.T) {
 	helper.WithTestProcess("../_fixtures/testprog", t, func(p *proctl.DebuggedProcess) {
-		if !p.ProcessState.Sys().(syscall.WaitStatus).Stopped() {
+		if !p.ProcessState.Stopped() {
 			t.Errorf("Process was not stopped correctly")
 		}
 	})
@@ -83,7 +83,7 @@ func TestContinue(t *testing.T) {
 			t.Fatal("Continue():", err)
 		}
 
-		if !p.ProcessState.Success() {
+		if p.ProcessState.ExitStatus() != 0 {
 			t.Fatal("Process did not exit successfully")
 		}
 	})
@@ -235,6 +235,7 @@ func TestVariableEvaluation(t *testing.T) {
 		{"a2", "6", "int"},
 		{"a3", "7.23", "float64"},
 		{"a4", "[2]int [1 2]", "[2]int"},
+		{"a5", "len: 5 cap: 5 [1 2 3 4 5]", "struct []int"},
 	}
 
 	helper.WithTestProcess(executablePath, t, func(p *proctl.DebuggedProcess) {
