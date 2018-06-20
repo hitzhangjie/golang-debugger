@@ -2,14 +2,14 @@
 
 ### What is DBG?
 
-DBG is a Go debugger, written primarily in Go.
+DBG is a Go debugger, written primarily in Go. It really needs a new name.
 
 ### Building
 
 Currently, DBG requires 2 patches to be applied to Go source to build.
 
 1. [Dwarf Fix](https://codereview.appspot.com/117280043/)
-2. Process.Wait() fix.
+2. [Process.Wait() fix](https://codereview.appspot.com/132220044).
 
 ### Features
 
