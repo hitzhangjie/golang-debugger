@@ -6,7 +6,6 @@ package frame
 import (
 	"bytes"
 	"encoding/binary"
-
 	"../util"
 )
 
@@ -14,7 +13,7 @@ type parsefunc func(*parseContext) parsefunc
 
 type parseContext struct {
 	Buf     *bytes.Buffer
-	Entries FrameDescriptionEntries
+	Entries *FrameDescriptionEntries
 	Common  *CommonInformationEntry
 	Frame   *FrameDescriptionEntry
 	Length  uint32
@@ -23,10 +22,10 @@ type parseContext struct {
 // Parse takes in data (a byte slice) and returns a slice of
 // CommonInformationEntry structures. Each CommonInformationEntry
 // has a slice of FrameDescriptionEntry structures.
-func Parse(data []byte) FrameDescriptionEntries {
+func Parse(data []byte) *FrameDescriptionEntries {
 	var (
 		buf  = bytes.NewBuffer(data)
-		pctx = &parseContext{Buf: buf}
+		pctx = &parseContext{Buf: buf, Entries: NewFrameIndex()}
 	)
 
 	for fn := parseLength; buf.Len() != 0; {

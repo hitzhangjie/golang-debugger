@@ -11,13 +11,13 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"sync"
 	"syscall"
+	"unsafe"
 
 	"../dwarf/frame"
 	"../dwarf/line"
 	"../dwarf/op"
-	"unsafe"
-	"strings"
 )
 
 // Struct representing a debugged process. Holds onto pid, register values,
@@ -30,7 +30,7 @@ type DebuggedProcess struct {
 	Executable      *elf.File
 	Symbols         []elf.Symbol
 	GoSymTable      *gosym.Table
-	FrameEntries    frame.FrameDescriptionEntries
+	FrameEntries    *frame.FrameDescriptionEntries
 	DebugLine       *line.DebugLineInfo
 	BreakPoints     map[string]*BreakPoint
 	TempBreakPoints map[uint64]*BreakPoint
@@ -103,25 +103,22 @@ func NewDebugProcess(pid int) (*DebuggedProcess, error) {
 // * Dwarf .debug_line section
 // * Go symbol table.
 func (dbp *DebuggedProcess) LoadInformation() error {
-	err := dbp.findExecutable()
+	var (
+		wg  sync.WaitGroup
+		err error
+	)
+
+	err = dbp.findExecutable()
 	if err != nil {
 		return err
 	}
 
-	err = dbp.parseDebugFrame()
-	if err != nil {
-		return err
-	}
+	wg.Add(3)
+	go dbp.parseDebugFrame(&wg)
+	go dbp.parseDebugLine(&wg)
+	go dbp.obtainGoSymbols(&wg)
 
-	err = dbp.parseDebugLine()
-	if err != nil {
-		return err
-	}
-
-	err = dbp.obtainGoSymbols()
-	if err != nil {
-		return err
-	}
+	wg.Wait()
 
 	return nil
 }
@@ -291,6 +288,7 @@ func (dbp *DebuggedProcess) Next() error {
 
 	loc := dbp.DebugLine.NextLocAfterPC(pc)
 	addrs = append(addrs, loc.Address)
+
 	if !fde.AddressRange.Cover(loc.Address) {
 		// Next line is outside current frame, use return addr.
 		addr := dbp.ReturnAddressFromOffset(fde.ReturnAddressOffset(pc))
@@ -334,43 +332,11 @@ func (dbp *DebuggedProcess) Next() error {
 
 // Continue process until next breakpoint.
 func (dbp *DebuggedProcess) Continue() error {
-	//bugfix: step() re-inserted the breakpoint at exit phase,
-	// continue() won't go to next breakpoint causing this step().
-
 	// Stepping first will ensure we are able to continue
 	// past a breakpoint if that's currently where we are stopped.
-	//err := dbp.Step()
-
-	regs, err := dbp.Registers()
+	err := dbp.Step()
 	if err != nil {
 		return err
-	}
-
-	// check whether previous single byte instruction is int3,
-	// if it indeed is, restore the instruction which was overwritten by int3.
-	bp, ok := dbp.PCtoBP(regs.PC() - 1)
-	if ok {
-		// Clear the breakpoint so that we can continue execution.
-		_, err = dbp.Clear(bp.Addr)
-		if err != nil {
-			return err
-		}
-
-		// Reset instruction pointer to our restored instruction.
-		//regs.Rip -= 1
-		//syscall.PtraceSetRegs(dbp.Pid, regs)
-
-		// Reset program counter to our restored instruction.
-		regs.SetPC(bp.Addr)
-		err = syscall.PtraceSetRegs(dbp.Pid, regs)
-		if err != nil {
-			return err
-		}
-
-		// Restore breakpoint now that we have passed it.
-		defer func() {
-			_, err = dbp.Break(uintptr(bp.Addr))
-		}()
 	}
 
 	return dbp.handleResult(syscall.PtraceCont(dbp.Pid, 0))
@@ -411,8 +377,7 @@ func (dbp *DebuggedProcess) extractValue(instructions []byte, typ interface{}) (
 
 	switch t := typ.(type) {
 	case *dwarf.StructType:
-		ty := strings.Split(t.String(), " ")
-		switch ty[1] {
+		switch t.StructName {
 		case "string":
 			return dbp.readString(offset)
 		case "[]int":
@@ -447,7 +412,6 @@ func (dbp *DebuggedProcess) readString(addr uintptr) (string, error) {
 	str := *(*string)(unsafe.Pointer(&val))
 	return str, nil
 }
-
 func (dbp *DebuggedProcess) readIntSlice(addr uintptr) (string, error) {
 	var number uint64
 
@@ -517,6 +481,7 @@ func (dbp *DebuggedProcess) readInt(addr uintptr) (string, error) {
 
 	return strconv.Itoa(int(n)), nil
 }
+
 func (dbp *DebuggedProcess) readFloat64(addr uintptr) (string, error) {
 	var n float64
 	val, err := dbp.readMemory(addr, 8)
@@ -573,46 +538,53 @@ func (dbp *DebuggedProcess) findExecutable() error {
 	return nil
 }
 
-func (dbp *DebuggedProcess) parseDebugLine() error {
+func (dbp *DebuggedProcess) parseDebugLine(wg *sync.WaitGroup) {
+	defer wg.Done()
+
 	debugLine, err := dbp.Executable.Section(".debug_line").Data()
 	if err != nil {
-		return err
+		fmt.Println("could not get .debug_line section", err)
+		os.Exit(1)
 	}
 
 	dbp.DebugLine = line.Parse(debugLine)
-	return nil
 }
 
-func (dbp *DebuggedProcess) parseDebugFrame() error {
+func (dbp *DebuggedProcess) parseDebugFrame(wg *sync.WaitGroup) {
+	defer wg.Done()
+
 	debugFrame, err := dbp.Executable.Section(".debug_frame").Data()
 	if err != nil {
-		return err
+		fmt.Println("could not get .debug_frame section", err)
+		os.Exit(1)
 	}
 
 	dbp.FrameEntries = frame.Parse(debugFrame)
-	return nil
 }
 
-func (dbp *DebuggedProcess) obtainGoSymbols() error {
+func (dbp *DebuggedProcess) obtainGoSymbols(wg *sync.WaitGroup) {
+	defer wg.Done()
+
 	symdat, err := dbp.Executable.Section(".gosymtab").Data()
 	if err != nil {
-		return err
+		fmt.Println("could not get .gosymtab section", err)
+		os.Exit(1)
 	}
 
 	pclndat, err := dbp.Executable.Section(".gopclntab").Data()
 	if err != nil {
-		return err
+		fmt.Println("could not get .gopclntab section", err)
+		os.Exit(1)
 	}
 
 	pcln := gosym.NewLineTable(pclndat, dbp.Executable.Section(".text").Addr)
 	tab, err := gosym.NewTable(symdat, pcln)
 	if err != nil {
-		return err
+		fmt.Println("could not get initialize line table", err)
+		os.Exit(1)
 	}
 
 	dbp.GoSymTable = tab
-
-	return nil
 }
 
 // Converts a program counter value into a breakpoint, if one was set
