@@ -16,6 +16,7 @@ import (
 	"../dwarf/frame"
 	"../dwarf/line"
 	"../dwarf/op"
+	"unsafe"
 )
 
 // Struct representing a debugged process. Holds onto pid, register values,
@@ -128,7 +129,7 @@ func (dbp *DebuggedProcess) LoadInformation() error {
 func (dbp *DebuggedProcess) Registers() (*syscall.PtraceRegs, error) {
 	err := syscall.PtraceGetRegs(dbp.Pid, dbp.Regs)
 	if err != nil {
-		return nil, fmt.Errorf("Registers():", err)
+		return nil, fmt.Errorf("Registers():%v", err)
 	}
 
 	return dbp.Regs, nil
@@ -266,7 +267,7 @@ func (dbp *DebuggedProcess) Step() (err error) {
 
 	err = dbp.handleResult(syscall.PtraceSingleStep(dbp.Pid))
 	if err != nil {
-		return fmt.Errorf("step failed: ", err.Error())
+		return fmt.Errorf("step failed:%v", err.Error())
 	}
 
 	return nil
@@ -405,20 +406,59 @@ func (dbp *DebuggedProcess) extractValue(instructions []byte, typ interface{}) (
 		return "", err
 	}
 
+	offset := uintptr(int64(regs.Rsp) + off)
+
 	switch typ.(type) {
+	case *dwarf.StructType:
+		return dbp.readString(offset)
 	case *dwarf.IntType:
-		addr := uintptr(int64(regs.Rsp) + off)
-		val, err := dbp.readMemory(addr, 8)
-		if err != nil {
-			return "", err
-		}
-
-		n := binary.LittleEndian.Uint64(val)
-
-		return strconv.Itoa(int(n)), nil
+		return dbp.readInt(offset)
+	case *dwarf.FloatType:
+		return dbp.readFloat64(offset)
 	}
 
 	return "", fmt.Errorf("could not find value for type %s", typ)
+}
+
+func (dbp *DebuggedProcess) readString(addr uintptr) (string, error) {
+	val, err := dbp.readMemory(addr, 8)
+	if err != nil {
+		return "", err
+	}
+
+	// deref the pointer to the string
+	addr = uintptr(binary.LittleEndian.Uint64(val))
+	val, err = dbp.readMemory(addr, 16)
+	if err != nil {
+		return "", err
+	}
+
+	i := bytes.IndexByte(val, 0x0)
+	val = val[:i]
+	str := *(*string)(unsafe.Pointer(&val))
+	return str, nil
+}
+
+func (dbp *DebuggedProcess) readInt(addr uintptr) (string, error) {
+	val, err := dbp.readMemory(addr, 8)
+	if err != nil {
+		return "", err
+	}
+
+	n := binary.LittleEndian.Uint64(val)
+
+	return strconv.Itoa(int(n)), nil
+}
+func (dbp *DebuggedProcess) readFloat64(addr uintptr) (string, error) {
+	var n float64
+	val, err := dbp.readMemory(addr, 8)
+	if err != nil {
+		return "", err
+	}
+	buf := bytes.NewBuffer(val)
+	binary.Read(buf, binary.LittleEndian, &n)
+
+	return strconv.FormatFloat(n, 'f', -1, 64), nil
 }
 
 func (dbp *DebuggedProcess) readMemory(addr uintptr, size uintptr) ([]byte, error) {
