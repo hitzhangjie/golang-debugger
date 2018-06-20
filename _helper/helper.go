@@ -1,11 +1,11 @@
 package helper
 
 import (
+	"os"
 	"os/exec"
 	"runtime"
 	"syscall"
 	"testing"
-
 	"../proctl"
 )
 
@@ -22,6 +22,11 @@ func GetRegisters(p *proctl.DebuggedProcess, t *testing.T) *syscall.PtraceRegs {
 
 func WithTestProcess(name string, t *testing.T, fn testfunc) {
 	runtime.LockOSThread()
+	err := CompileTestProg(name)
+	if err != nil {
+		t.Fatalf("Could not compile %s due to %s", name, err)
+	}
+
 	cmd, err := startTestProcess(name)
 	if err != nil {
 		t.Fatal("Starting test process:", err)
@@ -32,9 +37,16 @@ func WithTestProcess(name string, t *testing.T, fn testfunc) {
 	if err != nil {
 		t.Fatal("NewDebugProcess():", err)
 	}
-	defer cmd.Process.Kill()
+	defer func() {
+		cmd.Process.Kill()
+		os.Remove(name)
+	}()
 
 	fn(p)
+}
+
+func CompileTestProg(source string) error {
+	return exec.Command("go", "build", "-gcflags=-N -l", "-o", source, source+".go").Run()
 }
 
 func startTestProcess(name string) (*exec.Cmd, error) {

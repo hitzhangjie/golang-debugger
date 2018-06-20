@@ -3,17 +3,13 @@ package line
 import (
 	"debug/elf"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
 )
 
-func grabDebugLineSection(fp string, t *testing.T) []byte {
-	p, err := filepath.Abs(fp)
-	if err != nil {
-		t.Fatal(err)
-	}
-
+func grabDebugLineSection(p string, t *testing.T) []byte {
 	f, err := os.Open(p)
 	if err != nil {
 		t.Fatal(err)
@@ -34,22 +30,22 @@ func grabDebugLineSection(fp string, t *testing.T) []byte {
 
 func TestDebugLinePrologueParser(t *testing.T) {
 	// Test against known good values, from readelf --debug-dump=rawline _fixtures/testnextprog
-	var (
-		data     = grabDebugLineSection("../../_fixtures/testnextprog", t)
-		dbl      = Parse(data)
-		prologue = dbl.Prologue
-	)
-
-	if prologue.Length != uint32(60685) {
-		t.Fatal("Length was not parsed correctly", prologue.Length)
+	p, err := filepath.Abs("../../_fixtures/testnextprog")
+	if err != nil {
+		t.Fatal(err)
 	}
+
+	err = exec.Command("go", "build", "-gcflags=-N -l", "-o", p, p+".go").Run()
+	if err != nil {
+		t.Fatal("Could not compile test file", p, err)
+	}
+	defer os.Remove(p)
+	data := grabDebugLineSection(p, t)
+	dbl := Parse(data)
+	prologue := dbl.Prologue
 
 	if prologue.Version != uint16(2) {
 		t.Fatal("Version not parsed correctly", prologue.Version)
-	}
-
-	if prologue.PrologueLength != uint32(5363) {
-		t.Fatal("Prologue Length not parsed correctly", prologue.PrologueLength)
 	}
 
 	if prologue.MinInstrLength != uint8(1) {
@@ -81,10 +77,6 @@ func TestDebugLinePrologueParser(t *testing.T) {
 
 	if len(dbl.IncludeDirs) != 0 {
 		t.Fatal("Include dirs not parsed correctly")
-	}
-
-	if len(dbl.FileNames) != 126 {
-		t.Fatal("Filenames not parsed correctly", len(dbl.FileNames))
 	}
 
 	if !strings.Contains(dbl.FileNames[0].Name, "/dbg/_fixtures/testnextprog.go") {
