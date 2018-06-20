@@ -1,50 +1,43 @@
 package frame_test
 
 import (
-	"testing"
+	//"testing"
 
-	"../frame"
-	"fmt"
+	//"../../_helper"
+	//"../frame"
 )
 
-func TestParse(t *testing.T) {
-	var (
-		data = grabDebugFrameSection("../../_fixtures/testprog", t)
-		fe   = frame.Parse(data)[0]
-		ce   = fe.CIE
-	)
-	fmt.Println("CIE:", ce)
-	fmt.Println("FDE:", fe)
+// func TestParse(t *testing.T) {
+// 	var (
+// 		data = dwarfhelper.GrabDebugFrameSection("../../_fixtures/testprog", t)
+// 		fe   = frame.Parse(data)[0]
+// 		ce   = fe.CIE
+// 	)
 
+// 	if ce.Length != 16 {
+// 		t.Error("Length was not parsed correctly, got ", ce.Length)
+// 	}
 
-	fdes := frame.Parse(data)
-	for idx, fde := range fdes {
-		fmt.Printf("FDE[%v]:%v\n", idx, fde)
-	}
+// 	if ce.Version != 0x3 {
+// 		t.Fatalf("Version was not parsed correctly expected %#v got %#v", 0x3, ce.Version)
+// 	}
 
-	if ce.Length != 16 {
-		t.Error("Length was not parsed correctly, got ", ce.Length)
-	}
+// 	if ce.Augmentation != "" {
+// 		t.Fatal("Augmentation was not parsed correctly")
+// 	}
 
-	if ce.Version != 0x3 {
-		t.Fatalf("Version was not parsed correctly expected %#v got %#v", 0x3, ce.Version)
-	}
+// 	if ce.CodeAlignmentFactor != 0x1 {
+// 		t.Fatal("Code Alignment Factor was not parsed correctly")
+// 	}
 
-	if ce.Augmentation != "" {
-		t.Fatal("Augmentation was not parsed correctly")
-	}
+// 	if ce.DataAlignmentFactor != -4 {
+// 		t.Fatalf("Data Alignment Factor was not parsed correctly got %#v", ce.DataAlignmentFactor)
+// 	}
 
-	if ce.CodeAlignmentFactor != 0x1 {
-		t.Fatal("Code Alignment Factor was not parsed correctly")
-	}
+// 	if fe.Length != 32 {
+// 		t.Fatal("Length was not parsed correctly, got ", fe.Length)
+// 	}
 
-	if ce.DataAlignmentFactor != -4 {
-		t.Fatalf("Data Alignment Factor was not parsed correctly got %#v", ce.DataAlignmentFactor)
-	}
+// }
 
-	if fe.Length != 44 {
-		t.Fatal("Length was not parsed correctly, got ", fe.Length)
-	}
-
-}
 
