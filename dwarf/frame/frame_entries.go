@@ -5,8 +5,7 @@ import (
 	"../../rbtree"
 )
 
-// Represents a Common Information Entry in
-// the Dwarf .debug_frame section.
+// Represents a Common Information Entry in the Dwarf .debug_frame section.
 type CommonInformationEntry struct {
 	Length                uint32
 	CIE_id                uint32
@@ -18,6 +17,15 @@ type CommonInformationEntry struct {
 	InitialInstructions   []byte
 }
 
+// Represents a Frame Descriptor Entry in the Dwarf .debug_frame section.
+type FrameDescriptionEntry struct {
+	Length       uint32
+	CIE          *CommonInformationEntry
+	AddressRange *addrange
+	Instructions []byte
+}
+
+// desc CIE/FDEs' instructions address range
 type addrange struct {
 	begin, end uint64
 }
@@ -34,29 +42,21 @@ func (r *addrange) Cover(addr uint64) bool {
 	if (addr - r.begin) < r.end {
 		return true
 	}
-
 	return false
 }
 
-// Represents a Frame Descriptor Entry in the
-// Dwarf .debug_frame section.
-type FrameDescriptionEntry struct {
-	Length       uint32
-	CIE          *CommonInformationEntry
-	AddressRange *addrange
-	Instructions []byte
-}
-
+// rebuild the covering FDE based upon current pc
 func (fde *FrameDescriptionEntry) EstablishFrame(pc uint64) *FrameContext {
 	return executeDwarfProgramUntilPC(fde, pc)
 }
 
+// return return address of current pc
 func (fde *FrameDescriptionEntry) ReturnAddressOffset(pc uint64) int64 {
 	frame := fde.EstablishFrame(pc)
-
 	return frame.cfa.offset + frame.regs[fde.CIE.ReturnAddressRegister].offset
 }
 
+// FDEs, stored as rbtree, in order to lookup covering pc more quickly
 type FrameDescriptionEntries struct {
 	*rbtree.RedBlackTree
 }

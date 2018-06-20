@@ -10,6 +10,7 @@ import (
 	"../../_helper"
 	"../frame"
 	"../../proctl"
+	"fmt"
 )
 
 func TestFindReturnAddress(t *testing.T) {
@@ -22,10 +23,11 @@ func TestFindReturnAddress(t *testing.T) {
 
 	helper.WithTestProcess(testfile, t, func(p *proctl.DebuggedProcess) {
 		testsourcefile := testfile + ".go"
-		start, _, err := gsd.LineToPC(testsourcefile, 22)
+		start, _, err := gsd.LineToPC(testsourcefile, 26)
 		if err != nil {
 			t.Fatal(err)
 		}
+		fmt.Printf("start address: %X\n", start)
 
 		_, err = p.Break(uintptr(start))
 		if err != nil {
@@ -51,12 +53,16 @@ func TestFindReturnAddress(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		fmt.Printf("ret offset: %X\n", ret)
+		fmt.Printf("rsp value: %x\n", regs.Rsp)
 
 		addr := uint64(int64(regs.Rsp) + ret)
+		fmt.Printf("check addr: offset + rsp: %X\n", addr)
 		data := make([]byte, 8)
 
 		syscall.PtracePeekText(p.Pid, uintptr(addr), data)
 		addr = binary.LittleEndian.Uint64(data)
+		fmt.Printf("expected ret addr: %x\n", addr)
 
 		if addr != 0x400dff {
 			t.Fatalf("return address not found correctly, expected %#v got %#v", uintptr(0x400dff), addr)

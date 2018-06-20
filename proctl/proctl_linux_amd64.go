@@ -235,8 +235,39 @@ func (dbp *DebuggedProcess) Clear(pc uint64) (*BreakPoint, error) {
 	return bp, nil
 }
 
+func (dbp *DebuggedProcess) CheckAndClearBP() (func(), error) {
+	regs, err := dbp.Registers()
+	if err != nil {
+		return nil, err
+	}
+
+	bp, ok := dbp.PCtoBP(regs.PC() - 1)
+	if ok {
+		// Clear the breakpoint so that we can continue execution.
+		_, err = dbp.Clear(bp.Addr)
+		if err != nil {
+			return nil, err
+		}
+
+		// Reset program counter to our restored instruction.
+		regs.SetPC(bp.Addr)
+		err = syscall.PtraceSetRegs(dbp.Pid, regs)
+		if err != nil {
+			return nil, err
+		}
+
+		// Restore breakpoint now that we have passed it.
+		return func() {
+			_, err = dbp.Break(uintptr(bp.Addr))
+		}, nil
+	}
+
+	return nil, nil
+}
+
 // Steps through process.
 func (dbp *DebuggedProcess) Step() (err error) {
+	/*
 	regs, err := dbp.Registers()
 	if err != nil {
 		return err
@@ -261,6 +292,17 @@ func (dbp *DebuggedProcess) Step() (err error) {
 		defer func() {
 			_, err = dbp.Break(uintptr(bp.Addr))
 		}()
+	}
+	*/
+
+	setbp, err := dbp.CheckAndClearBP()
+
+	if err != nil {
+		return err
+	}
+
+	if setbp != nil {
+		defer setbp()
 	}
 
 	err = dbp.handleResult(syscall.PtraceSingleStep(dbp.Pid))
@@ -317,15 +359,29 @@ func (dbp *DebuggedProcess) Next() error {
 func (dbp *DebuggedProcess) Continue() error {
 	// Stepping first will ensure we are able to continue
 	// past a breakpoint if that's currently where we are stopped.
+	/*
 	err := dbp.Step()
 	if err != nil {
 		return err
+	}
+	*/
+
+	setbp, err := dbp.CheckAndClearBP()
+
+	if err != nil {
+		return err
+	}
+
+	if setbp != nil {
+		defer setbp()
 	}
 
 	return dbp.handleResult(syscall.PtraceCont(dbp.Pid, 0))
 }
 
+// returns current rip, whose content is virtual address (linear address)
 func (dbp *DebuggedProcess) CurrentPC() (uint64, error) {
+
 	regs, err := dbp.Registers()
 	if err != nil {
 		return 0, err

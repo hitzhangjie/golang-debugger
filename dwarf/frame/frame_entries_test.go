@@ -7,6 +7,7 @@ import (
 	"../../dwarf/_helper"
 )
 
+// search FDE for target pc
 func TestFDEForPC(t *testing.T) {
 	fde1 := &FrameDescriptionEntry{AddressRange: &addrange{begin: 100, end: 200}}
 	fde2 := &FrameDescriptionEntry{AddressRange: &addrange{begin: 50, end: 99}}

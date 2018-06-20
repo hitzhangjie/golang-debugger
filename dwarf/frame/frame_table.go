@@ -143,6 +143,7 @@ func executeDwarfProgramUntilPC(fde *FrameDescriptionEntry, pc uint64) *FrameCon
 	return frame
 }
 
+// execute bytecode instructions in current FDE
 func (frame *FrameContext) ExecuteDwarfProgram() {
 	for frame.buf.Len() > 0 {
 		executeDwarfInstruction(frame)

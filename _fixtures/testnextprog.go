@@ -23,7 +23,7 @@ func testnext() {
 		helloworld()
 	}
 
-	helloworld()
+
 }
 
 func main() {

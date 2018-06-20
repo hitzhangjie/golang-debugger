@@ -11,10 +11,10 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-
 	"../proctl"
 )
 
+// debugger commands associated hanlders
 type cmdfunc func(proc *proctl.DebuggedProcess, args ...string) error
 
 type Commands struct {
@@ -24,14 +24,13 @@ type Commands struct {
 // Returns a Commands struct with default commands defined.
 func DebugCommands() *Commands {
 	cmds := map[string]cmdfunc{
+		"break":    breakpoint,
+		"clear":    clear,
+		"step":     step,
 		"continue": cont,
 		"next":     next,
-		"break":    breakpoint,
-		"step":     step,
-		"clear":    clear,
 		"":         nullCommand,
 	}
-
 	return &Commands{cmds}
 }
 
@@ -70,6 +69,7 @@ func nullCommand(p *proctl.DebuggedProcess, ars ...string) error {
 	return nil
 }
 
+// cmd continue
 func cont(p *proctl.DebuggedProcess, ars ...string) error {
 	err := p.Continue()
 	if err != nil {
@@ -79,6 +79,7 @@ func cont(p *proctl.DebuggedProcess, ars ...string) error {
 	return printcontext(p)
 }
 
+// cmd step
 func step(p *proctl.DebuggedProcess, args ...string) error {
 	err := p.Step()
 	if err != nil {
@@ -88,6 +89,7 @@ func step(p *proctl.DebuggedProcess, args ...string) error {
 	return printcontext(p)
 }
 
+// cmd next
 func next(p *proctl.DebuggedProcess, args ...string) error {
 	err := p.Next()
 	if err != nil {
@@ -97,6 +99,7 @@ func next(p *proctl.DebuggedProcess, args ...string) error {
 	return printcontext(p)
 }
 
+// cmd clear
 func clear(p *proctl.DebuggedProcess, args ...string) error {
 	fname := args[0]
 	fn := p.GoSymTable.LookupFunc(fname)
@@ -114,6 +117,7 @@ func clear(p *proctl.DebuggedProcess, args ...string) error {
 	return nil
 }
 
+// cmd break
 func breakpoint(p *proctl.DebuggedProcess, args ...string) error {
 	var (
 		fn    *gosym.Func
@@ -122,6 +126,7 @@ func breakpoint(p *proctl.DebuggedProcess, args ...string) error {
 	)
 
 	if strings.ContainsRune(fname, ':') {
+		// add breakpoint in location file:lineno
 		fl := strings.Split(fname, ":")
 
 		f, err := filepath.Abs(fl[0])
@@ -139,11 +144,11 @@ func breakpoint(p *proctl.DebuggedProcess, args ...string) error {
 			return err
 		}
 	} else {
+		// add breakpoint in location package.funcName
 		fn = p.GoSymTable.LookupFunc(fname)
 		if fn == nil {
 			return fmt.Errorf("No function named %s", fname)
 		}
-
 		pc = fn.Entry
 	}
 
@@ -157,6 +162,7 @@ func breakpoint(p *proctl.DebuggedProcess, args ...string) error {
 	return nil
 }
 
+// print context when executing cmds: step, continue, next
 func printcontext(p *proctl.DebuggedProcess) error {
 	var context []string
 
