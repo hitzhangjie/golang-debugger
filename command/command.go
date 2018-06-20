@@ -5,13 +5,11 @@ package command
 import (
 	"debug/gosym"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 
 	"../proctl"
-	"syscall"
 )
 
 type cmdfunc func(proc *proctl.DebuggedProcess, args ...string) error
@@ -23,7 +21,6 @@ type Commands struct {
 // Returns a Commands struct with default commands defined.
 func DebugCommands() *Commands {
 	cmds := map[string]cmdfunc{
-		"exit":     exitFunc,
 		"continue": cont,
 		"next":     next,
 		"break":    breakpoint,
@@ -64,16 +61,6 @@ func CommandFunc(fn func() error) cmdfunc {
 
 func noCmdAvailable(p *proctl.DebuggedProcess, ars ...string) error {
 	return fmt.Errorf("command not available")
-}
-
-func exitFunc(p *proctl.DebuggedProcess, ars ...string) error {
-	err := syscall.PtraceDetach(p.Pid)
-	if err != nil {
-		return err
-	}
-
-	os.Exit(0)
-	return nil
 }
 
 func nullCommand(p *proctl.DebuggedProcess, ars ...string) error {
