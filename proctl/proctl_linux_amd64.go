@@ -280,8 +280,7 @@ func (dbp *DebuggedProcess) Next() error {
 
 // Continue process until next breakpoint.
 func (dbp *DebuggedProcess) Continue() error {
-	//bugfix:
-	// step() re-inserted the breakpoint at exit phase,
+	//bugfix: step() re-inserted the breakpoint at exit phase,
 	// continue() won't go to next breakpoint causing this step().
 
 	// Stepping first will ensure we are able to continue

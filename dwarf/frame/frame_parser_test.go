@@ -16,6 +16,12 @@ func TestParse(t *testing.T) {
 	fmt.Println("CIE:", ce)
 	fmt.Println("FDE:", fe)
 
+
+	fdes := frame.Parse(data)
+	for idx, fde := range fdes {
+		fmt.Printf("FDE[%v]:%v\n", idx, fde)
+	}
+
 	if ce.Length != 16 {
 		t.Error("Length was not parsed correctly, got ", ce.Length)
 	}

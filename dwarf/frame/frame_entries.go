@@ -20,11 +20,19 @@ type addrange struct {
 }
 
 func (r *addrange) Cover(addr uint64) bool {
-	if (addr - r.begin) < r.end {
-		return true
-	}
+	//if (addr - r.begin) < r.end {
+	//	return true
+	//}
+	//
+	//return false
 
-	return false
+	if (addr < r.begin) {
+		return false
+	} else if (addr-r.begin < r.end) {
+		return true
+	} else {
+		return false
+	}
 }
 
 // Represents a Frame Descriptor Entry in the

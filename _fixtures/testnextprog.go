@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -10,7 +11,7 @@ func sleepytime() {
 }
 
 func helloworld() {
-	fmt.Println("Hello, World!")
+	fmt.Println("Hello, World! pid:", os.Getpid())
 }
 
 func testnext() {
