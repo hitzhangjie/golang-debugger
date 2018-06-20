@@ -55,7 +55,9 @@ func parseLength(ctx *parseContext) parsefunc {
 		fn = parseInitialLocation
 	}
 
-	// Take off the length of the CIE id / CIE pointer.
+	// in CIE/FDE structure, value of length field doesn't include the bytes of itself
+	// - if this is a CIE structure, take off the length of the CIE id
+	// - if this is a FDE structure, take off the length of the CIE pointer
 	ctx.Length -= 4
 
 	return fn

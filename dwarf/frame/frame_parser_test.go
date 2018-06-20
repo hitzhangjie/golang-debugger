@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"../frame"
+	"fmt"
 )
 
 func TestParse(t *testing.T) {
@@ -12,6 +13,8 @@ func TestParse(t *testing.T) {
 		fe   = frame.Parse(data)[0]
 		ce   = fe.CIE
 	)
+	fmt.Println("CIE:", ce)
+	fmt.Println("FDE:", fe)
 
 	if ce.Length != 16 {
 		t.Error("Length was not parsed correctly, got ", ce.Length)
@@ -33,7 +36,7 @@ func TestParse(t *testing.T) {
 		t.Fatalf("Data Alignment Factor was not parsed correctly got %#v", ce.DataAlignmentFactor)
 	}
 
-	if fe.Length != 32 {
+	if fe.Length != 44 {
 		t.Fatal("Length was not parsed correctly, got ", fe.Length)
 	}
 
