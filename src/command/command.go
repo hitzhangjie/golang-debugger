@@ -9,9 +9,9 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"proctl"
 	"strconv"
 	"strings"
-	"../proctl"
 )
 
 // debugger commands associated hanlders
