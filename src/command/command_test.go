@@ -2,9 +2,8 @@ package command
 
 import (
 	"fmt"
+	"proctl"
 	"testing"
-
-	"../proctl"
 )
 
 func TestCommandDefault(t *testing.T) {
