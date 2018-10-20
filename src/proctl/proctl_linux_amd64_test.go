@@ -4,7 +4,6 @@ import (
 	"_helper"
 	"bytes"
 	"path/filepath"
-	"proctl"
 	"syscall"
 	"testing"
 )
@@ -25,7 +24,7 @@ func assertNoError(err error, t *testing.T, s string) {
 	}
 }
 
-func currentPC(p *proctl.DebuggedProcess, t *testing.T) uint64 {
+func currentPC(p *DebuggedProcess, t *testing.T) uint64 {
 	pc, err := p.CurrentPC()
 	if err != nil {
 		t.Fatal(err)
@@ -34,7 +33,7 @@ func currentPC(p *proctl.DebuggedProcess, t *testing.T) uint64 {
 	return pc
 }
 
-func currentLineNumber(p *proctl.DebuggedProcess, t *testing.T) int {
+func currentLineNumber(p *DebuggedProcess, t *testing.T) int {
 	pc := currentPC(p, t)
 	_, l, _ := p.GoSymTable.PCToLine(pc)
 
@@ -42,7 +41,7 @@ func currentLineNumber(p *proctl.DebuggedProcess, t *testing.T) int {
 }
 
 func TestAttachProcess(t *testing.T) {
-	helper.WithTestProcess("../_fixtures/testprog", t, func(p *proctl.DebuggedProcess) {
+	helper.WithTestProcess("../_fixtures/testprog", t, func(p *DebuggedProcess) {
 		if !p.ProcessState.Stopped() {
 			t.Errorf("Process was not stopped correctly")
 		}
@@ -50,7 +49,7 @@ func TestAttachProcess(t *testing.T) {
 }
 
 func TestStep(t *testing.T) {
-	helper.WithTestProcess("../_fixtures/testprog", t, func(p *proctl.DebuggedProcess) {
+	helper.WithTestProcess("../_fixtures/testprog", t, func(p *DebuggedProcess) {
 		if p.ProcessState.Exited() {
 			t.Fatal("Process already exited")
 		}
@@ -69,7 +68,7 @@ func TestStep(t *testing.T) {
 }
 
 func TestContinue(t *testing.T) {
-	helper.WithTestProcess("../_fixtures/continuetestprog", t, func(p *proctl.DebuggedProcess) {
+	helper.WithTestProcess("../_fixtures/continuetestprog", t, func(p *DebuggedProcess) {
 		if p.ProcessState.Exited() {
 			t.Fatal("Process already exited")
 		}
@@ -84,7 +83,7 @@ func TestContinue(t *testing.T) {
 }
 
 func TestBreakPoint(t *testing.T) {
-	helper.WithTestProcess("../_fixtures/testprog", t, func(p *proctl.DebuggedProcess) {
+	helper.WithTestProcess("../_fixtures/testprog", t, func(p *DebuggedProcess) {
 		sleepytimefunc := p.GoSymTable.LookupFunc("main.sleepytime")
 		sleepyaddr := sleepytimefunc.Entry
 
@@ -115,7 +114,7 @@ func TestBreakPoint(t *testing.T) {
 }
 
 func TestBreakPointWithNonExistantFunction(t *testing.T) {
-	helper.WithTestProcess("../_fixtures/testprog", t, func(p *proctl.DebuggedProcess) {
+	helper.WithTestProcess("../_fixtures/testprog", t, func(p *DebuggedProcess) {
 		_, err := p.Break(uintptr(0))
 		if err == nil {
 			t.Fatal("Should not be able to break at non existant function")
@@ -124,7 +123,7 @@ func TestBreakPointWithNonExistantFunction(t *testing.T) {
 }
 
 func TestClearBreakPoint(t *testing.T) {
-	helper.WithTestProcess("../_fixtures/testprog", t, func(p *proctl.DebuggedProcess) {
+	helper.WithTestProcess("../_fixtures/testprog", t, func(p *DebuggedProcess) {
 		fn := p.GoSymTable.LookupFunc("main.sleepytime")
 		bp, err := p.Break(uintptr(fn.Entry))
 		assertNoError(err, t, "Break()")
@@ -180,7 +179,7 @@ func TestNext(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	helper.WithTestProcess(executablePath, t, func(p *proctl.DebuggedProcess) {
+	helper.WithTestProcess(executablePath, t, func(p *DebuggedProcess) {
 		pc, _, _ := p.GoSymTable.LineToPC(fp, testcases[0].begin)
 		_, err := p.Break(uintptr(pc))
 		assertNoError(err, t, "Break()")
@@ -222,7 +221,7 @@ func TestVariableEvaluation(t *testing.T) {
 		{"a5", "len: 5 cap: 5 [1 2 3 4 5]", "struct []int"},
 	}
 
-	helper.WithTestProcess(executablePath, t, func(p *proctl.DebuggedProcess) {
+	helper.WithTestProcess(executablePath, t, func(p *DebuggedProcess) {
 		pc, _, _ := p.GoSymTable.LineToPC(fp, 21)
 
 		_, err := p.Break(uintptr(pc))
