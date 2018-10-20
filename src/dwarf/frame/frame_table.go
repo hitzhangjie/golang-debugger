@@ -2,10 +2,9 @@ package frame
 
 import (
 	"bytes"
+	"dwarf/util"
 	"encoding/binary"
 	"fmt"
-
-	"../util"
 )
 
 type CurrentFrameAddress struct {

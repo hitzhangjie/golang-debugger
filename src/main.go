@@ -2,16 +2,15 @@ package main
 
 import (
 	"bufio"
+	"command"
 	"flag"
 	"fmt"
 	"os"
 	"os/exec"
+	"proctl"
 	"runtime"
 	"strings"
 	"syscall"
-
-	"./command"
-	"./proctl"
 )
 
 type term struct {

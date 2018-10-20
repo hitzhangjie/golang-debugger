@@ -2,7 +2,7 @@ package frame
 
 import (
 	"fmt"
-	"../../rbtree"
+	"rbtree"
 )
 
 // Represents a Common Information Entry in the Dwarf .debug_frame section.

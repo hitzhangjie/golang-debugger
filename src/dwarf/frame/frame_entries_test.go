@@ -1,10 +1,9 @@
 package frame
 
 import (
+	"dwarf/_helper"
 	"path/filepath"
 	"testing"
-
-	"../../dwarf/_helper"
 )
 
 // search FDE for target pc

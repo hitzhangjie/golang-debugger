@@ -7,6 +7,9 @@ import (
 	"debug/dwarf"
 	"debug/elf"
 	"debug/gosym"
+	"dwarf/frame"
+	"dwarf/line"
+	"dwarf/op"
 	"encoding/binary"
 	"fmt"
 	"os"
@@ -14,10 +17,6 @@ import (
 	"sync"
 	"syscall"
 	"unsafe"
-
-	"../dwarf/frame"
-	"../dwarf/line"
-	"../dwarf/op"
 )
 
 // Struct representing a debugged process. Holds onto pid, register values,
@@ -268,31 +267,31 @@ func (dbp *DebuggedProcess) CheckAndClearBP() (func(), error) {
 // Steps through process.
 func (dbp *DebuggedProcess) Step() (err error) {
 	/*
-	regs, err := dbp.Registers()
-	if err != nil {
-		return err
-	}
-
-	bp, ok := dbp.PCtoBP(regs.PC() - 1)
-	if ok {
-		// Clear the breakpoint so that we can continue execution.
-		_, err = dbp.Clear(bp.Addr)
+		regs, err := dbp.Registers()
 		if err != nil {
 			return err
 		}
 
-		// Reset program counter to our restored instruction.
-		regs.SetPC(bp.Addr)
-		err = syscall.PtraceSetRegs(dbp.Pid, regs)
-		if err != nil {
-			return err
-		}
+		bp, ok := dbp.PCtoBP(regs.PC() - 1)
+		if ok {
+			// Clear the breakpoint so that we can continue execution.
+			_, err = dbp.Clear(bp.Addr)
+			if err != nil {
+				return err
+			}
 
-		// Restore breakpoint now that we have passed it.
-		defer func() {
-			_, err = dbp.Break(uintptr(bp.Addr))
-		}()
-	}
+			// Reset program counter to our restored instruction.
+			regs.SetPC(bp.Addr)
+			err = syscall.PtraceSetRegs(dbp.Pid, regs)
+			if err != nil {
+				return err
+			}
+
+			// Restore breakpoint now that we have passed it.
+			defer func() {
+				_, err = dbp.Break(uintptr(bp.Addr))
+			}()
+		}
 	*/
 
 	setbp, err := dbp.CheckAndClearBP()
@@ -360,10 +359,10 @@ func (dbp *DebuggedProcess) Continue() error {
 	// Stepping first will ensure we are able to continue
 	// past a breakpoint if that's currently where we are stopped.
 	/*
-	err := dbp.Step()
-	if err != nil {
-		return err
-	}
+		err := dbp.Step()
+		if err != nil {
+			return err
+		}
 	*/
 
 	setbp, err := dbp.CheckAndClearBP()

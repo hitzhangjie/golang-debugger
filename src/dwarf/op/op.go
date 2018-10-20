@@ -2,9 +2,8 @@ package op
 
 import (
 	"bytes"
+	"dwarf/util"
 	"fmt"
-
-	"../util"
 )
 
 const (
@@ -47,7 +46,7 @@ func callframecfa(buf *bytes.Buffer, stack []int64, cfa int64) ([]int64, error) 
 func plus(buf *bytes.Buffer, stack []int64, cfa int64) ([]int64, error) {
 	var (
 		slen   = len(stack)
-		digits = stack[slen-2: slen]
+		digits = stack[slen-2 : slen]
 		st     = stack[:slen-2]
 	)
 

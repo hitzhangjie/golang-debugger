@@ -1,13 +1,12 @@
-package proctl_test
+package proctl
 
 import (
+	"_helper"
 	"bytes"
 	"path/filepath"
+	"proctl"
 	"syscall"
 	"testing"
-
-	"../_helper"
-	"../proctl"
 )
 
 func dataAtAddr(pid int, addr uint64) ([]byte, error) {

@@ -5,8 +5,8 @@ package frame
 
 import (
 	"bytes"
+	"dwarf/util"
 	"encoding/binary"
-	"../util"
 )
 
 type parsefunc func(*parseContext) parsefunc

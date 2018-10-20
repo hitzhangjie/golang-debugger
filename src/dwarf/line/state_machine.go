@@ -2,10 +2,9 @@ package line
 
 import (
 	"bytes"
+	"dwarf/util"
 	"encoding/binary"
 	"fmt"
-
-	"../util"
 )
 
 type Location struct {

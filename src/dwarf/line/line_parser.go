@@ -2,9 +2,8 @@ package line
 
 import (
 	"bytes"
+	"dwarf/util"
 	"encoding/binary"
-
-	"../util"
 )
 
 type DebugLinePrologue struct {
