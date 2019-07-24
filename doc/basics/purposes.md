@@ -1,4 +1,4 @@
-## 1.1 Purpose
+## Purpose
 
 Though programmers pay lots of attention to code bug free programs, making bugs cannot be avoided. Print statements are often used to locate the bugs, but in some complex occasions, we need to control the execution of tracee (debugged process) and inspect its runtime state including memory, registers.
 

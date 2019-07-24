@@ -1,6 +1,6 @@
-## 2.1 Dependencies
+## Dependencies
 
-### 2.1.1 Debug Symbol Info
+### Debug Symbol Info
 
 The compiler and linker build the executable file based on source code. The data of executable file is generated for machine, rather than for human. How does a source level debugger understand that data and remap it to source information or vice versa?
 
@@ -42,17 +42,17 @@ This mapping also matches source code statements to ranges of bytes in memory. W
 
  
 
-### 2.1.2 Debug Infrastructure
+### Debug Infrastructure
 
 Besides the debug symbol info, some other dependencies are still needed, i.e., the debug infrastructure, including debugging interrupts, system calls, interpreters, debug interface (GUI or command-line).
 
-#### 2.1.2.1 Debugging Interrupts
+#### Debugging Interrupts
 
 All of the commercial operating systems provide hooks for debugging. These hooks are usually implemented as system calls inside of the kernel. This is as necessary because debugging an application requires access to system data structures that exist in a protected region of memory, i.e., the kernel. The only way to manipulate these special data structures is to politely ask the operating system to do so on your behalf.
 
 One exception to this rule occurs in the case of DOS. With DOS, a real mode operating system, you can do damn nearly everything by yourself because memory protection does not exist.
 
-#### 2.1.2.2 System Calls
+#### System Calls
 
 Nowadays, most operating systems implement memory’s protective mode, it is the base stone of multi-user, multi-task operating system. If there’s no protective mode, there’s no so-called security at all.
 
@@ -60,11 +60,11 @@ Opposite to DOS, Windows, Linux, BSD have fairly sophisticated memory protection
 
 Take Linux system calls as an example, the tracee process can be attached via **ptrace(PTRACE_ATTACH…)**, then the tracee will be notified by **SIGSTOP** sent by kernel, then tracee will stop, tracer process can call **waitpid(pid)** to wait this happens. After that, tracer process can call ptrace with other request param (PTRACE_GETREGS, PTRACE_SETREGS, PTRACE_PEEKDATA, PTRACE_POKEDATA…) to further inspect the tracee runtime state and control its code execution path.
 
-#### 2.1.2.3 Interpreters
+#### Interpreters
 
 As regards with debugging an interpreted language, it is much more direct than the system call approach because all of the debugging facilities can be built directly into the interpreter. Within an interpreter, you have unrestricted access to the execution engine. The entire thing can run in user space instead of kernel space (syscall). Nothing is hidden. All you need to do is add extensions to process breakpoint instructions and support single stepping.
 
-#### 2.1.2.4 Kernel Debuggers
+#### Kernel Debuggers
 
 When an operating system institutes strict memory protection, a special type of debugger is needed to debug the kernel. You cannot use a conventional user-mode debugger because memory protection facilities (like segmentation and paging) prevent it from manipulating the kernel’s image. 
 
@@ -72,15 +72,15 @@ Instead, what you need is a kernel debugger.
 
 A kernel debugger is an odd creature that commandeers control the processor so that the kernel can be examined via single stepping and breakpoints. This means that the kernel debugger must somehow sidestep the native memory protection scheme by merging itself into the operating system’s memory image. Some vendors perform this feat by designing their debuggers as device drivers, or loadable kernel modules.
 
-#### 2.1.2.5 Debug Interface
+#### Debug Interface
 
 In case you haven’t noticed, it’s all about program state. Different debuggers offer different ways for a user to view the state of a running program. Some debuggers, like gdb, provide only a simple, but consistent, command-line interface. Other debuggers are integrated into slick GUI environments. To be honest, I lean towards the GUI debuggers because they are capable of presenting and accessing more machine state information at any given point in time. With a GUI debugger, you can easily monitor dozens of program elements simultaneously.
 
 On the other hand, if you are developing an application that will be deployed on multiple platforms, it may be difficult to find a GUI IDE that runs on all of them. This is the great equalizer for command-line debuggers. The GNU debugger may not have a fancy interface, but it looks (and behaves) the same everywhere. Once you jump the initial learning curve, you can debug executables on any platform that gdb has been ported to.
 
-### 2.1.3 Symbol Debugger Extensions
+### Symbol Debugger Extensions
 
-#### 2.1.3.1 Dynamic Breakpoints
+#### Dynamic Breakpoints
 
 If there’s a term called dynamic breakpoints, there may be a term called static breakpoints. Yes, both of them exist.
 
@@ -124,7 +124,7 @@ To place a dynamic breakpoint on a statement, the debugger would take the first 
 
 Once the statement has been executed, the debugger then has the option to swap back in the breakpoint or to leave the instruction alone. If the breakpoint was originally inserted via an explicit request by the user (i.e., break source.c:17), it will be reinserted again. However, if the breakpoint was initially inserted to support single stepping, the breakpoint will not be reinserted.
 
-#### 2.1.3.2 Single Stepping
+#### Single Stepping
 
 Single stepping in a machine-level debugger is simple: the processor simply executes the next machine instruction and returns program control to the debugger. For a symbolic debugger, this process is not as simple because a single statement in a high-level programming language typically translates into several machine-level instructions. You can’t simply have the debugger execute a fixed number of machine instructions because high-level source code statements vary in terms of how many machine-level instructions they resolve to.
 

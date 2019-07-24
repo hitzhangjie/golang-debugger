@@ -1,8 +1,8 @@
-## 3.1 Countertactics
+## Countertactics
 
 Give enough time and effort, any program can be reverse engineered. The goal, then, is to make it as painful as possible for a malicious engineer to figour out how things work. In light of this, there’re steps that you can take that will make it difficult for someone to peek at your program with a debugger. In this section, I will examine a few of these steps.
 
-### 3.1.1 System Calls
+### System Calls
 
 Some operating systems provides a special call that will indicate if the current process is being executed under the auspices of a debugger. For example, Windows KERNEL32.DLL exports a function named IsDebuggerPresent(). You can wrap this call in an innocuous little routine like chk().
 
@@ -24,7 +24,7 @@ In Linux, we may use other similar tricks to determine whether current running p
 
  
 
-### 3.1.2 Remove Debugging Information
+### Remove Debugging Information
 
 One simple way to make debugging more expensive is to remove debugging information from your deliverable. This can be done by stripping debug information (with a tool like GNU’s strip utility) or by setting your development tools to generate a release build.
 
@@ -40,7 +40,7 @@ The absence of debugging symbols will not stop everyone, some decompilers out th
 
  
 
-### 3.1.3 Coding Salt
+### Coding Salt
 
 If memory footprint is not a big issue, and you don’t mind a slight performance hit, one way to foil a debugger is to periodically salt your code with unnecessary statements. This will make it easy for someone trying to reverse engineer your code to become lost among the trees and lose sight of the forest, so to speak.
 
@@ -48,7 +48,7 @@ In this manner, even if you shipped this program with debug symbols, it would be
 
  
 
-### 3.1.4 Mixed Memory Models
+### Mixed Memory Models
 
 There’re robust debuggers, like SoftICE, that can gracefully make the jump between user mode and kernel mode. However, not many debuggers can make the jump between two different memory models. Windows in particular is guilty of allowing this kind of abomination to occur. On Windows, this phenomenon is generally known as thunking, and it allows 16-bit code and 32-bit code to fraternize.
 
