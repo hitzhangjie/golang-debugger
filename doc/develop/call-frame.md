@@ -1,6 +1,6 @@
-### 1.1.2 Inspect Call Frame
+### Inspect Call Frame
 
-#### 1.1.2.1 Purpose
+#### Purpose
 
 Debuggers often need to view and modify the state of frame on the call frame stack. To be able to view or modify a frame that is not on the top of the call frame stack, the debugger must *virtually unwind* the stack of call frame util it finds the frame of interest. Virtually Unwind means it has the logic effect of returning from the current subroutine to its predecessor, but it can still *rewind* the stack back to the state it was in before it attempted to unwind it, just thinking *gdb commands like bt, frame $n, info frame*.
 
@@ -18,11 +18,11 @@ For example, when we are inside testCall (i.e. from 4004cc onward), at every ins
 
  
 
-#### 1.1.2.2 CIE & FDE
+#### CIE & FDE
 
 As is mentioned above, we need keeping a table structure that keeps track of all the changes that happens with each register for every line of assembly. 
 
-#### 1.1.2.3 Table Structure
+#### Table Structure
 
 Dwarf supports virtual unwinding by defining an architecture independent basis for recording how procedures save and restore registers throughout their lifetimes. The basis must be augmented on some machines with specific information that is defined by either an architecture specific ABI authoring committee, a hardware vendor, or a compiler producer. The body defining a specific augmentation is referred to below as the augmenter.
 
@@ -54,7 +54,7 @@ In essence, the .debug_frame section and its corresponding cryptic tags are used
 
  
 
-#### 1.1.2.4 Build Table
+#### Build Table
 
 Take following code as an example:
 
@@ -122,7 +122,7 @@ According to this instructions stored in CIE or FDEs, we can know how to build t
 
  
 
-#### 1.1.2.5 Calc ReturnAddress
+#### Calc ReturnAddress
 
  
 
