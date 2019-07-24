@@ -18,6 +18,8 @@
     * [6.3 Memory & Register](develop/memory-registers.md)
     * [6.4 Symbol Table](develop/symbol-table.md)
     * [6.5 Call Frame](develop/call-frame.md)
+    * [6.6 Debug Line](develop/debug-line.md)
+    * [6.7 More...](develop/more.md)
 * [7 Others](others.md)
 * [8 contributors](contributors.md) 
 * [9 contributing](contributing.md)
