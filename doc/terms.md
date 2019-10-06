@@ -1,6 +1,6 @@
-# 术语表
+# Terms
 
-软件开发需要一整套的编译构建调试工具链的支持，其中还涉及到操作系统、处理器等多方面的知识，知识面覆盖非常广，有必要整理一个术语表规范术语的选择、使用，也方便读者快速查阅、理解。
+In this book, we'll cover knowledge in compilers, linkers, operating systems, debuggers and deubgging information standards, software development, etc. Many terms will be used. We list all common and important terms here so that readers can lookup conveniently.
 
 | **Term**                     | **Description**                                              |
 | :--------------------------- | :----------------------------------------------------------- |

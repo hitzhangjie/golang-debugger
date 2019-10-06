@@ -1,10 +1,14 @@
-### 5.2.7 Summary 
+## 5.5 Summary 
 
-The basic concepts for the Dwarf are quit straight-forward. A program is described as a tree with nodes representing the various functions, data and types in the source in a compact language and machine-independent fashion. 
+The basic concepts for the Dwarf are quit straight-forward. 
 
-The line table provides the mapping between the executable instructions and the source that generated them. The CFI describes how to unwind the stack.
+- A program is described as a **tree with nodes (IDEs)** representing the various functions, data and types in the source in a compact language and machine-independent fashion. 
 
-There is quite a bit of subtlety in Dwarf as well, given that it needs to express the many different nuances for a wide range of programming languages and different machine architectures. 
+- The **Line Number Table** provides the mapping between the executable instructions and the source that generated them. 
+
+- The **CFI (Call Frame Information)** describes how to unwind the stack.
+
+- There is quite a bit of subtlety in Dwarf as well, given that it needs to express the many different nuances for a wide range of programming languages and different machine architectures. 
 
 By using ‘**gcc -g -c filename.c**’ can generate the Dwarf debugging information and stored it into the object file filename.o.  
 

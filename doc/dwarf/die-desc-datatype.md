@@ -1,10 +1,10 @@
-### 5.2.3 Describing Data and Type
+### 5.3.2 Describing Data and Type
 
 Most of programming languages provide sophisticated description of data types, including the builtin basic data type and the method to create new data type. Dwarf aims to support all programming languages, so it abstracts out a solution to represent all languages.
 
 Dwarf abstracts out several base types (number) based on the hardware, other types are constructed as collections or composition of base types.
 
-#### 5.2.3.1 Base Types
+#### 5.3.2.1 Base Types
 
 Dwarf v1 and other debugging formats suppose that compiler and debugger need sharing common understanding of the size of base type, such as whether an int is 8, 16 or 32 bits. Same language on different hardware platforms may have different size of the same type, an int could be 16 bit on 16 bit processor and 32 bit on 32 bit processor. But different language on the same hardware platform may have different size of the same type, such as golang int is 64 bit on 64 bit processor, while in C it is 32 bit.
 
@@ -22,7 +22,7 @@ figure 3 depicts that type word is 16 bit signed number, while it takes up 4 byt
 
 DW_TAG_base_type, this tag allows a number of base types to be described, including binary integer, packed integer, address, character, fixed number and floating number. floating number’s encoding format (such as IEEE-754) is determined by the hardware. 
 
-#### 5.2.3.2 Type Composition
+#### 5.3.2.2 Type Composition
 
 Dwarf defines a new data type via grouping or chaining builtin base types. 
 
@@ -32,11 +32,11 @@ Figure 5 depicts that variable px is defined, its data type DW_AT_type = <2> ref
 
 Other data types can also be defined via chaining several DW_TAG_...., such as reference type can be built based on DW_TAG_pointer_type. 
 
-#### 5.2.3.3 Array
+#### 5.3.2.3 Array
 
 Array is defined in a DIE which specifies whether the elements is stored in column major order (as in Fortran) or row major order (as in C or C++). The index for the array is specified by a subrange type that gives the lower and upper bounds of each dimension. This allows dwarf to describe both C style arrays, which always have zero as the lowest index, as well as arrays in Pascal or Ada, which can have any value for the low and high bounds. 
 
-#### 5.2.3.4 Structures, Classes, Unions, and Interfaces
+#### 5.3.2.4 Structures, Classes, Unions, and Interfaces
 
 Most programming languages allow programmer to group different data types into a new compositive type, such as struct.
 
@@ -48,7 +48,7 @@ DIE for a class is a parent for DIEs of class members, each class has a name and
 
 C\C++ also allow bit field in struct, this can be described in attribute DW_AT_bit_offset and DW_AT_bit_size combined with DW_AT_byte_size. Bit offset and bit size specify how many bits is taken up and where it is stored, byte size specifies total space taken up by the struct.
 
-#### 5.2.3.5 Variables
+#### 5.3.2.5 Variables
 
 Variables are generally pretty simple, they have a name which presents a chunk of memory (or register) that store the value. Variable’s type describes what value is contained and whether it can be modified (such as const) or not. 
 
@@ -57,9 +57,9 @@ What distinguishes a variable is where its value is stored and its scope.
 1. A variable can be stored at global data section, stack or register. 
 2. Variable’s scope describes where it can be known in the program, to some extent, its scope is determined by declaration. Dwarf documents where the variable is defined in triplet (file, line, column).
 
-#### 5.2.3.6 Location Expressions
+#### 5.3.2.6 Location Expressions
 
-##### 5.2.3.6.1 Introduction
+##### 5.3.2.6.1 Introduction
 
 Dwarf provides a very general schema to describe how to locate the data represented by a variable. That is Dwarf location attribute DW_AT_location, which specifies a sequence of operations to tell debugger how to locate the data.  
 
@@ -70,7 +70,7 @@ Following is an example to show how DW_AT_location attribute helps to locate the
 
 Figure 7 depicts that variable b is stored in a register, variable c is stored at stack, variable a is stored at fixed address (data section).
 
-##### 5.2.3.6.2 Further Reading
+##### 5.3.2.6.2 Further Reading
 
 The debugging information must provides consumers a way to find the location of program variables, determine the bounds of of dynamic arrays and strings and possibly to find the base address of a subroutine’s stack frame or the return address of a subroutine. Furthermore, to meet the needs of recent computer architectures and optimization techniques, the debugging information must be able to describe the location of an object whose location changes over the objects’ lifetime.
 
@@ -80,7 +80,7 @@ Information about the location of program object is provided by location descrip
 
 - **Location lists**, which are used to describe objects that have a limited lifetime or change their location throughout their lifetime.
 
-##### 5.2.3.6.3 Location Expression
+##### 5.3.2.6.3 Location Expression
 
 A location expression consists of zero or more location operations. An expression with zero operations is used to denote an object that is present in the source code but not present in the object code (perhaps because of optimization). 
 
@@ -153,7 +153,7 @@ A location expression consists of zero or more location operations. An expressio
 
         ![img](assets/clip_image008.png)
 
-##### 5.2.3.6.4 Location Lists
+##### 5.3.2.6.4 Location Lists
 
 Location lists are used in place of location expressions whenever the object whose location can be changed during its lifetime. Location lists are contained in a separate object file section .debug_loc. 
 
@@ -169,7 +169,7 @@ The end of any location list is marked by a 0 for the beginning address and a 0 
 
 >Dwarf 5 will replace .debug_loc and .debug_ranges with .debug_loclists and .debug_rnglists allowing more compact representation and eliminating relocations.
 
-#### 5.2.3.7 Further Reading
+#### 5.3.2.7 Further Reading
 
 - Types of Declarations, please refer to DwarfStandards 3.2.2.1 and 3.2.2.2.
 - Accessibility of Declarations, some languages provides support for accessibility of an object or some other program entity, this can be specififed by attribute DW_AT_accessibility, whose value is a constant drawn from the set of codes listed here: DW_ACCESS_public, DW_ACCESS_private, DW_ACCESS_protected.

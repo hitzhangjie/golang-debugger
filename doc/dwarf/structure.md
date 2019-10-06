@@ -1,4 +1,4 @@
-### 5.2.1 Structure
+## 5.2 Structure
 
 DWARF uses a data structure called a **Debugging Information Entry (DIE)** to represent each variable, type, procedure, etc. 
 - A DIE has a tag (e.g., DW_TAG_variable, DW_TAG_pointer_type, DW_TAG_subprogram…) and set of attributes (key-value pairs). 
