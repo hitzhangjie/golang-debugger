@@ -46,6 +46,7 @@ type BreakPoint struct {
 	OriginalData []byte
 }
 
+// Variable has type, name and value
 type Variable struct {
 	Name  string
 	Value string
