@@ -1,4 +1,4 @@
-### 5.2.6 Summary 
+### 5.2.7 Summary 
 
 The basic concepts for the Dwarf are quit straight-forward. A program is described as a tree with nodes representing the various functions, data and types in the source in a compact language and machine-independent fashion. 
 

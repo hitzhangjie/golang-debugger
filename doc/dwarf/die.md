@@ -1,4 +1,4 @@
-### 5.2.2 DIE
+### DIE
 
 Each debugging information entry is described by **an identifying tag** and contains **a series of attributes**. 
 - The tag specifies the class to which an entry belongs;
@@ -8,13 +8,13 @@ The debugging information entries in Dwarf v2 are intended to exist in the **.de
 
 >fixme What about Dwarf v4? Is it .zdebug_info?
 
-#### 5.2.2.1 Tag
+#### Tag
 
 Tag, specifies what the DIE describes, the set of required tag names is listed in following figure.
 
 ![img](assets/clip_image001.png)
 
-#### 5.2.2.2 Attribute
+#### Attribute
 
 Attribute, fill in details of DIE and further describes the entity.
 
@@ -37,7 +37,7 @@ The set of required attribute names is listed in following figure.
 5. **Reference**, refers to some member of the set of DIEs that describe the program.
 6. **String**, a null-terminated sequence of zero or more (non-null) bytes. Strings maybe represented directly in the DIE or as an offset in a separate string table.
 
-#### 5.2.2.3 Form
+#### Form
 
 Briefly, DIE can be classified into 2 forms: 
 
