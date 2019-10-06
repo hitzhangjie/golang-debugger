@@ -4,7 +4,7 @@ Give enough time and effort, any program can be reverse engineered. The goal, th
 
 ### System Calls
 
-Some operating systems provides a special call that will indicate if the current process is being executed under the auspices of a debugger. For example, Windows KERNEL32.DLL exports a function named IsDebuggerPresent(). You can wrap this call in an innocuous little routine like chk().
+Some operating systems provides a special call that will indicate if the current process is being executed under the auspices of a debugger. For example, Windows KERNEL32.DLL exports a function named `IsDebuggerPresent()`. You can wrap this call in an innocuous little routine like chk().
 
 ![img](assets/clip_image002-3995693.png)
 
@@ -16,13 +16,7 @@ The trick to this technique is to call chk() immediately. This will increase the
 
 If a debugger is present, you can force the program to behave strangely, and send the person debugging your application on a wild-goose chase. Debuggers are unique tools because they allow the user to observe a program from a neutral frame of reference. By inserted code like chk(), you are forcing the user into a warped quantum universe where the very act of observing influences the output of the program.
 
- 
-
-\>>>Remark
-
-In Linux, we may use other similar tricks to determine whether current running process is debugged or not.
-
- 
+>In Linux, we may use other similar tricks to determine whether current running process is debugged or not.
 
 ### Remove Debugging Information
 
@@ -38,21 +32,15 @@ If you try and debug this with gdb, it will complain that it cannot find any deb
 
 The absence of debugging symbols will not stop everyone, some decompilers out there can take machine code and recast it as high-level source code. The good news is that these tools tend to generate code that is difficult to read and use arbitrary naming conventions. In other words, the cure is almost as bad as the illness.
 
- 
-
 ### Coding Salt
 
 If memory footprint is not a big issue, and you don’t mind a slight performance hit, one way to foil a debugger is to periodically salt your code with unnecessary statements. This will make it easy for someone trying to reverse engineer your code to become lost among the trees and lose sight of the forest, so to speak.
 
 In this manner, even if you shipped this program with debug symbols, it would be difficult to figure out what was happening (particularly if you believed that each statement had a legitimate purpose).
 
- 
-
 ### Mixed Memory Models
 
 There’re robust debuggers, like SoftICE, that can gracefully make the jump between user mode and kernel mode. However, not many debuggers can make the jump between two different memory models. Windows in particular is guilty of allowing this kind of abomination to occur. On Windows, this phenomenon is generally known as thunking, and it allows 16-bit code and 32-bit code to fraternize.
-
- 
 
 Folliwing depicts the thunking techniques used in Windows:
 
