@@ -1,7 +1,7 @@
 {
   "plugins": [
       "mermaid-cli",
-      "intopic-toc"
+      "md-toc"
   ],
   "pluginsConfig": {
     "mermaid-cli": {
