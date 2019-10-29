@@ -22,6 +22,7 @@
         * [5.4.4 Variable Length Data](dwarf/other-varlen-data.md)
         * [5.4.5 Shrinking Dwarf Data](dwarf/other-shrink-data.md)
         * [5.4.6 ELF Sections](dwarf/other-elf-sections.md)
+        * [5.4.7 Common Information Entry](dwarf/other-cie.md)
     * [5.5 Summary](dwarf/summary.md)
     * [5.3 What to get](dwarf/what-to-get.md)
     * [5.4 How to get](dwarf/how-to-get.md)
