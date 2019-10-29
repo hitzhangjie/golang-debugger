@@ -97,61 +97,65 @@ A location expression consists of zero or more location operations. An expressio
     **There’re several address operation manners, including:**  
     1. Register Based Addressing  
 
-    Register based addressing, push a value onto the stack that is the result of adding the contents of a register with a given signed offset.
-        - DW_OP_fbreg $offset, adding contents in frame base register (rbp) with $offset.
-        - DW_OP_breg${n}, adding contents in register ${n} with LEB128 encoded offset.
-        - DW_OP_bregx, adding contents in register whose number is LEB128 encoded  with a LEB128 encoded offset .
+       Register based addressing, push a value onto the stack that is the result of adding the contents of a register with a given signed offset.
+
+       - DW_OP_fbreg \$offset, adding contents in frame base register (rbp) with $offset.
+       - DW_OP_breg\${n} \${offset}, adding contents in register ${n} with LEB128 encoded offset.
+       - DW_OP_bregx \${n} ${offset}, adding contents in register whose number is LEB128 encoded  with a LEB128 encoded offset .
 
     2. Stack Operations  
 
-    The following operations all push a value onto the addressing stack:  
-        - DW_OP_lit${n} (0<=n<=31), encode the unsigned literal values ${n}.
-        - DW_OP_addr, encode the machine address that matches the target machine.
-        - DW_OP_const1u/1s/2u/2s/4u/4s/8u/8s, encode 1/2/4/8 bytes unsigned or signed integer.
-        - DW_OP_constu/s, encode LEB128 unsigned or signed integer.
+       The following operations all push a value onto the addressing stack:  
 
-    Following operations manipulate the location stack, location operations that index the location stack assumes that the top of the stack has index 0.  
-        - DW_OP_dup, duplicates the top stack entry and pushes.
-        - DW_OP_drop, pops the value at the top of stack.
-        - DW_OP_pick, picks the stack entry specified by 1-byte ${index} and pushes.
-        - DW_OP_over, duplicate the stack entry with index 2 and pushes.
-        - DW_OP_swap, swap two stack entries, which are specified by two operands.
-        - DW_OP_rot, rotate the top 3 stack entries.
-        - DW_OP_deref, pops the value at the top of stack as address and retrieves data from that address, then pushes the data whose size is the size of address on target machine.
-        - DW_OP_deref_size, similar to DW_OP_deref, plus when retrieveing data from address, bytes that’ll be read is specified by 1-byte operand, the read data will be zero-extended to match the size of address on target machine.
-        - DW_OP_xderef & DW_OP_xderef_size, similar to DW_OP_deref, plus extended dereference mechanism. When dereferencing, the top stack entry is popped as address, the second top stack entry is popped as an address space identifier. Do some calculation to get the address and retrieve data from it, then push the data to the stack.
+       - DW_OP_lit\${n} (0<=n<=31), encode the unsigned literal values ${n}.
+       - DW_OP_addr, encode the machine address that matches the target machine.
+       - DW_OP_const1u/1s/2u/2s/4u/4s/8u/8s, encode 1/2/4/8 bytes unsigned or signed integer.
+       - DW_OP_constu/s, encode LEB128 unsigned or signed integer.
+
+       Following operations manipulate the location stack, location operations that index the location stack assumes that the top of the stack has index 0.  
+
+       - DW_OP_dup, duplicates the top stack entry and pushes.
+       - DW_OP_drop, pops the value at the top of stack.
+          - DW_OP_pick, picks the stack entry specified by 1-byte ${index} and pushes.
+       - DW_OP_over, duplicate the stack entry with index 2 and pushes.
+          - DW_OP_swap, swap two stack entries, which are specified by two operands.
+       - DW_OP_rot, rotate the top 3 stack entries.
+          - DW_OP_deref, pops the value at the top of stack as address and retrieves data from that address, then pushes the data whose size is the size of address on target machine.
+       - DW_OP_deref_size, similar to DW_OP_deref, plus when retrieveing data from address, bytes that’ll be read is specified by 1-byte operand, the read data will be zero-extended to match the size of address on target machine.
+          - DW_OP_xderef & DW_OP_xderef_size, similar to DW_OP_deref, plus extended dereference mechanism. When dereferencing, the top stack entry is popped as address, the second top stack entry is popped as an address space identifier. Do some calculation to get the address and retrieve data from it, then push the data to the stack.
 
     3. Arithmetic and Logical Operations
 
-    DW_OP_abs, DW_OP_and, DW_OP_div, DW_OP_minus, DW_OP_mod, DW_OP_mul, DW_OP_neg, DW_OP_not, DW_OP_or, DW_OP_plus, DW_OP_plus_uconst, DW_OP_shl, DW_OP_shr, DW_OP_shra, DW_OP_xor, all these operations works similarly, pop the operands from the stack and calculate, then push value to the stack.
+       DW_OP_abs, DW_OP_and, DW_OP_div, DW_OP_minus, DW_OP_mod, DW_OP_mul, DW_OP_neg, DW_OP_not, DW_OP_or, DW_OP_plus, DW_OP_plus_uconst, DW_OP_shl, DW_OP_shr, DW_OP_shra, DW_OP_xor, all these operations works similarly, pop the operands from the stack and calculate, then push value to the stack.
 
     4. Control Flow Operations
 
-    The following operations provide simple control of flow of a location expression.
+       The following operations provide simple control of flow of a location expression.
 
-        - Relational operators, the six operators each pops the top two stack entries and compares the top first one with the second one, and pushes value 1 if the result is true or pushes value 0 if the result is false.
-        - DW_OP_skip, unconditional branch, its operand is a 2-byte constant representing the number of bytes of the location expression to skip from current location expression, beginning after the 2-byte constant.
-        - DW_OP_bra, conditional branch, this operation pops the stack, if the popped value is not zero, then skip some bytes to jump to the location expression. The number of bytes to skip is specified by its operand, which is a 2-byte constant representing the number of bytes of the location expression to skip from current locating expression, beginning after the 2-byte constant.
+       - Relational operators, the six operators each pops the top two stack entries and compares the top first one with the second one, and pushes value 1 if the result is true or pushes value 0 if the result is false.
+       - DW_OP_skip, unconditional branch, its operand is a 2-byte constant representing the number of bytes of the location expression to skip from current location expression, beginning after the 2-byte constant.
+       - DW_OP_bra, conditional branch, this operation pops the stack, if the popped value is not zero, then skip some bytes to jump to the location expression. The number of bytes to skip is specified by its operand,
+       -  which is a 2-byte constant representing the number of bytes of the location expression to skip from current locating expression, beginning after the 2-byte constant.
 
     5. Special Operations
-
-    There’re two special operations currently defined in Dwarf 2:
-
-        - DW_OP_piece, many compilers store a single variable in a set of registers, or store partially in register and partially in memory. DW_OP_piece provides a way of describing how large a part of a variable a particular address location refers to.
     
-        - DW_OP_nop, it’s a placeholder, it has no effect on the location stack or any of its values. 
-
-    The location operations mentioned above are described conventionally, following are some examples. 
-
-        1. Stack Operation Sample
+       There’re two special operations currently defined in Dwarf 2:
     
-        ![img](assets/clip_image007.png)
+       - DW_OP_piece, many compilers store a single variable in a set of registers, or store partially in register and partially in memory. DW_OP_piece provides a way of describing how large a part of a variable a particular address location refers to.
+       - DW_OP_nop, it’s a placeholder, it has no effect on the location stack or any of its values. 
     
-        2. Location Expression Sample
+		The location operations mentioned above are described conventionally, following are some examples. 
     
-        Here are some examples of how location operations are used to form location expressions.
+		- Stack Operation Sample
+		
+    	![img](assets/clip_image007.png)
+    	
+    	- Location Expression Sample
+    	
+    	​		Here are some examples of how location operations are used to form location expressions.
     
-        ![img](assets/clip_image008.png)
+	​					![img](assets/clip_image008.png)
+	
 
 ##### 5.3.2.6.4 Location Lists
 
