@@ -2,7 +2,7 @@
 
 The basic concepts for the Dwarf are quit straight-forward. 
 
-- A program is described as a **tree with nodes (IDEs)** representing the various functions, data and types in the source in a compact language and machine-independent fashion. 
+- A program is described as a **tree with nodes (DIEs)** representing the various functions, data and types in the source in a compact language and machine-independent fashion. 
 
 - The **Line Number Table** provides the mapping between the executable instructions and the source that generated them. 
 
