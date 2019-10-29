@@ -19,7 +19,7 @@ In practice, depending on the format of the object file, debug symbol table reco
 - In a separate file
 
     For example, Microsoft’s Visual C++ 2.0 debug information is stored in a separate *.PDB (Program Database) file.
- 
+
 Debug symbol information maps functions and variables to locations in memory, this is what gives a symbolic debugger the fundamental advantage over a machine debugger. For instance, the source code to memory mapping allows a symbolic debugger to display the value of a variable, because the variable’s identifier is matched to a specific location in the program’s data segment (stack or heap). Not only that, but there will also be data type information in the symbol table that will tell the debugger what type of data is manipulated so that its value can be properly displayed.
 
 ![img](assets/clip_image002.png)
@@ -97,7 +97,7 @@ Breakpoints are created by generating **0xCC one-byte machine instruction**, 0xC
     Providing the associated assembly is as following:
 
     ![img](assets/clip_image003.png)
- 
+
     To place a dynamic breakpoint on a statement, the debugger would take the first opcode 0x8B and replace it with a breakpoint instruction 0xCC. When the debugger encounters this breakpoint, it will replace the breakpoint with the opcode and then execute the entire statement.
 
     Once the statement has been executed, the debugger then has the option to swap back in the breakpoint or to leave the instruction alone. If the breakpoint was originally inserted via an explicit request by the user (i.e., break source.c:17), it will be reinserted again. However, if the breakpoint was initially inserted to support single stepping, the breakpoint will not be reinserted.
