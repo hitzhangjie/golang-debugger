@@ -46,3 +46,5 @@ If the compilation unit takes up continuous memory (i.e., it’s loaded into mem
 
 If the compilation is not continuous, then a list of the memory address that the code takes up is provided by the compiler and linker.
 
+Each Compilation Unit is represented by a **Common Information Entry**.
+
