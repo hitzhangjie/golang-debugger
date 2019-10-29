@@ -116,13 +116,13 @@ A location expression consists of zero or more location operations. An expressio
 
        - DW_OP_dup, duplicates the top stack entry and pushes.
        - DW_OP_drop, pops the value at the top of stack.
-          - DW_OP_pick, picks the stack entry specified by 1-byte ${index} and pushes.
+       - DW_OP_pick, picks the stack entry specified by 1-byte ${index} and pushes.
        - DW_OP_over, duplicate the stack entry with index 2 and pushes.
-          - DW_OP_swap, swap two stack entries, which are specified by two operands.
+       - DW_OP_swap, swap two stack entries, which are specified by two operands.
        - DW_OP_rot, rotate the top 3 stack entries.
-          - DW_OP_deref, pops the value at the top of stack as address and retrieves data from that address, then pushes the data whose size is the size of address on target machine.
+       - DW_OP_deref, pops the value at the top of stack as address and retrieves data from that address, then pushes the data whose size is the size of address on target machine.
        - DW_OP_deref_size, similar to DW_OP_deref, plus when retrieveing data from address, bytes that’ll be read is specified by 1-byte operand, the read data will be zero-extended to match the size of address on target machine.
-          - DW_OP_xderef & DW_OP_xderef_size, similar to DW_OP_deref, plus extended dereference mechanism. When dereferencing, the top stack entry is popped as address, the second top stack entry is popped as an address space identifier. Do some calculation to get the address and retrieve data from it, then push the data to the stack.
+       - DW_OP_xderef & DW_OP_xderef_size, similar to DW_OP_deref, plus extended dereference mechanism. When dereferencing, the top stack entry is popped as address, the second top stack entry is popped as an address space identifier. Do some calculation to get the address and retrieve data from it, then push the data to the stack.
 
     3. Arithmetic and Logical Operations
 
