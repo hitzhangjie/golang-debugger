@@ -1,9 +1,10 @@
 # Preface
 
-我本人是一个好奇心比较强的人，喜欢刨根问底，一年前开始接触golang，学习过程中接触到了golang相关的调试器gdb、delve，有一天突然产生了疑问：**调试器是如何工作的**？
+Hi, I am a programmer. From March 2018, I began learning go programming language. Also, I got in touch with the golang debugger **delve**. One day, suddenly flashed a question in my mind. **How does a debugger like delve work?**
 
-如果只是想了解大致的工作原理，这个是比较简单的，读者朋友们读完 **basics** 中的章节就了解了，或者去Google一下网上的文章。
+If you just want to understand the general working principle, this is relatively simple. You could check the **basics ** chapters, or go to read some online articles. While if you want to know more internals so that you could develop a debugger from scratch, that's another thing.
 
-调试器的设计、实现、调试信息标准也是一个非常庞杂的工程，我希望一窥其中的奥秘，帮助我加深下对软件开发工具链的进一步认识，在学习过程中，也意识到这是一个实践意义非常强、技术含量也比较高、有助于从多方位巩固完善软件开发人员知识体系的方向。所以我希望在工作之余能完成这个工程，分享给大家。
+The design, implementation, and debugging information standard of the debugger is also a very complicated project. I hope to have a glimpse of the mystery and help me to further understand the software development tool chain. In the process of learning, I also realize that this is a good practice. The technical details we will get in touched is very valuable, which helps to consolidate and improve the software developer's knowledge system from multiple aspects. So I hope to complete this project and share it with everyone.
 
-当然由于作者本人水平有限，难免有错误或者疏漏之处，也希望读者朋友能不吝赐教，及时予以指正，我也会第一时间予以纠正并同步给读者，误人子弟的事情不能干。
+Of course, because the author's own level is limited, it is inevitable that there will be mistakes or omissions. I also hope that readers could give me advices and I'll correct them in time.
+

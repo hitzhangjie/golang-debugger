@@ -27,8 +27,11 @@ I think this book will be interesting and helpful. That makes me excited.
     - parsing .debug_line
     - ...
 
->Remark: This plan started in 2018.7, but it is held on for nearly one year...my bad.
->        Hope we can finish this book in 2019!
+>Remark: 
+>
+>This plan started in 2018.7, but it is held on for nearly one year...my bad.
+>
+>Hope we can finish this book in 2019!
 
 ## 1.4 Contact
 
