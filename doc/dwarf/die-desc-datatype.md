@@ -54,12 +54,11 @@ Variables are generally pretty simple, they have a name which presents a chunk o
 
 What distinguishes a variable is where its value is stored and its scope.
 
-1. A variable can be stored at global data section, stack, heap or register. 
-2. Variable’s scope describes where it can be known in the program, to some extent, its scope is determined by declaration. Dwarf documents where the variable is defined in triplet (file, line, column).
+- A variable can be stored at global data section, stack, heap or register. 
 
-#### 5.3.2.6 Location Expressions
+- Variable’s scope describes where it can be known in the program, to some extent, its scope is determined by declaration. Dwarf documents where the variable is defined in triplet (file, line, column).
 
-##### 5.3.2.6.1 Introduction
+#### 5.3.2.6 Location
 
 Dwarf provides a very general schema to describe how to locate the data represented by a variable. That is Dwarf location attribute DW_AT_location, which specifies a sequence of operations to tell debugger how to locate the data.  
 
@@ -70,8 +69,6 @@ Following is an example to show how DW_AT_location attribute helps to locate the
 
 Figure 7 depicts that variable b is stored in a register, variable c is stored at stack, variable a is stored at fixed address (data section).
 
-##### 5.3.2.6.2 Further Reading
-
 The debugging information must provides consumers a way to find the location of program variables, determine the bounds of of dynamic arrays and strings and possibly to find the base address of a subroutine’s stack frame or the return address of a subroutine. Furthermore, to meet the needs of recent computer architectures and optimization techniques, the debugging information must be able to describe the location of an object whose location changes over the objects’ lifetime.
 
 Information about the location of program object is provided by location descriptions. Location descriptions can be classified into two forms:
@@ -80,86 +77,94 @@ Information about the location of program object is provided by location descrip
 
 - **Location lists**, which are used to describe objects that have a limited lifetime or change their location throughout their lifetime.
 
-##### 5.3.2.6.3 Location Expression
+#### 5.3.2.7 Location Expression
 
 A location expression consists of zero or more location operations. An expression with zero operations is used to denote an object that is present in the source code but not present in the object code (perhaps because of optimization). 
 
 **The location operations fall into two categories, register names and addressing operations**:
 
-- **Register names** always appear alone and indicate that the referred object is contained inside a particular register.  
+- Register names
+- Address operations
 
-    Note that the register number represents a Dwarf specific mapping of numbers onto the actual registers of a given architecture. `DW_OP_reg${n} (0<=n<=31)` operations encode the names of up to 32 register, the object is addressed in register n. `DW_OP_regx` operation has a single unsigned LEB128 literal operand that encodes the name of a register.
+##### 5.3.2.7.1 Register names
 
-- **Address operations** are memory address computation rules. All location operations are encoded as a stream of opcodes that are each followed by zero or more literal operands. The number of operands is determined by the opcode.  
+Register names always appear alone and indicate that the referred object is contained inside a particular register.  
 
-    Each addressing operation represents a postfix operation on a simple stack machine. Each element of the stack is the size of an address on the target machine. The value on the top of the stack after executing the location expression is taken to be the result (the address of the object, or the value of the array bound, or the length of a dynamic string). In the case of locations used for structure members, the computation assumes that the base address of the containing structure has been pushed on the stack before evaluation of the address operation.
+Note that the register number represents a Dwarf specific mapping of numbers onto the actual registers of a given architecture. `DW_OP_reg${n} (0<=n<=31)` operations encode the names of up to 32 register, the object is addressed in register n. `DW_OP_regx` operation has a single unsigned LEB128 literal operand that encodes the name of a register.
 
-    **There’re several address operation manners, including:**  
-    1. Register Based Addressing  
+##### 5.3.2.7.2 Address operations
 
-       Register based addressing, push a value onto the stack that is the result of adding the contents of a register with a given signed offset.
+Address operations are memory address computation rules. All location operations are encoded as a stream of opcodes that are each followed by zero or more literal operands. The number of operands is determined by the opcode.  
 
-       - DW_OP_fbreg \$offset, adding contents in frame base register (rbp) with $offset.
-       - DW_OP_breg\${n} \${offset}, adding contents in register ${n} with LEB128 encoded offset.
-       - DW_OP_bregx \${n} ${offset}, adding contents in register whose number is LEB128 encoded  with a LEB128 encoded offset .
+Each addressing operation represents a postfix operation on a simple stack machine. Each element of the stack is the size of an address on the target machine. The value on the top of the stack after executing the location expression is taken to be the result (the address of the object, or the value of the array bound, or the length of a dynamic string). In the case of locations used for structure members, the computation assumes that the base address of the containing structure has been pushed on the stack before evaluation of the address operation.
 
-    2. Stack Operations  
+**There’re several address operation manners, including:**  
 
-       The following operations all push a value onto the addressing stack:  
+1. **Register Based Addressing**  
 
-       - DW_OP_lit\${n} (0<=n<=31), encode the unsigned literal values ${n}.
-       - DW_OP_addr, encode the machine address that matches the target machine.
-       - DW_OP_const1u/1s/2u/2s/4u/4s/8u/8s, encode 1/2/4/8 bytes unsigned or signed integer.
-       - DW_OP_constu/s, encode LEB128 unsigned or signed integer.
+   Register based addressing, push a value onto the stack that is the result of adding the contents of a register with a given signed offset.
 
-       Following operations manipulate the location stack, location operations that index the location stack assumes that the top of the stack has index 0.  
+   - DW_OP_fbreg \$offset, adding contents in frame base register (rbp) with $offset.
+   - DW_OP_breg\${n} \${offset}, adding contents in register ${n} with LEB128 encoded offset.
+   - DW_OP_bregx \${n} ${offset}, adding contents in register whose number is LEB128 encoded  with a LEB128 encoded offset .
 
-       - DW_OP_dup, duplicates the top stack entry and pushes.
-       - DW_OP_drop, pops the value at the top of stack.
-       - DW_OP_pick, picks the stack entry specified by 1-byte ${index} and pushes.
-       - DW_OP_over, duplicate the stack entry with index 2 and pushes.
-       - DW_OP_swap, swap two stack entries, which are specified by two operands.
-       - DW_OP_rot, rotate the top 3 stack entries.
-       - DW_OP_deref, pops the value at the top of stack as address and retrieves data from that address, then pushes the data whose size is the size of address on target machine.
-       - DW_OP_deref_size, similar to DW_OP_deref, plus when retrieveing data from address, bytes that’ll be read is specified by 1-byte operand, the read data will be zero-extended to match the size of address on target machine.
-       - DW_OP_xderef & DW_OP_xderef_size, similar to DW_OP_deref, plus extended dereference mechanism. When dereferencing, the top stack entry is popped as address, the second top stack entry is popped as an address space identifier. Do some calculation to get the address and retrieve data from it, then push the data to the stack.
+2. **Stack Operations**  
 
-    3. Arithmetic and Logical Operations
+   The following operations all push a value onto the addressing stack:  
 
-       DW_OP_abs, DW_OP_and, DW_OP_div, DW_OP_minus, DW_OP_mod, DW_OP_mul, DW_OP_neg, DW_OP_not, DW_OP_or, DW_OP_plus, DW_OP_plus_uconst, DW_OP_shl, DW_OP_shr, DW_OP_shra, DW_OP_xor, all these operations works similarly, pop the operands from the stack and calculate, then push value to the stack.
+   - DW_OP_lit\${n} (0<=n<=31), encode the unsigned literal values ${n}.
+   - DW_OP_addr, encode the machine address that matches the target machine.
+   - DW_OP_const1u/1s/2u/2s/4u/4s/8u/8s, encode 1/2/4/8 bytes unsigned or signed integer.
+   - DW_OP_constu/s, encode LEB128 unsigned or signed integer.
 
-    4. Control Flow Operations
+   Following operations manipulate the location stack, location operations that index the location stack assumes that the top of the stack has index 0.  
 
-       The following operations provide simple control of flow of a location expression.
+   - DW_OP_dup, duplicates the top stack entry and pushes.
+   - DW_OP_drop, pops the value at the top of stack.
+   - DW_OP_pick, picks the stack entry specified by 1-byte ${index} and pushes.
+   - DW_OP_over, duplicate the stack entry with index 2 and pushes.
+   - DW_OP_swap, swap two stack entries, which are specified by two operands.
+   - DW_OP_rot, rotate the top 3 stack entries.
+   - DW_OP_deref, pops the value at the top of stack as address and retrieves data from that address, then pushes the data whose size is the size of address on target machine.
+   - DW_OP_deref_size, similar to DW_OP_deref, plus when retrieveing data from address, bytes that’ll be read is specified by 1-byte operand, the read data will be zero-extended to match the size of address on target machine.
+   - DW_OP_xderef & DW_OP_xderef_size, similar to DW_OP_deref, plus extended dereference mechanism. When dereferencing, the top stack entry is popped as address, the second top stack entry is popped as an address space identifier. Do some calculation to get the address and retrieve data from it, then push the data to the stack.
 
-       - Relational operators, the six operators each pops the top two stack entries and compares the top first one with the second one, and pushes value 1 if the result is true or pushes value 0 if the result is false.
-       - DW_OP_skip, unconditional branch, its operand is a 2-byte constant representing the number of bytes of the location expression to skip from current location expression, beginning after the 2-byte constant.
-       - DW_OP_bra, conditional branch, this operation pops the stack, if the popped value is not zero, then skip some bytes to jump to the location expression. The number of bytes to skip is specified by its operand,
-       -  which is a 2-byte constant representing the number of bytes of the location expression to skip from current locating expression, beginning after the 2-byte constant.
+3. **Arithmetic and Logical Operations**
 
-    5. Special Operations
-    
-       There’re two special operations currently defined in Dwarf 2:
-    
-       - DW_OP_piece, many compilers store a single variable in a set of registers, or store partially in register and partially in memory. DW_OP_piece provides a way of describing how large a part of a variable a particular address location refers to.
-       - DW_OP_nop, it’s a placeholder, it has no effect on the location stack or any of its values. 
-    
-		The location operations mentioned above are described conventionally, following are some examples. 
-    
-		- Stack Operation Sample
-		
-    	![img](assets/clip_image007.png)
-    	
-    	- Location Expression Sample
-    	
-    	​		Here are some examples of how location operations are used to form location expressions.
-    
-	​					![img](assets/clip_image008.png)
+   DW_OP_abs, DW_OP_and, DW_OP_div, DW_OP_minus, DW_OP_mod, DW_OP_mul, DW_OP_neg, DW_OP_not, DW_OP_or, DW_OP_plus, DW_OP_plus_uconst, DW_OP_shl, DW_OP_shr, DW_OP_shra, DW_OP_xor, all these operations works similarly, pop the operands from the stack and calculate, then push value to the stack.
+
+4. **Control Flow Operations**
+
+   The following operations provide simple control of flow of a location expression.
+
+   - Relational operators, the six operators each pops the top two stack entries and compares the top first one with the second one, and pushes value 1 if the result is true or pushes value 0 if the result is false.
+   - DW_OP_skip, unconditional branch, its operand is a 2-byte constant representing the number of bytes of the location expression to skip from current location expression, beginning after the 2-byte constant.
+   - DW_OP_bra, conditional branch, this operation pops the stack, if the popped value is not zero, then skip some bytes to jump to the location expression. The number of bytes to skip is specified by its operand,
+   -  which is a 2-byte constant representing the number of bytes of the location expression to skip from current locating expression, beginning after the 2-byte constant.
+
+5. **Special Operations**
+
+   There’re two special operations currently defined in Dwarf 2:
+
+   - DW_OP_piece, many compilers store a single variable in a set of registers, or store partially in register and partially in memory. DW_OP_piece provides a way of describing how large a part of a variable a particular address location refers to.
+   - DW_OP_nop, it’s a placeholder, it has no effect on the location stack or any of its values. 
+
+	The location operations mentioned above are described conventionally, following are some examples. 
+
+	- Stack Operation Sample
 	
+	![img](assets/clip_image007.png)
+	
+	- Location Expression Sample
+	
+	​		Here are some examples of how location operations are used to form location expressions.
 
-##### 5.3.2.6.4 Location Lists
+​					![img](assets/clip_image008.png)
 
-Location lists are used in place of location expressions whenever the object whose location can be changed during its lifetime. Location lists are contained in a separate object file section .debug_loc. 
+
+#### 5.3.2.8 Location Lists
+
+Location lists are used in place of location expressions whenever the object whose location can be changed during its lifetime. Location lists are contained in a separate object file section **.debug_loc**. 
 
 A location list is indicated by a constant offset from the beginning of the .debug_loc to the first byte of this list for the object in question. 
 
@@ -173,7 +178,7 @@ The end of any location list is marked by a 0 for the beginning address and a 0 
 
 >Dwarf 5 will replace .debug_loc and .debug_ranges with .debug_loclists and .debug_rnglists allowing more compact representation and eliminating relocations.
 
-#### 5.3.2.7 Further Reading
+#### 5.3.2.9 Further Reading
 
 - Types of Declarations, please refer to DwarfStandards 3.2.2.1 and 3.2.2.2.
 - Accessibility of Declarations, some languages provides support for accessibility of an object or some other program entity, this can be specififed by attribute DW_AT_accessibility, whose value is a constant drawn from the set of codes listed here: DW_ACCESS_public, DW_ACCESS_private, DW_ACCESS_protected.
