@@ -54,7 +54,7 @@ Variables are generally pretty simple, they have a name which presents a chunk o
 
 What distinguishes a variable is where its value is stored and its scope.
 
-1. A variable can be stored at global data section, stack or register. 
+1. A variable can be stored at global data section, stack, heap or register. 
 2. Variable’s scope describes where it can be known in the program, to some extent, its scope is determined by declaration. Dwarf documents where the variable is defined in triplet (file, line, column).
 
 #### 5.3.2.6 Location Expressions
@@ -138,19 +138,19 @@ A location expression consists of zero or more location operations. An expressio
     There’re two special operations currently defined in Dwarf 2:
 
         - DW_OP_piece, many compilers store a single variable in a set of registers, or store partially in register and partially in memory. DW_OP_piece provides a way of describing how large a part of a variable a particular address location refers to.
-
+    
         - DW_OP_nop, it’s a placeholder, it has no effect on the location stack or any of its values. 
 
     The location operations mentioned above are described conventionally, following are some examples. 
 
         1. Stack Operation Sample
-
+    
         ![img](assets/clip_image007.png)
-
+    
         2. Location Expression Sample
-
+    
         Here are some examples of how location operations are used to form location expressions.
-
+    
         ![img](assets/clip_image008.png)
 
 ##### 5.3.2.6.4 Location Lists
@@ -177,4 +177,4 @@ The end of any location list is marked by a 0 for the beginning address and a 0 
 - Virtuality of Declarations, C++ provides support for virtual and pure virtual structure or class member functions and for virtual base classes, this is specified by attribute DW_AT_virtuality, whose value is a constant drawn from codes listed here: DW_VIRTUALITY_none, DW_VIRTUALITY_virtual, DW_VIRTUALITY_pure_virtual.
 - Artificial Entries, a compiler may wish to generate debugging information entries for objects and types that were not actually declared in the source of the application. An example is a formal parameter entry to represent the hidden **this** parameter that most C++ implementations pass as the first argument to non-static member functions.
 - Declaration coordinates, any DIE representing the declaration of an object, module, subprogram or type may have DW_AT_decl_file, DW_AT_decl_line and DW_AT_decl_column attributes, each of whose value is a constant.
- 
+
