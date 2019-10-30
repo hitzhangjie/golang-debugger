@@ -104,7 +104,8 @@ Each addressing operation represents a postfix operation on a simple stack machi
 
    Register based addressing, push a value onto the stack that is the result of adding the contents of a register with a given signed offset.
 
-   - DW_OP_fbreg \$offset, adding contents in frame base register (rbp) with $offset.
+   -   DW_OP_fbreg \$offset, adding contents in frame base register (rbp) with $offset.
+
    - DW_OP_breg\${n} \${offset}, adding contents in register ${n} with LEB128 encoded offset.
    - DW_OP_bregx \${n} ${offset}, adding contents in register whose number is LEB128 encoded  with a LEB128 encoded offset .
 
@@ -149,15 +150,15 @@ Each addressing operation represents a postfix operation on a simple stack machi
    - DW_OP_piece, many compilers store a single variable in a set of registers, or store partially in register and partially in memory. DW_OP_piece provides a way of describing how large a part of a variable a particular address location refers to.
    - DW_OP_nop, it’s a placeholder, it has no effect on the location stack or any of its values. 
 
-	The location operations mentioned above are described conventionally, following are some examples. 
+   The location operations mentioned above are described conventionally, following are some examples. 
 
-	- Stack Operation Sample
-	
-	![img](assets/clip_image007.png)
-	
-	- Location Expression Sample
-	
-	​		Here are some examples of how location operations are used to form location expressions.
+   - Stack Operation Sample
+
+   ![img](assets/clip_image007.png)
+
+   - Location Expression Sample
+
+   ​		Here are some examples of how location operations are used to form location expressions.
 
 ​					![img](assets/clip_image008.png)
 
