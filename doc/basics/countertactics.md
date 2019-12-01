@@ -74,6 +74,6 @@ In this manner, even if you shipped this program with debug symbols, it would be
 
 There’re robust debuggers, like SoftICE, that can gracefully make the jump between user mode and kernel mode. However, not many debuggers can make the jump between two different memory models. Windows in particular is guilty of allowing this kind of abomination to occur. On Windows, this phenomenon is generally known as thunking, and it allows 16-bit code and 32-bit code to fraternize.
 
-Folliwing depicts the thunking techniques used in Windows:
+Following depicts the thunking techniques used in Windows:
 
 ![img](assets/clip_image006.png)
