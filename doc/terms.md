@@ -4,7 +4,7 @@ In this book, we'll cover knowledge in compilers, linkers, operating systems, de
 
 | **Term**                   | **Description**                                              |
 | :------------------------- | :----------------------------------------------------------- |
-| Source                     | Source code programming in golang, etc                       |
+| Source                     | Source code programmed in golang, etc                        |
 | Compiler                   | Build object file based on source                            |
 | Linker                     | Link object files, shared libraries, system startup code to build executable file |
 | Debugger                   | Attach a running process or load a core file, load debugging information from process or core file, inspect process running state like memory, registers |
