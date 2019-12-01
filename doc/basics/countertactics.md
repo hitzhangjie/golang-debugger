@@ -16,7 +16,39 @@ The trick to this technique is to call chk() immediately. This will increase the
 
 If a debugger is present, you can force the program to behave strangely, and send the person debugging your application on a wild-goose chase. Debuggers are unique tools because they allow the user to observe a program from a neutral frame of reference. By inserted code like chk(), you are forcing the user into a warped quantum universe where the very act of observing influences the output of the program.
 
->In Linux, we may use other similar tricks to determine whether current running process is debugged or not.
+In Linux, we may use other similar tricks to check whether a process is debugged or not. Usually we can check “`/proc/self/status`” for “**TracerPid**” attribute.
+
+> On Linux, you can quickly check this, here is an example:
+>
+> ```go
+> package main
+> 
+> import "fmt"
+> import "os"
+> 
+> func main() {
+> 
+>         fmt.Println("vim-go, pid: %d", os.Getpid())
+> }
+> ```
+>
+> ```bash
+> $ dlv debug main.go
+> dlv> b main.main
+> dlv> c
+> dlv> n
+> dlv> n
+> dlv> vim-go, pid: 746
+> ```
+>
+> ```bash
+> >cat /proc/746/status | grep TracePid
+> TracePid: 688
+> > cat /proc/688/cmdline
+> dlv debug main.go
+> ```
+>
+> Now we confirmed this process is debugged by debugger `dlv`.
 
 ### 4.3.2 Remove Debugging Information
 

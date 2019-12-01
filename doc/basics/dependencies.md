@@ -10,19 +10,19 @@ This depends on the **debug symbol table**. When the compiler converts source co
 
 ![img](assets/clip_image001.png)
 
-There’s some standards to guide the compiler to generate debugging symbols to coordinate the compiler, linker and debugger, such as Dwarf. Compiler and linker generate these debugging sections and store them into the executable file, debugger can extract these sections to build a source level view, then debugger can do some remapping task between memory address, instruction address and source code.
+There’s some **standards to guide the compiler to generate debugging symbols** to coordinate the compiler, linker and debugger, **such as Dwarf**. Compiler and linker generate these debugging sections and store them into the executable file, debugger can extract these sections to build a source level view, then debugger can do some remapping task between memory address, instruction address and source code.
 
 In practice, depending on the format of the object file, debug symbol table records are typically placed in one of two locations:
 
 - In the body of the object code itself
 
-    For example, ELF object format contains Dwarf debug symbol table.
+    For example, [ELF](https://en.wikipedia.org/wiki/Executable_and_Linkable_Format) object format contains Dwarf debug symbol table.
 
 - In a separate file
 
-    For example, Microsoft’s Visual C++ 2.0 debug information is stored in a separate *.PDB (Program Database) file.
+    For example, Microsoft’s Visual C++ 2.0 debug information is stored in a separate *.PDB (Program Database) file. macOS application debugging symbols *.dSYM is separate, too.
 
-Debug symbol information maps functions and variables to locations in memory, this is what gives a symbolic debugger the fundamental advantage over a machine debugger. For instance, the source code to memory mapping allows a symbolic debugger to display the value of a variable, because the variable’s identifier is matched to a specific location in the program’s data segment (stack or heap). Not only that, but there will also be data type information in the symbol table that will tell the debugger what type of data is manipulated so that its value can be properly displayed.
+Debug symbol information maps functions and variables to locations in memory, this is what gives a symbolic debugger the fundamental advantage over a machine instruction debugger. For instance, the source code to memory mapping allows a symbolic debugger to display the value of a variable, because the variable’s identifier is matched to a specific location in the program’s data segment (stack or heap). Not only that, but there will also be data type information in the symbol table that will tell the debugger what type of data is manipulated so that its value can be properly displayed.
 
 ![img](assets/clip_image002.png)
 
@@ -42,7 +42,7 @@ One exception to this rule occurs in the case of DOS. With DOS, a real mode oper
 
 Nowadays, most operating systems implement memory’s protective mode, it is the base stone of multi-user, multi-task operating system. If there’s no protective mode, there’s no so-called security at all.
 
-Opposite to DOS, Windows, Linux, BSD have fairly sophisticated memory protection scheme. This means that if you want to write a debugger, you’ll need to rely on the system calls.
+Opposite to DOS, Windows, Linux and BSD have fairly sophisticated memory protection scheme. This means that if you want to write a debugger, you’ll need to rely on the system calls.
 
 Take Linux system calls as an example, the tracee process can be attached via **ptrace(PTRACE_ATTACH…)**, then the tracee will be notified by **SIGSTOP** sent by kernel, then tracee will stop, tracer process can call **waitpid(pid)** to wait this happens. After that, tracer process can call ptrace with other request param (PTRACE_GETREGS, PTRACE_SETREGS, PTRACE_PEEKDATA, PTRACE_POKEDATA…) to further inspect the tracee runtime state and control its code execution path.
 
@@ -50,7 +50,7 @@ Take Linux system calls as an example, the tracee process can be attached via **
 
 As regards with debugging an interpreted language, it is much more direct than the system call approach because all of the debugging facilities can be built directly into the interpreter. Within an interpreter, you have unrestricted access to the execution engine. The entire thing can run in user space instead of kernel space (syscall). Nothing is hidden. All you need to do is add extensions to process breakpoint instructions and support single stepping.
 
-#### 4.2.3.4 Kernel Debuggers
+#### 4.2.2.4 Kernel Debuggers
 
 When an operating system institutes strict memory protection, a special type of debugger is needed to debug the kernel. You cannot use a conventional user-mode debugger because memory protection facilities (like segmentation and paging) prevent it from manipulating the kernel’s image. 
 
