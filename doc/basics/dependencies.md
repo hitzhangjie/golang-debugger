@@ -2,7 +2,9 @@
 
 ### 4.2.1 Debug Symbol Info
 
-The compiler and linker build the executable file based on source code. The data of executable file is generated for machine, rather than for human. How does a source level debugger understand that data and remap it to source information or vice versa?
+The **compiler and linker build the executable file** based on source code. The data of executable file is generated for machine, rather than for human. 
+
+How does a source level **debugger understand that data and remap it to source information** or vice versa?
 
 This depends on the **debug symbol table**. When the compiler converts source code into object file, it will also generate the self-contained debug symbols. When the linker links all object files into the executable file, it will merge the debug symbols stored in these object files into the debug symbol table.
 
