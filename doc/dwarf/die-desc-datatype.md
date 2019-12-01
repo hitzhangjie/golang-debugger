@@ -6,7 +6,7 @@ Dwarf abstracts out several base types (number) based on the hardware, other typ
 
 #### 5.3.2.1 Base Types
 
-Dwarf v1 and other debugging formats suppose that compiler and debugger need sharing common understanding of the size of base type, such as whether an int is 8, 16 or 32 bits. Same language on different hardware platforms may have different size of the same type, an int could be 16 bit on 16 bit processor and 32 bit on 32 bit processor. But different language on the same hardware platform may have different size of the same type, such as golang int is 64 bit on 64 bit processor, while in C it is 32 bit.
+Dwarf v1 and other debugging formats suppose that compiler and debugger need sharing common understanding of the size of base type, such as whether an int is 8, 16 or 32 bits. Same language on different hardware platforms may have different size of the same type, an int could be 16 bits on 16-bit processor and 32 bits on 32-bit processor. But different language on the same hardware platform may have different size of the same type, such as golang int is 64 bits on 64-bit processor, while in C it is 32 bits.
 
 So the problem is how to remapping the base type to different bit size flexibly? Dwarf v2 solves this issue, it provides the lowest level mapping between the simple data types and how they are implemented on the target machine’s hardware. 
 
