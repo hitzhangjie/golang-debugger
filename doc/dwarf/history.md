@@ -24,34 +24,4 @@ Version 5 of the DWARF format was published in February 2017. It "incorporates i
 
 Now golang build tools use Dwarf v4, while gcc has applied some features of Dwarf v5 for C++.
 
->If you're interested in golang build tools, please watch issue: https://github.com/golang/go/issues/26379.
->
->I also test `gcc` on macOS 10.15, it generates dwarf information separately with the executable file:
->
->**file: main.c**
->
->```cpp
->#include <stdio.h>
->#include <stdlib.h>
->
->int main(int argc, char *argv[])
->{
->    return 0;
->}
->
->```
->
->```bash
->$ gcc -g -o main main.c
->$ ls
->main main.c main.dSYM/
->$ tree main.dSYM
->main.dSYM/
->└── Contents
->    ├── Info.plist
->    └── Resources
->        └── DWARF
->            └── main
->```
->
->Now, you see the seperated Dwarf information is generated under the directory main.dSYM/.
+> If you're interested in golang build tools, please watch issue: https://github.com/golang/go/issues/26379.
