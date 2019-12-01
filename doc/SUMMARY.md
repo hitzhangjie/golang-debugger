@@ -32,6 +32,7 @@
     * [6.4 Symbol Table](develop/symbol-table.md)
     * [6.5 Call Frame](develop/call-frame.md)
     * [6.6 Debug Line](develop/debug-line.md)
+    * [6.7 gopkg /debug](develop/gopkg-debug.md)
     * [6.7 More...](develop/more.md)
 * [7 Others](others.md)
 * [8 contributors](contributors.md) 
