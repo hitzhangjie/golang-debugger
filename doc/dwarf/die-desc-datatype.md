@@ -16,11 +16,11 @@ Figure 2a depicts that type int is 4 byte signed numer on 32-bit processor, figu
 
 ![img](assets/clip_image003.png)
 
-figure 3 depicts that type word is 16 bit signed number, while it takes up 4 bytes, in which only the first 2 upper bytes is used, leading the lower 2 bytes zero.
+figure 3 depicts that type word is 16 bit signed number, while it takes up 4 bytes, in which only the first 2 upper bytes is used, leaving the lower 2 bytes zero.
 
 ![img](assets/clip_image004.png)
 
-DW_TAG_base_type, this tag allows a number of base types to be described, including binary integer, packed integer, address, character, fixed number and floating number. floating number’s encoding format (such as IEEE-754) is determined by the hardware. 
+DW_TAG_base_type, this tag allows a number of base types to be described, including binary integer, packed integer, address, character, fixed number and floating number. Floating number’s encoding format (such as IEEE-754) is determined by the hardware. 
 
 #### 5.3.2.2 Type Composition
 
