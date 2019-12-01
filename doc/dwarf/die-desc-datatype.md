@@ -10,7 +10,7 @@ Dwarf v1 and other debugging formats suppose that compiler and debugger need sha
 
 So the problem is how to remapping the base type to different bit size flexibly? Dwarf v2 solves this issue, it provides the lowest level mapping between the simple data types and how they are implemented on the target machine’s hardware. 
 
-**Here is 3 examples:**
+**Here are 3 examples:**
 
 Figure 2a depicts that type int is 4 byte signed numer on 32-bit processor, figure 2b depicts that int is 2 byte signed number on 16-bit processor.
 
