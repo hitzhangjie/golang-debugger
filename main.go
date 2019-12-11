@@ -1,4 +1,4 @@
-package golang_debugger
+package main
 
 import (
 	"bufio"
