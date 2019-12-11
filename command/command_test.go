@@ -2,8 +2,9 @@ package command
 
 import (
 	"fmt"
-	"proctl"
 	"testing"
+
+	"github.com/hitzhangjie/golang-debugger/proctl"
 )
 
 func TestCommandDefault(t *testing.T) {

@@ -2,15 +2,15 @@ package frame_test
 
 import (
 	"encoding/binary"
+	"fmt"
 	"path/filepath"
 	"syscall"
 	"testing"
 
-	"../_helper"
-	"../../_helper"
-	"../frame"
-	"../../proctl"
-	"fmt"
+	helper "github.com/hitzhangjie/golang-debugger/_helper"
+	dwarfhelper "github.com/hitzhangjie/golang-debugger/dwarf/_helper"
+	"github.com/hitzhangjie/golang-debugger/dwarf/frame"
+	"github.com/hitzhangjie/golang-debugger/proctl"
 )
 
 func TestFindReturnAddress(t *testing.T) {
