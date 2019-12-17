@@ -2,8 +2,9 @@ package line
 
 import (
 	"bytes"
-	"dwarf/util"
 	"encoding/binary"
+
+	"github.com/hitzhangjie/golang-debugger/dwarf/util"
 )
 
 type DebugLinePrologue struct {

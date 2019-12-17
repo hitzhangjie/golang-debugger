@@ -1,12 +1,11 @@
 package line
 
 import (
+	dwarfhelper "github.com/hitzhangjie/golang-debugger/dwarf/_helper"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"testing"
-
-	"../_helper"
 )
 
 var testfile string

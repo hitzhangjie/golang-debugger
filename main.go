@@ -10,8 +10,8 @@ import (
 	"strings"
 	"syscall"
 
-	"command"
-	"proctl"
+	"github.com/hitzhangjie/golang-debugger/command"
+	"github.com/hitzhangjie/golang-debugger/proctl"
 )
 
 type term struct {

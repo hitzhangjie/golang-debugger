@@ -9,9 +9,10 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"proctl"
 	"strconv"
 	"strings"
+
+	"github.com/hitzhangjie/golang-debugger/proctl"
 )
 
 // debugger commands associated hanlders

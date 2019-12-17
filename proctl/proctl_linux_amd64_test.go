@@ -1,11 +1,12 @@
 package proctl
 
 import (
-	"_helper"
 	"bytes"
 	"path/filepath"
 	"syscall"
 	"testing"
+
+	helper "github.com/hitzhangjie/golang-debugger/_helper"
 )
 
 func dataAtAddr(pid int, addr uint64) ([]byte, error) {

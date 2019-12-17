@@ -2,8 +2,9 @@ package op
 
 import (
 	"bytes"
-	"dwarf/util"
 	"fmt"
+
+	"github.com/hitzhangjie/golang-debugger/dwarf/util"
 )
 
 const (

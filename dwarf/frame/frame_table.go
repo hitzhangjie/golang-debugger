@@ -2,9 +2,10 @@ package frame
 
 import (
 	"bytes"
-	"dwarf/util"
 	"encoding/binary"
 	"fmt"
+
+	"github.com/hitzhangjie/golang-debugger/dwarf/util"
 )
 
 type CurrentFrameAddress struct {

@@ -7,9 +7,6 @@ import (
 	"debug/dwarf"
 	"debug/elf"
 	"debug/gosym"
-	"dwarf/frame"
-	"dwarf/line"
-	"dwarf/op"
 	"encoding/binary"
 	"fmt"
 	"os"
@@ -17,6 +14,10 @@ import (
 	"sync"
 	"syscall"
 	"unsafe"
+
+	"github.com/hitzhangjie/golang-debugger/dwarf/frame"
+	"github.com/hitzhangjie/golang-debugger/dwarf/line"
+	"github.com/hitzhangjie/golang-debugger/dwarf/op"
 )
 
 // Struct representing a debugged process. Holds onto pid, register values,

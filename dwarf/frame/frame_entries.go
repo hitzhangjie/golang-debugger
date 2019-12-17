@@ -2,7 +2,7 @@ package frame
 
 import (
 	"fmt"
-	"rbtree"
+	"github.com/hitzhangjie/golang-debugger/rbtree"
 )
 
 // Represents a Common Information Entry in the Dwarf .debug_frame section.

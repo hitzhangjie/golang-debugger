@@ -1,7 +1,7 @@
 package frame
 
 import (
-	"dwarf/_helper"
+	dwarfhelper "github.com/hitzhangjie/golang-debugger/dwarf/_helper"
 	"path/filepath"
 	"testing"
 )

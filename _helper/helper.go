@@ -6,7 +6,8 @@ import (
 	"runtime"
 	"syscall"
 	"testing"
-	"../proctl"
+
+	"github.com/hitzhangjie/golang-debugger/proctl"
 )
 
 // operations on tracee
