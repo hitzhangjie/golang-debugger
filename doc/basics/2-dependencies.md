@@ -114,7 +114,7 @@ On the other hand, if you are developing an application that will be deployed on
 
 If there’s a term called dynamic breakpoints, there may be a term called static breakpoints. Yes, both of them exist.
 
-Breakpoints are created by generating **0xCC one-byte machine instruction**, 0xCC causes processor to pause the running process. If you write assembly, `int 0x3` can be used to generate this instruction 0xCC。After understanding purpose of 0xCC, we can continue discussing the breakpoints’ types, the static breakpoints and the dynamic breakpoints.
+Breakpoints are created by generating **0xCC one-byte machine instruction** on X86, 0xCC causes processor to pause the running process. If you write assembly, `int 0x3` can be used to generate this instruction 0xCC。After understanding purpose of 0xCC, we can continue discussing the breakpoints’ types, the static breakpoints and the dynamic breakpoints.
 
 1. **Static breakpoints**
 
