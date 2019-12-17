@@ -4,6 +4,7 @@ Give enough time and effort, any program can be reverse engineered. The goal, th
 
 ### 4.3.1 System Calls
 
+#### 4.3.1.1 Windows
 Some operating systems provides a special call that will indicate if the current process is being executed under the auspices of a debugger. For example, Windows KERNEL32.DLL exports a function named `IsDebuggerPresent()`. You can wrap this call in an innocuous little routine like chk().
 
 ![img](assets/clip_image002-3995693.png)
@@ -15,6 +16,8 @@ The trick to this technique is to call chk() immediately. This will increase the
 ![img](assets/clip_image004-3995693.png)
 
 If a debugger is present, you can force the program to behave strangely, and send the person debugging your application on a wild-goose chase. Debuggers are unique tools because they allow the user to observe a program from a neutral frame of reference. By inserted code like chk(), you are forcing the user into a warped quantum universe where the very act of observing influences the output of the program.
+
+#### 4.3.1.2 Linux
 
 In Linux, we may use other similar tricks to check whether a process is debugged or not. Usually we can check “`/proc/self/status`” for “**TracerPid**” attribute.
 
@@ -49,6 +52,9 @@ In Linux, we may use other similar tricks to check whether a process is debugged
 > ```
 >
 > Now we confirmed this process is debugged by debugger `dlv`.
+
+#### 4.3.1.X Others
+Coming Soon ~
 
 ### 4.3.2 Remove Debugging Information
 
