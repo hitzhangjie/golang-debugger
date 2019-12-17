@@ -4,7 +4,7 @@
 
 Hi, I am a developer. I am curious about something unknown. Full of curiousity makes me excited. 
 
-In 2018, I began learning go programming, then I noticed [delve](https://github.com/go-delve/delve), a really good debugger. **delve** is opensource, I am curious about the mechanism it works, so I try to read its code. It's really an exciting journey. I see the perfect thinkings and ideas behind DWARF to blueprint a programming language, I see the relations between CPU, Operating System, building toolchains, ELF and DWARF, it even improve my understanding of design internals of go programming language.
+In 2018, I began learning go programming, then I noticed [delve](https://github.com/go-delve/delve), a really good debugger. **delve** is opensource, I am curious about the mechanism it works, so I try to read its code. It's really an exciting journey. I see the perfect thinkings and ideas behind DWARF to blueprint a programming language, I see the relations between CPU, Operating System, building toolchains, ELF and DWARF, it even improves my understanding of design internals of go programming language.
 
 I think it's a good entry to inspect the secrets of computer technologies. I want to share the journey of learning developing a golang debugger.
 
@@ -31,7 +31,7 @@ I think this book will be interesting and helpful. That makes me excited.
 >
 >This plan started in 2018.7, but it is held on for nearly one year...my bad.
 >
->Hope we can finish this book in 2019!
+>Hope I can finish this book in 2019!
 
 ## 1.4 Contact
 
