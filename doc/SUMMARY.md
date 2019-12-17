@@ -1,8 +1,8 @@
 # Summary
 
-* [1 Introduction](readme.md)
-* [2 Preface](preface.md)
-* [3 Terms Frequently Used](terms.md)
+* [1 Introduction](README.md)
+* [2 Preface](2-preface.md)
+* [3 Terms Frequently Used](3-terms.md)
 * [4 Debugger Basics: Why & How](basics/README.md)
     * [4.1 Purposes](basics/purposes.md)
     * [4.2 Dependencies](basics/dependencies.md)
@@ -34,7 +34,7 @@
     * [6.6 Debug Line](develop/debug-line.md)
     * [6.7 gopkg /debug](develop/gopkg-debug.md)
     * [6.7 More...](develop/more.md)
-* [7 Others](others.md)
-* [8 contributors](contributors.md) 
-* [9 contributing](contributing.md)
-* [x changelog](changelog.md)
+* [7 Others](7-others.md)
+* [8 Contributors](8-contributors.md) 
+* [9 Contributing](9-Contributing.md)
+* [X ChangeLog](changelog.md)
