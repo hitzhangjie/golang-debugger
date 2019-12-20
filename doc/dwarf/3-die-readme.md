@@ -1,4 +1,7 @@
+DWARF uses a series of **debugging information entries (DIEs)** to define a low-level representation of a source program. **An entry, or group of entries together**, provide a description of a corresponding entity in the source program. 
+
 Each debugging information entry is described by **an identifying tag** and contains **a series of attributes**. 
+
 - The tag specifies the class to which an entry belongs;
 - The attributes define the specific characteristics of the entry;
 
