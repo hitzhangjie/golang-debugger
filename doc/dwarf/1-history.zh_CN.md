@@ -4,26 +4,24 @@ DWARF标准，主要是面向开发者的，如调试信息的生产者、消费
 
 ### 版本2 vs. 版本1
 
-The first version of DWARF proved to use excessive amounts of storage, and an incompatible successor, DWARF-2, superseded it and added various encoding schemes to reduce data size. DWARF did not immediately gain universal acceptance; for instance, when Sun Microsystems adopted ELF as part of their move to Solaris, they opted to continue using **stabs, in an embedding known as "stabs-in-elf"**. Linux followed suit, and DWARF-2 did not become the default until the late 1990s.
+DWARF v1，其对应的调试信息占磁盘空间很大，并且与DWARF v2是不兼容的，DWARF v2比DWARF v1成功，也添加了各种各样的编码格式压缩数据尺寸。DWARF v2依然没有立即获得广泛的接纳。那时候Sun公司决定采用ELF作为Solaris平台上的文件格式，但是并没有选择将为ELF设计的DWARF作为首选的调试信息格式，而是继续使用了Stabs（stabs in elf）。Linux当时也是一样的选择，直到20世纪90年代才将DWARF作为了默认调试信息格式。
 
-DWARF的第一版，其对应的调试信息占磁盘空间很大，并且与DWARF的第二版是不兼容的，DWARF2比DWARF1成功，也添加了各种各样的编码格式降低数据尺寸。DWARF没有立即获到广泛认可、同意，
-
->The representation of information changed from Version 1 to Version 2, so that Version 2 DWARF information is not binary compatible with Version 1 information. To make it easier for consumers to support both Version 1 and Version 2 DWARF information, the Version 2 information has been moved to a different object file section, .debug_info. 
+>DWARF调试信息的表示，版本2和版本1相比有些不同，DWARF v2和DWARF v1不是二进制兼容的。为了能够让DWARF信息的消费者依旧能够兼容版本DWARF v1、v2，DWARF v2建议将相应的调试信息存储在对象文件的不同section中，即.debug_info。
 
 
 ### 版本3 vs. 版本2
-The DWARF Workgroup of the Free Standards Group released DWARF version 3 in January 2006, adding (among other things) support for Java, C++ namespaces, Fortran 90 allocatable data and additional optimization techniques for compilers and linkers.
+2006年1月份，Free Standards Group这个组织的DWARF工作组发布了DWARF v3，这个版本增加了对Java、C++ namespace、Fortran 90等的支持，也增加了一些针对编译器、连接器的优化技术。
 
->The return_address_register field in a Common Information Entry record for call frame information is changed to unsigned LEB representation.
+>如，Common Information Entry （简称CIE）中字段 return_address_register 存储调用栈的返回地址，该字段使用无符号LEB编码算法进行编码，可以有效压缩小整数占用的存储空间。
 
 
 ### 版本4 vs. 版本3
-The DWARF committee published version 4 of DWARF, which offers "improved data compression, better description of optimized code, and support for new language features in C++", in 2010.
+2010年，DWARF委员会发布了DWARF v4，该版本的焦点围绕在改善数据压缩、更好地描述编译器优化后代码、增加对C++新特性的描述支持等。
 
 
 ### 版本5
-Version 5 of the DWARF format was published in February 2017. It "incorporates improvements in many areas: better data compression, separation of debugging data from executable files, improved description of macros and source files, faster searching for symbols, improved debugging of optimized code, as well as numerous improvements in functionality and performance."
+2017年，DWARF v5发布，该版本在很多方面都做了改善、提升，包括更好的数据压缩、调试信息与可执行程序的分离、对macro和源文件的更好的描述、更快速的符号搜索、对编译器优化后代码的更好描述，以及其他功能、性能上的提升。
 
 Now golang build tools use Dwarf v4, while gcc has applied some features of Dwarf v5 for C++.
 
-> If you're interested in golang build tools, please watch issue: https://github.com/golang/go/issues/26379.
+> DWARF也是现在go语言工具链使用的调试信息格式，截止到go1.12.10，当前采用的版本是DWARF v4。在C++中，某些编译器如gcc已经开始应用了部分DWARF v5的特性，go语言也有这方面的讨论，如果对此感兴趣，可以关注go语言issue：: https://github.com/golang/go/issues/26379.
