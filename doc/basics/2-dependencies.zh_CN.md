@@ -145,27 +145,29 @@ X86平台上创建软件断点可以通过指令`int 3`来生成**0xCC**这个�
 
 2. **动态断点**
 
-    In the previous part, I used static breakpoint instructions that were manually inserted at compile time. An alternative to this approach is to **dynamically insert breakpoints into a program’s memory image at runtime**. As you will see later on, this allows symbolic debuggers to single-step through a program at the source code level.
+    动态断点指的是程序在调试运行时，根据调试人员需要动态创建的断点，后面你会看到，动态断点使得符号调试器在源码中能够单步执行，可以联想下gdb next, step, finish, continue等操作。
 
-    Unlike static breakpoints, which exist for the duration of a program’s lifecycle, symbolic debuggers usually work with dynamic breakpoints. The insertion, and removal of dynamic breakpoints obyes the following scheme:
+    与静态断点不同，静态断点生命周期是进程生命周期，符号级调试器通常是通过动态断点来控制调试，动态断点的插入、移除一般是按照如下流程实现的：
 
-    - The debugger identifies the first opcode of a statement
-    - The debugger saves the opcode and replaces it with a breakpoint (0xCC)
-    - The debugger digests the breakpoint and halts execution
-    - The debugger restores the original opcode
-    - The debugger leaves the opcode or swaps in another breakpoint
+    - 调试器识别出语句statement的第一条指令的操作码；
+    - 调试器保存上述操作码的第一个字节，并将操作码的第一个字节替换成0xCC
+    - 调试进程tracee执行完到上述指令位置，执行完0xCC之后将触发断点并暂停执行
+    - 调试进程tracer将tracee的PC-1位置处的1字节数据由0xCC替换为原来的操作码数据
+    - 调试器通知内核恢复tracee运行，并继续等待到达下一个断点
 
-    Let’s take the following statement in C as an example:
+    我们通过下面的C语言语句进行下简单的说明：
 
-    Total = total +value;
+    ```c
+total = total +value;
+    ```
 
-    Providing the associated assembly is as following:
+    假定上述语句对应的汇编指令为：
 
     ![img](assets/clip_image003.png)
 
-    To place a dynamic breakpoint on a statement, the debugger would take the first opcode 0x8B and replace it with a breakpoint instruction 0xCC. When the debugger encounters this breakpoint, it will replace the breakpoint with the opcode and then execute the entire statement.
-
-    Once the statement has been executed, the debugger then has the option to swap back in the breakpoint or to leave the instruction alone. If the breakpoint was originally inserted via an explicit request by the user (i.e., break source.c:17), it will be reinserted again. However, if the breakpoint was initially inserted to support single stepping, the breakpoint will not be reinserted.
+    给上述语句设置一个动态断点，调试器首先获取statement对应的第一条指令的操作码的第一个字节0x8B，并将其替换为0xCC。当调试器遇到这个断点的时候，它会将其替换为原来的操作码数据，然后让tracee执行statement对应的完整的3条指令。
+    
+    一旦上述语句对应的指令被执行了之后，调试器可以考虑是否要再次为该语句设置动态断点，如果不可能执行到上述语句了，就可以不设置了，但是如果还是会执行到就会设置动态断点，比如for循环体中语句设置断点，当你调试完一轮之后，还希望下次循环进入时再次让断点生效，调试器这种情况下就应该再次插入断点。
 
 #### 4.2.3.2 单步执行
 
