@@ -1,6 +1,4 @@
-## 4.3 应对战术
-
-Give enough time and effort, any program can be reverse engineered. The goal, then, is to make it as painful as possible for a malicious engineer to figour out how things work. In light of this, there’re steps that you can take that will make it difficult for someone to peek at your program with a debugger. In this section, I will examine a few of these steps.
+## 4.3 反调试技术
 
 只要付出足够的时间和精力，可以说任何程序都可以进行被逆向。 调试器使得恶意工程师理解程序逻辑更加方便了，这里的应对战术，其实是为了增加点软件逆向的难度，使恶意工程师越痛苦越好以阻止或者延缓他们弄清程序的正确工作方式。
 
