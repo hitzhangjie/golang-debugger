@@ -78,18 +78,15 @@ DWARF提供了一种非常通用的机制描述如何确定变量的数据位置
 
 #### 5.3.2.7 Location Expression
 
-A location expression consists of zero or more location operations. An expression with zero operations is used to denote an object that is present in the source code but not present in the object code (perhaps because of optimization). 
+位置表达式由零个或多个位置操作组成。 如果没有位置运算表达式，则表示该对象在源代码中存在，但是在目标代码中不存在，可能是由于编译器优化给优化掉了。
 
-**The location operations fall into two categories, register names and addressing operations**:
-
-- Register names
-- Address operations
+位置操作可以划分为两种类型，寄存器名，地址操作，下面分别介绍。
 
 ##### 5.3.2.7.1 Register names
 
-Register names always appear alone and indicate that the referred object is contained inside a particular register.  
+寄存器名称始终单独出现，并指示所引用的对象包含在特定寄存器中。
 
-Note that the register number represents a Dwarf specific mapping of numbers onto the actual registers of a given architecture. `DW_OP_reg${n} (0<=n<=31)` operations encode the names of up to 32 register, the object is addressed in register n. `DW_OP_regx` operation has a single unsigned LEB128 literal operand that encodes the name of a register.
+请注意，寄存器号是DWARF中特定的数字到给定体系结构的实际寄存器的映射。`DW_OP_reg${n} (0<=n<=31)` 操作编码了32个寄存器, 该对象地址在寄存器n中. `DW_OP_regx` 操作有一个无符号LEB128编码的操作数，该操作数代表寄存器号。
 
 ##### 5.3.2.7.2 Address operations
 
