@@ -1,6 +1,6 @@
 ## 5.2 Structure
 
-DWARF使用数据结构调试信息入口Debugging Information Entry（DIE）来表示每一个变量、数据类型、函数等。
+DWARF使用数据结构调试信息记录Debugging Information Entry（DIE）来表示每一个变量、数据类型、函数等。
 
 - 每个DIE都包含一个tag（如DW_TAG_variable，DW_TAG_pointer_type，DW_TAG_subprogram等）以及一系列的attributes。
 - 每个DIE还可以包含child DIEs，这个完整的树结构共同描述一个变量、数据类型等实体。
