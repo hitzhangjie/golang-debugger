@@ -169,21 +169,21 @@ Each addressing operation represents a **postfix operation on a simple stack mac
 
 #### 5.3.2.8 位置列表（Location Lists）
 
-Location lists are used in place of location expressions whenever the object whose location can be changed during its lifetime. Location lists are contained in a separate object file section **.debug_loc**. 
+如果一个对象的位置在其生命周期内可能会发生改变，就可以使用位置列表代替位置表达式来描述其位置。位置列表包含在单独的目标文件部分 **.debug_loc** 中。
 
-A location list is indicated by a constant offset from the beginning of the .debug_loc to the first byte of this list for the object in question. 
+位置列表由从.debug_loc的开头到该对象的该列表的第一个字节的偏移量指示。
 
-Each entry in location list consists of:
+位置列表中的每一项包括:
 
-- A beginning address, it is relative to the base address of the compilation unit referring to this location list, it marks the beginning of the address range over which the location is valid.
-- An ending address, it is again relative to the base address of the compilation unit referring to this location list, it marks the end of the address range over which the location is valid.
-- A location expression, it describes the location of the object over range specified by the beginning and end address. 
+- 起始地址，相对于引用此位置列表的编译单元的基址，它标记该位置有效的地址范围的起始位置；
+- 结束地址，它还是相对于引用此位置列表的编译单元的基址而言的，它标记了该位置有效的地址范围的结尾；
+- 一个位置表达式，它描述对象在起始地址和结束地址指定的范围内的位置；
 
-The end of any location list is marked by a 0 for the beginning address and a 0 for the end address, no location description is provided. 
+位置列表以一个特殊的list entry标识列表的结束，该list entry中的起始地址、结束地址都是0，并且没有位置描述。
 
->Dwarf 5 will replace .debug_loc and .debug_ranges with .debug_loclists and .debug_rnglists allowing more compact representation and eliminating relocations.
+>DWARF v5会将.debug_loc和.debug_ranges替换为.debug_loclists和.debug_rnglists，从而实现更紧凑的数据表示，并消除重定位。
 
-#### 5.3.2.9 Further Reading
+#### 5.3.2.9 了解更多
 
 - Types of Declarations, please refer to DwarfStandards 3.2.2.1 and 3.2.2.2.
 - Accessibility of Declarations, some languages provides support for accessibility of an object or some other program entity, this can be specififed by attribute DW_AT_accessibility, whose value is a constant drawn from the set of codes listed here: DW_ACCESS_public, DW_ACCESS_private, DW_ACCESS_protected.
