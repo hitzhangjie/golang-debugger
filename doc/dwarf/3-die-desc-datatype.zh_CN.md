@@ -76,50 +76,52 @@ DWARF提供了一种非常通用的机制描述如何确定变量的数据位置
 - **位置表达式（Location expressions）**，是与语言无关的寻址规则表示形式，它是由一些基本构建块、操作序列组合而成的任意复杂度的寻址规则。 只要对象的生命周期是静态的（static）或与拥有它的词法块相同，并且在整个生命周期内都不会移动，它们就足以描述任何对象的位置。
 - **位置列表（Location lists）**，用于描述生命周期有限的对象或在整个生命周期内可能会更改位置的对象。
 
-#### 5.3.2.7 Location Expression
+#### 5.3.2.7 位置表达式（Location Expression）
 
 位置表达式由零个或多个位置操作组成。 如果没有位置运算表达式，则表示该对象在源代码中存在，但是在目标代码中不存在，可能是由于编译器优化给优化掉了。
 
 位置操作可以划分为两种类型，寄存器名，地址操作，下面分别介绍。
 
-##### 5.3.2.7.1 Register names
+##### 5.3.2.7.1 寄存器名（Register names）
 
 寄存器名称始终单独出现，并指示所引用的对象包含在特定寄存器中。
 
 请注意，寄存器号是DWARF中特定的数字到给定体系结构的实际寄存器的映射。`DW_OP_reg${n} (0<=n<=31)` 操作编码了32个寄存器, 该对象地址在寄存器n中. `DW_OP_regx` 操作有一个无符号LEB128编码的操作数，该操作数代表寄存器号。
 
-##### 5.3.2.7.2 Address operations
+##### 5.3.2.7.2 地址操作（Address operations）
 
-Address operations are memory address computation rules. All location operations are **encoded as a stream of opcodes that are each followed by zero or more literal operands**. The number of operands is determined by the opcode.  
+地址操作是存储器地址计算规则。 所有位置操作都被编码为操作码流，每个操作码后跟零个或多个操作数。 操作数的数量由操作码决定。
 
 Each addressing operation represents a **postfix operation on a simple stack machine**. 
 
-- Each element of the stack is the size of an address on the target machine;
-- The value on the top of the stack after executing the location expression is taken to be the result (the address of the object, or the value of the array bound, or the length of a dynamic string). 
+每个寻址操作代表**简单的栈机器后缀操作**。
 
-In the case of locations used for structure members, the computation assumes that the base address of the containing structure has been pushed on the stack before evaluation of the address operation.
+- 栈上每个元素，是一个目标机器上的地址的值；
+- 执行位置表达式后，栈顶元素的值就是计算结果（对象的地址，或者数组长度，或者字符串长度）。
 
-**There’re several address operation manners, including:**  
+对于结构体成员地址的计算，在执行位置表达式之前，需要先将包含该成员的结构体的起始地址push到栈上。
 
-1. **Register Based Addressing**  
+**位置表达式中的地址计算方式，主要包括如下几种：**
 
-   Register based addressing, push a value onto the stack that is the result of adding the contents of a register with a given signed offset.
+1. **寄存器寻址**  
 
-   -   DW_OP_fbreg \$offset, adding contents in frame base register (rbp) with $offset.
+   寄存器寻址方式，push一个值到栈上，这个值就是目标寄存器中的值与指定偏移量的和：
 
-   - DW_OP_breg\${n} \${offset}, adding contents in register ${n} with LEB128 encoded offset.
-   - DW_OP_bregx \${n} ${offset}, adding contents in register whose number is LEB128 encoded  with a LEB128 encoded offset .
+   -   DW_OP_fbreg \$offset, 计算栈基址寄存器 (rbp)中的值 与 偏移量 $offset的和；
 
-2. **Stack Operations**  
+   - DW_OP_breg\${n} \${offset}, 计算编号n的寄存器中的值 与 偏移量$offset（LEB128编码）的和；
+   - DW_OP_bregx \${n} \${offset}, 计算编号n（LEB128编码）的寄存器中的值 与 偏移量 $offset（LEB128编码）的和；
 
-   The following operations all push a value onto the addressing stack:  
+2. **栈操作**
 
-   - DW_OP_lit\${n} (0<=n<=31), encode the unsigned literal values ${n}.
-   - DW_OP_addr, encode the machine address that matches the target machine.
-   - DW_OP_const1u/1s/2u/2s/4u/4s/8u/8s, encode 1/2/4/8 bytes unsigned or signed integer.
-   - DW_OP_constu/s, encode LEB128 unsigned or signed integer.
+   以下操作都会push一个值到addressing stack上：
 
-   Following operations manipulate the location stack, location operations that index the location stack assumes that the top of the stack has index 0.  
+   - DW_OP_lit\${n} (0<=n<=31), 编码一个无符号字面量值\${n}；
+   - DW_OP_addr, 编码一个与目标机器匹配的机器地址；
+   - DW_OP_const1u/1s/2u/2s/4u/4s/8u/8s, 编码一个1/2/4/8 字节 无符号 or 有符号整数；
+   - DW_OP_constu/s, 编码一个 LEB128 无符号 or 有符号整数.
+
+   以下操作会操作location stack，栈顶索引值为0：
 
    - DW_OP_dup, duplicates the top stack entry and pushes.
    - DW_OP_drop, pops the value at the top of stack.
@@ -131,39 +133,41 @@ In the case of locations used for structure members, the computation assumes tha
    - DW_OP_deref_size, similar to DW_OP_deref, plus when retrieveing data from address, bytes that’ll be read is specified by 1-byte operand, the read data will be zero-extended to match the size of address on target machine.
    - DW_OP_xderef & DW_OP_xderef_size, similar to DW_OP_deref, plus extended dereference mechanism. When dereferencing, the top stack entry is popped as address, the second top stack entry is popped as an address space identifier. Do some calculation to get the address and retrieve data from it, then push the data to the stack.
 
-3. **Arithmetic and Logical Operations**
+3. **算术和逻辑运算**
 
-   DW_OP_abs, DW_OP_and, DW_OP_div, DW_OP_minus, DW_OP_mod, DW_OP_mul, DW_OP_neg, DW_OP_not, DW_OP_or, DW_OP_plus, DW_OP_plus_uconst, DW_OP_shl, DW_OP_shr, DW_OP_shra, DW_OP_xor, all these operations works similarly, pop the operands from the stack and calculate, then push value to the stack.
+   DW_OP_abs, DW_OP_and, DW_OP_div, DW_OP_minus, DW_OP_mod, DW_OP_mul, DW_OP_neg, DW_OP_not, DW_OP_or, DW_OP_plus, DW_OP_plus_uconst, DW_OP_shl, DW_OP_shr, DW_OP_shra, DW_OP_xor, 这些操作工作方式类似，都是从栈里面pop操作数然后计算，并将结果push到栈上。
 
-4. **Control Flow Operations**
+4. **控制流操作**
 
-   The following operations provide simple control of flow of a location expression.
+   以下操作提供对位置表达式流程的简单控制：
 
-   - Relational operators, the six operators each pops the top two stack entries and compares the top first one with the second one, and pushes value 1 if the result is true or pushes value 0 if the result is false.
-   - DW_OP_skip, unconditional branch, its operand is a 2-byte constant representing the number of bytes of the location expression to skip from current location expression, beginning after the 2-byte constant.
-   - DW_OP_bra, conditional branch, this operation pops the stack, if the popped value is not zero, then skip some bytes to jump to the location expression. The number of bytes to skip is specified by its operand, which is a 2-byte constant representing the number of bytes of the location expression to skip from current locating expression, beginning after the 2-byte constant.
+   - 关系运算符，这六个运算符分别弹出顶部的两个堆栈元素，并将顶部的第一个与第二个条目进行比较，如果结果为true，则push值1；如果结果为false，则push值0；
+   - DW_OP_skip，无条件分支，其操作数是一个2字节常量，表示要从当前位置表达式跳过的位置表达式的字节数，从2字节常量之后开始；
+   - DW_OP_bra，条件分支，此操作从栈上pop一个元素，如果弹出的值不为零，则跳过一些字节以跳转到位置表达式。 要跳过的字节数由其操作数指定，该操作数是一个2字节的常量，表示从当前定位表达式开始要跳过的位置表达式的字节数（从2字节常量开始）；
    
-5. **Special Operations**
+5. **特殊操作**
 
-   There’re two special operations currently defined in Dwarf 2:
+   DWARF v2中有两种特殊的操作（DWARF v4中是否有新增，暂时先不关注）：
 
-   - DW_OP_piece, many compilers store a single variable in a set of registers, or store partially in register and partially in memory. DW_OP_piece provides a way of describing how large a part of a variable a particular address location refers to.
-   - DW_OP_nop, it’s a placeholder, it has no effect on the location stack or any of its values. 
+   - DW_OP_piece, 许多编译器将单个变量存储在一组寄存器中，或者部分存储在寄存器中，部分存储在内存中。 DW_OP_piece提供了一种描述特定地址位置所指向变量的哪一部分、该部分有多大的方式；
+   - DW_OP_nop, 它是一个占位符，它对位置堆栈或其任何值都没有影响；
 
-   The location operations mentioned above are described conventionally, following are some examples. 
+##### 5.3.2.7.2 操作示例
 
-   - Stack Operation Sample
+上面提到的寻址操作都是些常规描述，下面是一些示例。
 
-   ![img](assets/clip_image007.png)
+- 栈操作示例
 
-   - Location Expression Sample
+![img](assets/clip_image007.png)
 
-   ​		Here are some examples of how location operations are used to form location expressions.
+- 位置表达式示例
+
+  以下是一些有关如何使用位置运算来形成位置表达式的示例。
 
 ​					![img](assets/clip_image008.png)
 
 
-#### 5.3.2.8 Location Lists
+#### 5.3.2.8 位置列表（Location Lists）
 
 Location lists are used in place of location expressions whenever the object whose location can be changed during its lifetime. Location lists are contained in a separate object file section **.debug_loc**. 
 
