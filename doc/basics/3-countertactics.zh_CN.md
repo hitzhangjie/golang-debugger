@@ -63,28 +63,32 @@ Give enough time and effort, any program can be reverse engineered. The goal, th
 
 ### 4.3.2 移除调试信息
 
-One simple way to make debugging more expensive is to remove debugging information from your deliverable. This can be done by stripping debug information (with a tool like GNU’s strip utility) or by setting your development tools to generate a release build.
+使调试更加困难的一种简单方法是从交付程序中删除调试信息。 可以通过剥离调试信息（使用GNU的strip实用工具之类的工具）或通过设置开发工具来生成发行版本来完成。
 
-Some business software companies prefer to strip debug information and accept the associated performance hit, because it allows sales engineers to perform an on-site diagnosis. When sales engineers make a house call, all that they need to do in order to take a look under the hood is insert the debug information and crank up a debugger.
+一些商业软件公司更喜欢剥离调试信息并接受相关的性能影响，因为它允许销售工程师执行现场诊断。 当销售工程师进行内部咨询时，他们需要做的就是插入调试信息并启动调试器。
 
-The gcc compiler uses the **option -g** to insert debug information in the object code that it generates. If the option is not specified, then no symbol information will be included for debugging purposes.
+gcc编译器使用选项”**-g**“在其生成的目标代码中插入调试信息。 不指定该选项，则不输出任何符号信息。
 
-If you try and debug this with gdb, it will complain that it cannot find any debugging symbols. The absence of debugging symbols will make it very difficult to see what’s going on in terms of anything but raw machine state.
+如果尝试使用gdb调试它，gdb将提示找不到任何调试符号，将使调试人员很难看明白程序的状态、工作方式。
 
 ![img](assets/clip_image005-3995693.png)
 
-The absence of debugging symbols will not stop everyone, some decompilers out there can take machine code and recast it as high-level source code. The good news is that these tools tend to generate code that is difficult to read and use arbitrary naming conventions. In other words, the cure is almost as bad as the illness.
+缺少调试符号并不能阻止所有人，一些反编译器可以获取机器代码并将其重铸为高级源代码。 好消息是这些工具倾向于生成难以阅读和使用任意命名约定的代码。 
 
 ### 4.3.3 代码加盐
 
-If memory footprint is not a big issue, and you don’t mind a slight performance hit, one way to foil a debugger is to periodically salt your code with unnecessary statements. This will make it easy for someone trying to reverse engineer your code to become lost among the trees and lose sight of the forest, so to speak.
+如果内存占用不是大问题，并且您不介意对性能造成轻微影响，则阻止调试器的一种方法是定期在代码中添加不必要的语句。 可以这么说，这使得尝试进行逆向工程的人更容易迷失。
 
-In this manner, even if you shipped this program with debug symbols, it would be difficult to figure out what was happening (particularly if you believed that each statement had a legitimate purpose).
+这样，即使您在程序中附带了调试符号，也很难弄清正在发生的事情（尤其是如果您认为每个语句都有合法目的）。
+
+这样，我们就相对安全了。
 
 ### 4.3.4 混合内存模型
 
 There’re robust debuggers, like SoftICE, that can gracefully make the jump between user mode and kernel mode. However, not many debuggers can make the jump between two different memory models. Windows in particular is guilty of allowing this kind of abomination to occur. On Windows, this phenomenon is generally known as thunking, and it allows 16-bit code and 32-bit code to fraternize.
 
-Following depicts the thunking techniques used in Windows:
+有一些强大的调试器，例如SoftICE，可以在用户模式和内核模式之间轻松切换。 但是，很少有调试器可以在两个不同的内存模型之间进行跳转。 比较特殊地，Windows下就允许发生这种行为。 在Windows上，这种现象通常称为“thunking”，它允许16位代码和32位代码进行混合。
+
+以下描述了Windows中使用的改进技术：
 
 ![img](assets/clip_image006.png)
