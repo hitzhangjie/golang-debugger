@@ -52,15 +52,14 @@ C\C++中也支持结构体位字段，即struct中多个成员可以共享同一
 
 #### 5.3.2.5 变量（Variables）
 
-Variables are generally pretty simple, they have a name which presents a chunk of memory (or register) that store the value. Variable’s type describes what value is contained and whether it can be modified (such as const) or not. 
+变量通常非常简单，它们具有一个名称，该名称表示存储该值的内存（或寄存器）。 变量的类型描述了包含的值以及是否可以修改（例如const）。
 
-What distinguishes a variable is where its value is stored and its scope.
+对变量进行区分的两个要素是变量的**存储位置**和**作用域**。
 
-- A variable can be stored at global data section, stack, heap or register. 
+- 一个变量可以被存储在全局数据区（.data section）、栈、堆或者寄存器中；
+- 变量的作用域，描述了它在程序中什么时候是可见的，某种程度上，变量作用域是由在其声明时确定的。DWARF中通过三元组（文件名，行号，列号）对变量声明位置进行描述；
 
-- Variable’s scope describes where it can be known in the program, to some extent, its scope is determined by declaration. Dwarf documents where the variable is defined in triplet (file, line, column).
-
-#### 5.3.2.6 Location
+#### 5.3.2.6 位置（Location）
 
 Dwarf provides a very general schema to describe how to locate the data represented by a variable. That is Dwarf location attribute DW_AT_location, which specifies a sequence of operations to tell debugger how to locate the data.  
 
