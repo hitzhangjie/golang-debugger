@@ -121,9 +121,17 @@ In practice, depending on the format of the object file, debug symbol table reco
 
 #### 4.2.3.1 动态断点
 
-If there’s a term called dynamic breakpoints, there may be a term called static breakpoints. Yes, both of them exist.
+程序断点breakpoint，指的是程序中的一个位置，当程序执行到该位置时能够停下来，以便调试人员观察程序状态。
 
-Breakpoints are created by generating **0xCC one-byte machine instruction** on X86, 0xCC causes processor to pause the running process. If you write assembly, `int 0x3` can be used to generate this instruction 0xCC。After understanding purpose of 0xCC, we can continue discussing the breakpoints’ types, the static breakpoints and the dynamic breakpoints.
+如果有动态断点的概念，那应该也有一个静态断点的概念，没错，这两种断点都存在。
+
+> 除了动态断点、静态断点，还有软件断点和硬件断点，前者是通过机器指令来实现，后者是借助处理器提供的调试寄存器来实现，这里我们先讨论软件断点，有需要的话会在后文介绍硬件断点。
+
+X86平台上创建软件断点可以通过指令`int 3`来生成**0xCC**这个一字节机器指令来创建，处理器执行完0xCC之后会暂停当前执行的进程。
+
+具体是如何执行的呢？int 3表示会触发3号中断，对应机器指令是0xCC，处理器执行完该指令后就会触发3号中断，对应的中断服务就在IDT[3]中。BIOS中提供的中断服务程序是16位的，了解过Linux构建32位、64位内存保护模式的话，就会明白Linux启动后，IDT[3]指向的其实是Linux内核提供的中断处理程序，这里就是暂停执行当前tracee进程，并通知tracer进程tracee暂停执行。
+
+好，现在理解了0xCC机器指令的用途之后，我们可以继续讨论静态断点和动态断点的区别：
 
 1. **静态断点**
 
