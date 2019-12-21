@@ -171,22 +171,22 @@ total = total +value;
 
 #### 4.2.3.2 单步执行
 
-Single stepping in a machine-level debugger is simple: the processor simply executes the next machine instruction and returns program control to the debugger. For a symbolic debugger, this process is not as simple because a single statement in a high-level programming language typically translates into several machine-level instructions. You can’t simply have the debugger execute a fixed number of machine instructions because high-level source code statements vary in terms of how many machine-level instructions they resolve to.
+对指令级调试器（也称机器级调试器）而言，单步执行很简单：处理器只需执行下一条机器指令，然后将程序控制权返回给调试器。 对于符号调试器，此过程并不那么简单，因为高级编程语言中的单个语句通常会转换为多个机器级指令。 您不能简单地让调试器执行固定数量的机器指令，因为高级源代码语句解析的机器指令数量会有所不同。
 
-To single-step, a symbolic debugger has to use dynamic breakpoints. The nature of how dynamic breakpoints are inserted will depend upon the type of single stepping being performed. There are three different types of single stepping:
+单步执行时，符号调试器必须使用动态断点。 如何插入动态断点将取决于执行的单步执行动作的类型，单步有三种不同类型：
 
 1. **单步执行进入 (下一条语句)**
 
-    When a symbolic debugger steps into a source code statement, it scans the first few machine instructions to see if the statement is a functions invocation. If the first opcode of the next instruction is not part of a function invocation, the debugger will simply save the opcode and replace it with a breakpoint. Otherwise, the debugger will determine where the function invocation jumps to, in memory, and replace the first opcode of the function’s body with a breakpoint such that execution pauses after the function has been invoked.
+    当符号调试器单步执行一条源代码语句statement时，它将扫描前几条机器指令，以查看该语句是否为函数调用。 如果下一条指令的第一个操作码不是函数调用的一部分，则调试器将简单地保存该操作码并将其替换为断点。 否则，调试器将确定函数调用在内存中跳转到的位置，并用断点替换函数主体的第一个操作码，以便在调用函数后暂停执行。
 
     ![img](assets/clip_image004.png)
 
 2. **单步执行跳出 (一个函数)**
 
-    When a source-level debugger steps out of a routine, it looks through the routine’s activation record for a return address. It then saves the opcode of the machine instruction at this return address and replaces it with a breakpoint. When program execution resumes, the routine will complete the rest of its statements and jump to its return address. The execution path will then hit the breakpoint, and program control will be given back to the debugger. The effect is that you are able to force the debugger’s attention out of a function and back to the code that invoked it.
+    当源代码级调试器退出函数例程时，它将在函数的活动记录（调用栈信息）中查找返回地址。 然后，它将返回地址处机器指令的操作码保存，并用断点替换。 当程序恢复执行时，该例程将完成其其余语句，并跳转到其返回地址。 然后执行路径将到达断点，程序控制权将交还给调试器。 这样做的结果是，您可以使调试器从被调函数返回到调用该函数的代码上。
 
 3. **单步执行跳过 (下一条语句)**
 
-    When a source-level debugger steps over a statement, it queries the program’s symbol table to determine the address range of the statement in memory (this is one scenario in which the symbol table really comes in handy). Once the debugger has determined where the statement ends, it saves the opcode of the first machine instruction following the statement and replaces it with a breakpoint. When execution resumes, the debugger will regain program control only after the path of execution has traversed the statement.
+    当源代码级调试器遍历一条语句时，它将查询程序的符号表以确定该语句在内存中的地址范围（这是在其中使用符号表的一种情况）。 一旦调试器确定了该语句的结束位置，它将保存该语句后的第一条机器指令的操作码，并将其替换为断点。 当恢复执行时，调试器将仅在执行路径遍历该语句之后才能重新获得程序控制。
 
     ![img](assets/clip_image005.png)
