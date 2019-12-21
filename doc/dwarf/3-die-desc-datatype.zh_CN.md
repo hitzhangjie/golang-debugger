@@ -61,22 +61,20 @@ C\C++中也支持结构体位字段，即struct中多个成员可以共享同一
 
 #### 5.3.2.6 位置（Location）
 
-Dwarf provides a very general schema to describe how to locate the data represented by a variable. That is Dwarf location attribute DW_AT_location, which specifies a sequence of operations to tell debugger how to locate the data.  
+DWARF提供了一种非常通用的机制描述如何确定变量的数据位置，就是通过属性DW_AT_location，该属性允许指定一个操作序列，来告知调试器如何确定数据的位置。
 
-Following is an example to show how DW_AT_location attribute helps to locate the variable address.
+下面是一个示例，展示DW_AT_location如何辅助定位变量数据的地址：
 
 ![img](assets/clip_image006.png)
 
+图 7描述了，变量b定义在寄存器中，变量c存储在栈上，变量a存储在固定地址（.data section中）。
 
-Figure 7 depicts that variable b is stored in a register, variable c is stored at stack, variable a is stored at fixed address (data section).
+调试信息必须为调试器提供一种方法，使其能够查找程序变量的位置、确定动态数组和字符串的范围，以及能找到函数栈帧的基地址或函数返回地址的方法。 此外，为了满足最新的计算机体系结构和优化技术的需求，调试信息必须能够描述对象的位置，还需要注意的是，该对象的位置可能会在对象的生命周期内发生变化（如Java GC时会在内存中迁移对象）。
 
-The debugging information must provides consumers a way to find the location of program variables, determine the bounds of of dynamic arrays and strings and possibly to find the base address of a subroutine’s stack frame or the return address of a subroutine. Furthermore, to meet the needs of recent computer architectures and optimization techniques, the debugging information must be able to describe the location of an object whose location changes over the objects’ lifetime.
+通过location来描述程序中某个对象的位置信息，位置描述可以分为两类：
 
-Information about the location of program object is provided by location descriptions. Location descriptions can be classified into two forms:
-
-- **Location expressions**, which are a language independent representation of addressing rules of arbitrary complexity built from a few basic building blocks, operations. They are sufficient for describing the location of any object as long as its lifetime is either static or the same as the lexical block that owns it, and it does not move throughout its lifetime.
-
-- **Location lists**, which are used to describe objects that have a limited lifetime or change their location throughout their lifetime.
+- **位置表达式（Location expressions）**，是与语言无关的寻址规则表示形式，它是由一些基本构建块、操作序列组合而成的任意复杂度的寻址规则。 只要对象的生命周期是静态的（static）或与拥有它的词法块相同，并且在整个生命周期内都不会移动，它们就足以描述任何对象的位置。
+- **位置列表（Location lists）**，用于描述生命周期有限的对象或在整个生命周期内可能会更改位置的对象。
 
 #### 5.3.2.7 Location Expression
 
