@@ -10,7 +10,7 @@ PLSIG起草了DWARF v1的标准，该标准与AT＆T的SVR4编译器和调试器
 
 ### DWARF v2 vs.  DWARF v1
 
-1993年7月，DWARF v2.0.0发布。DWARF v1，其对应的调试信息占磁盘空间很大，并且与DWARF v2是不兼容的，DWARF v2比DWARF v1成功，也添加了各种各样的编码格式压缩数据尺寸。
+1993年7月，DWARF v2.0.0发布。DWARF v1，其对应的调试信息占存储空间很大，并且与DWARF v2是不兼容的，DWARF v2比DWARF v1成功，也添加了各种各样的编码格式压缩数据尺寸。
 
 尽管如此，DWARF v2依然没有立即获得广泛的接纳，一方面因为DWARF仍是个新生儿，另一方面与Unix International宣布解散有关。委员会没有收到或处理任何行业评论，也没有发布最终标准。委员会邮件列表由OpenGroup（以前称为XOpen）托管。
 
