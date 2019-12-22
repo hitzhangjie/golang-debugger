@@ -8,7 +8,7 @@
 
   比较笨的办法是遍历所有的DIEs，检查查询关键字符号名、类型名与DIEs描述的是否匹配，或者检查指令地址与对应的DIEs所表示的地址范围是否有包含关系，是个办法，但是效率实在太低了。
 
-  DWARF为了加速查询，在DWARF信息生成的时候允许编译器额外创建3张表用来加速查询，加速符号名查询的.debug_pubnames、加速类型名查询的.debug_pubtypes、加速指令地址查询的.debug_aranges。
+  DWARF为了加速查询，在DWARF信息生成的时候允许编译器额外创建3张表用来加速查询，加速符号名查询的.debug_pubnames (查询对象或函数）、加速类型名查询的.debug_pubtypes（查询类型）、加速指令地址查询的.debug_aranges。
 
 - 行号表（Line Number Table）
 

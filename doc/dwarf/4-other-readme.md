@@ -4,7 +4,7 @@ This data includes:
 
 - Accelerated Access
 
-  A debugger frequently needs to find the debugging information for a program entity by a name, type, or address. When producer generating DWARF debugging information, DWARF allows compilers generating three more tables to accelerate the query process, table .debug_pubnames for lookup by name, .debug_pubtypes for lookup by type, .debug_aranges for lookup by address.
+  A debugger frequently needs to find the debugging information for a program entity by a name, type, or address. When producer generating DWARF debugging information, DWARF allows compilers generating three more tables to accelerate the query process, table .debug_pubnames for lookup by name for data objects and functions, .debug_pubtypes for lookup by name for types, .debug_aranges for lookup by address.
 
 - Line Number Table 
 
