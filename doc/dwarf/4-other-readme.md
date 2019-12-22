@@ -2,6 +2,10 @@ We have mentioned DIE in section 5.3, which is used for describling variables, d
 
 This data includes:
 
+- Accelerated Access
+
+  A debugger frequently needs to find the debugging information for a program entity by a name, type, or address. When producer generating DWARF debugging information, DWARF allows compilers generating three more tables to accelerate the query process, table .debug_pubnames for lookup by name, .debug_pubtypes for lookup by type, .debug_aranges for lookup by address.
+
 - Line Number Table 
 
   The Dwarf line number table contains the mapping between the memory address of executable code of a program and the source lines that corresponds to these address. 
