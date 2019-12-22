@@ -1,50 +1,50 @@
-### 5.3.3 Describing Executable Code
+### 5.3.3 描述可执行代码
 
-#### 5.3.3.1 Functions and SubPrograms
+#### 5.3.3.1 函数（子程序）
 
 ##### 5.3.3.1.1 subprogram
 
-Functions (also called subprogram) may has return value or not, Dwarf use DIE `DW_AT_subprogram` to represent both these two cases. This DIE has a name, a source location triplet, and an attribute which indicates whether the subprogram is external, that is, visible outside the current compilation unit.
+函数（也称为子程序）可以返回值，也可以不返回。DWARF使用DIE`DW_AT_subprogram`来表示这两种情况。 该DIE具有一个名称，一个三元组表示的源代码中的位置，还有一个指示该子程序是否在外部（编译单元）可见的属性。
 
-##### 5.3.3.1.2 subprogram address range
+##### 5.3.3.1.2 subprogram地址范围
 
-A subprogram DIE has attributes `DW_AT_low_pc`, `DW_AT_high_pc` to give the low and high memory addresses that the subprogram occupies. In some cases, maybe the subprogram memory address is continuous or not, if not, there’ll be a list of memory ranges. The low pc is assumed to be the entry point of subprogram unless another one is specified explicitly.
+函数（子程序）DIE具有属性 `DW_AT_low_pc`、`DW_AT_high_pc`，以给出函数占用的内存地址空间的上下界。 在某些情况下，函数的内存地址可能是连续的，也可能不是连续的。如果不连续，则会有一个内存范围列表。一般DW_AT_low_pc的值为函数入口点地址，除非明确指定了另一个地址。
 
-##### 5.3.3.1.3 subprogram return type
+##### 5.3.3.1.3 subprogram返回值类型
 
-A subprogram’s return value’s type is described by the attribute `DW_AT_type` within DIE DW_TAG_subprogram. If no value returned, this attribute doesn’t exist. If return type is defined within the same scope with this subprogram, the return type DIE will also be an sibling of this DIE subprogram.
+函数（子程序）的返回值类型由DIE DW_TAG_subprogram中的属性 `DW_AT_type` 描述。 如果没有返回值，则此属性不存在。如果在此函数的相同范围内定义了返回类型，则返回类型DIE将作为此函数DIE的兄弟DIE。
 
-##### 5.3.3.1.4 subprogram formal parameters
+##### 5.3.3.1.4 subprogram形参列表
 
-A subprogram may have zero or several formal parameters, which are described by DIE `DW_TAG_formal_parameter`, will be listed after the DIE subprogram as the same order as declared in parameter list, though DIE of parameter type may be interspersed. Mostly, these formal parameters are stored in registers.
+函数可能具有零个或多个形式参数，这些参数由DIE `DW_TAG_formal_parameter` 描述，这些形参DIE的位置被安排在函数DIE之后，并且各形参DIE的顺序按照形参列表中出现的顺序，尽管参数类型的DIE可能会散布。 通常，这些形式参数存储在寄存器中。
 
-##### 5.3.3.1.5 subprogram variables
+##### 5.3.3.1.5 subprogram局部变量
 
-A subprogram body may contains local variables, these variables are described by DIE `DW_TAG_variables` listing after formal parameters’ DIEs. Mostly, these local variables are allocated in stack. 
+函数主体可能包含局部变量，这些变量由DIE `DW_TAG_variables` 在形参DIE之后列出。 通常这些局部变量在栈中分配。
 
-##### 5.3.3.1.6 lexical block
+##### 5.3.3.1.6 词法块
 
-Most programming language support lexical block, there’s may be some lexcical blocks in subprogram, which can be described DIE `DW_TAG_lexcical_block`. Lexical block may contain variable and lexical block DIEs, too. 
+大多数编程语言都支持词法块，函数中可能有一些词法块，可以用DIE`DW_TAG_lexcical_block`来描述。 词法块也可以包含变量和词法块DIE。
 
-Following is an example showing how to describe a C function.
+下面是一个描述C语言函数的示例：
 
 ![img](assets/clip_image009.png)
 
-Generated Dwarf information is as following: 
+生成的DWARF调试信息如下所示：
 
 ![img](assets/clip_image010.png)
 
-Referring to 1)~5) content, this example easy to be understood.
+参考5.3.3.1.1~5.3.3.1.6中介绍的内容，这个示例是非常好理解的。
 
-#### 5.3.3.2 Compilation Unit
+#### 5.3.3.2 编译单元
 
-Most Program contain more than one source file. When building program, each source file are treated as a independent compilation unit, which will be independently compiled to *.o (such as C), then these object files will be linked with system specific startup code and system libraries to build the executable program. 
+大多数程序包含多个源文件。 在生成程序时，每个源文件都被视为一个独立的编译单元，并被编译为独立的*.o文件（例如C），然后连接器会将这些目标文件、系统特定的启动代码、系统库链接在一起以生成完整的可执行程序 。
 
-Dwarf adopts the terminology Compilation Unit from C as the DIE name, `DW_TAG_compilation_unit`. The DIE contains general information about the compilation, including the directory and name of the file name, the used programming language, producer that generated the Dwarf information and the offsets to help locate the line number and macro information. 
+DWARF中采用了C语言中的术语“编译单元（compilation unit）”作为DIE的名称 `DW_TAG_compilation_unit`。 DIE包含有关编译的常规信息，包括源文件对应的目录和文件名、使用的编程语言、生成DWARF信息的生产者，以及有助于定位行号和宏信息的偏移量等等。
 
-If the compilation unit takes up continuous memory (i.e., it’s loaded into memory in one piece), then there’re values for the low and high memory addresses for the unit, which are low pc and high pc attributes. This helps debugger determine which compilation generate the code (instruction) at particular memory address much more easiliy.  
+如果编译单元占用了连续的内存（即，它已被装入一个内存中），那么该单元的低内存地址和高内存地址将有值，即低pc和高pc属性。 这有助于调试器更轻松地确定在特定内存地址处哪个编译生成代码（指令）。  
 
-If the compilation is not continuous, then a list of the memory address that the code takes up is provided by the compiler and linker.
+如果编译单元占用的内存不连续，则编译器和连接器将提供代码占用的内存地址列表。
 
-Each Compilation Unit is represented by a **Common Information Entry**.
+每个编译单元都会有一个“**公共信息条目（Common Information Entry）**”表示。
 
