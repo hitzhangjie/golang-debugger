@@ -12,8 +12,6 @@
 
 For lookup by name, two tables are maintained in separate object file sections named **.debug_pubnames** for objects and functions, and **.debug_pubtypes** for types. Each table consists of sets of variable length entries. Each set describes the names of global objects and functions, or global types, respectively, whose definitions are represented by debugging information entries owned by a single compilation unit.
 
-C++ member functions with a definition in the class declaration are definitions in every compilation unit containing the class declaration, but if there is no concrete out-of-line instance there is no need to have a .debug_pubnames entry for the member function.
-
 #### 5.4.0.2 Lookup by Address
 
 For lookup by address, a table is maintained in a separate object file section called **.debug_aranges**. The table consists of sets of variable length entries, each set describing the portion of the program’s address space that is covered by a single compilation unit.
