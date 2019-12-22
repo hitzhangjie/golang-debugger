@@ -1,13 +1,13 @@
 ### 5.3.1 Introduction
 
-每个调试信息记录（DIE）都由一个tag以及一系列attributes构成。
+每个调试信息条目（DIE）都由一个tag以及一系列attributes构成。
 
 - tag指明了该DIE描述的实体所属的类型，如变量、数据类型、函数等；
 - attributes定义了该DIE的一些具体特征，如变量所属的数据类型；
 
 The debugging information entries in Dwarf v2/v3 are intended to exist in the **.debug_info** section of an object file.
 
-以Linux下ELF文件格式为例，调试信息记录多将其存储在.debug_info和.debug_types中，如果涉及到压缩会存储到.zdebug_info和.zdebug_types中。
+以Linux下ELF文件格式为例，调试信息条目多将其存储在.debug_info和.debug_types中，如果涉及到压缩会存储到.zdebug_info和.zdebug_types中。
 
 #### 5.3.1.1 Tag
 
