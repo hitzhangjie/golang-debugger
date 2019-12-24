@@ -1,6 +1,6 @@
 ### 5.4.1 行号表（Line Number Table）
 
-#### 5.4.1.1 用途
+#### 5.4.1.1 介绍
 
 符号级调试器，需要知道如何将源文件中的位置与可执行对象、共享对象中的机器指令地址进行关联。 这样的关联将使调试用户可以根据源代码中的位置（源文件名+行号）指定机器指令地址（如在源码行设置断点）。调试器还可以使用此信息将当前机器指令地址转换为源文件中的位置，也可以用来控制tracee进程逐条指令执行或者逐条语句执行。
 
@@ -31,9 +31,9 @@ DWARF行号表，包含了可执行程序机器指令的内存地址和在源代
 
 DWARF将行号表编码为“**行号表程序的指令序列**”。 这里的指令序列，由**一个简单的有穷状态机**解释、执行，执行指令的过程就是创建完整行号表的过程。通过上述方法，行号表（行号信息）就被有效压缩了。
 
-#### 5.4.1.4 设计细节
+#### 5.4.1.4 相关设计
 
-##### 5.4.1.4.1 Definitions
+##### 5.4.1.4.1 定义
 
 在描述行表信息（行号表）时，有如下几个术语：
 
@@ -121,3 +121,85 @@ DWARF将行号表编码为“**行号表程序的指令序列**”。 这里的�
 
 ##### 5.4.1.4.5 行(号)表程序
 
+如前所述，行号程序的目标是建立一个表示一个编译单元的矩阵，该编译单元可能已生成目标机器指令的多个序列。 在一个序列中，地址（操作指针）可能只会增加（在流水线调度或其他优化的情况下，行号可能会减少）。
+
+行号程序由特殊操作码、标准操作码和扩展操作码组成。 在这里，我们仅描述特殊操作码。 如果您对标准操作码或扩展操作码感兴趣，请参阅DWARF v4标准的章节6.2.5.2和6.2.5.3。
+
+每个ubyte特殊操作码，其操作对状态机状态的影响可以归为下面几点：
+
+ 1. 向行寄存器line添加一个有符号数。
+ 2. 增加address和op_index寄存器的值来修改operation pointer。
+ 3. 使用状态机寄存器的当前值在矩阵上添加一行。
+ 4. 将basic_block寄存器设置为“ false”。
+ 5. 将prologue_end寄存器设置为“ false”。
+ 6. 将epilogue_begin寄存器设置为“ false”。
+ 7. 将鉴别器discriminator寄存器设置为0。
+
+所有特殊操作码都做同样的七件事，不同之处仅在于它们添加到寄存器line，address和op_index的值不同。
+
+根据需要添加到寄存器line、address和op_index的数量选择特殊操作码值。特殊操作码的最大行增量，是行号程序header中的line_base字段的值加上line_range字段的值减去1（line_base+line_range-1）。 如果所需的行增量大于最大行增量，则必须使用标准操作码代替特殊操作码。 operation advance，表示向前移动操作指针时要跳过的操作数。
+
+**“特殊操作码”计算公式如下**：
+
+```
+opcode = (desired line increment - line_base) + (line_range * operation advance) + opcode_base
+```
+
+如果结果操作码大于255，则必须改用标准操作码。
+
+当*maximum_operations_per_instruction*为1时，*operation advance*就是地址增量除以*minimum_instruction_length*。
+
+**要解码特殊操作码**，要从操作码本身中减去opcode_base以提供调整后的操作码。*operation advance*是调整后的操作码除以*line_range*的结果。new address和 new op_index值由下式给出：
+
+```
+adjusted opcode = opcode – opcode_base 
+operation advance = adjusted opcode / line_range
+
+new address = address + 
+			minimum_instruction_length *
+			((op_index + operation advance)/maximum_operations_per_instruction) 
+
+new op_index = (op_index + operation advance) % maximum_operations_per_instruction
+```
+
+当*maximum_operations_per_instruction*字段为1时，*op_index*始终为0，这些计算将简化为DWARF版本v3中为地址提供的计算。 line increment的数值是line_base加上以调整后操作码除以line_range的模的和。 就是：
+
+```
+line increment = line_base + (adjusted opcode % line_range)
+```
+
+例如，当**假设opcode_base为13，line_base为-3，line_range为12，minimum_instruction_length为1，maximum_operations_per_instruction为1** ，下表中列出了当前假设下，当源码行相差[-3,8]范围内时、指令地址相差[0,20]时计算得到的特殊操作码值。
+
+<img src="assets/image-20191225005529000.png" alt="image-20191225005529000" style="zoom:50%;" />
+
+#### 5.4.1.5 示例
+
+请考虑图60中的简单源文件和Intel 8086处理器的最终机器代码。
+
+<img src="assets/image-20191225013035603.png" alt="image-20191225013035603" style="zoom:46%;" />
+
+现在，让我们逐步构建“行号表程序”。 实际上，我们需要先将源代码编译为汇编代码，然后计算每个连续语句的指令地址和行号的增量，根据指令地址增量operation advance以及行号增量line increment，来计算操作码，这些操作码构成一个sequence，术语行号程序的一个部分。
+
+例如, `2: main()` and `4: printf`, 这两条源语句各自第一条指令的地址的增量为 `0x23c-0x239=3`, 两条源语句的行号增量为 `4-2=2`. 然后我们可以通过函数 `Special(lineIncr,operationAdvance)` 来计算对应的特殊操作码，即 `Special(2, 3)`。
+
+<img src="assets/image-20191225014107123.png" alt="image-20191225014107123" style="zoom:46%;" />
+
+回想一下上面提及的特殊操作码的计算公式：
+
+ `opcode = (desired line increment - line_base) + (line_range * operation advance) + opcode_base`
+
+假设行号程序头包括以下内容（以下不需要的头字段未显示）：
+
+<img src="assets/image-20191225015459672.png" alt="image-20191225015459672" style="zoom:16%;" />
+
+然后代入上述计算公式，Special(2, 3)的计算如下:
+
+```
+opcode = (2 - 1) + (15 * 3) + 10 = 56 = 0x38
+```
+
+这样就计算得到了构建行号表从`2: main()`到`4: printf`对应的行所需要的特殊操作码0x38。然后逐一处理所有相邻的源语句，就得到了如下行号表程序：
+
+<img src="assets/image-20191225015400111.png" alt="image-20191225015400111" style="zoom: 25%;" />
+
+如果要构建完整的行号表，需要先读取行号表，然后行号表状态机对操作码进行解码，并计算得到相邻源码语句间的行增量和指令地址增量，据此就可以构建出完整的行号表矩阵了。

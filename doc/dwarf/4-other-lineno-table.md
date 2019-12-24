@@ -1,6 +1,6 @@
 ### 5.4.1 Line Number Table 
 
-#### 5.4.1.1 Usage
+#### 5.4.1.1 Introduction
 
 A source-level debugger will need to know how to associate locations in the source files with the corresponding machine instruction addresses in the executable object or the shared objects used by that executable object. Such an association would make it possible for the debugger user to specify machine instruction addresses in terms of source locations. This would be done by specifying the line number and the source file containing the statement. The debugger can also use this information to display locations in terms of the source files and to single step from line to line, or statement to statement.
 
@@ -109,5 +109,89 @@ The line number program for each compilation unit begins with a header containin
 - include_directories (sequence of path names), Entries in this sequence describe each path that was searched for included source files in this compilation.
 - file_names (sequence of file entries), Entries in this sequence describe source files that contribute to the line number information for this compilation unit or is used in other contexts, such as in a declaration coordinate or a macro file inclusion.
 
-##### 5.4.1.4.4 The Line Number Program
+##### 5.4.1.4.5 The Line Number Program
 
+As stated before, the goal of a line number program is to build a matrix representing one compilation unit, which may have produced multiple sequences of target machine instructions. Within a sequence, addresses (operation pointers) may only increase. (Line numbers may decrease in cases of pipeline scheduling or other optimization.)
+
+The line number program is made up of special opcodes, standard opcodes, and extended opcodes. Here we only describe special opcodes. If you’re interested in standard opcodes or extended opcodes, please refer to DWARF v4 standards 6.2.5.2 and 6.2.5.3.
+
+Each ubyte special opcode has the following effect on the state machine:
+1. Add a signed integer to the line register.
+2. Modify the operation pointer by incrementing the address and op_index registers as described below.
+3. Append a row to the matrix using the current values of the state machine registers.
+4. Set the basic_block register to “false.”
+5. Set the prologue_end register to “false.”
+6. Set the epilogue_begin register to “false.”
+7. Set the discriminator register to 0.
+
+All of the special opcodes do those same seven things; they differ from one another only in what
+values they add to the line, address and op_index registers.
+
+A special opcode value is chosen based on the amount that needs to be added to the line, address and op_index registers. The maximum line increment for a special opcode is the value of the line_base field in the header, plus the value of the line_range field, minus 1 (line_base + line_range - 1). If the desired line increment is greater than the maximum line increment, a standard opcode must be used instead of a special opcode. The operation advance represents the number of operations to skip when advancing the operation pointer.
+
+**The special opcode is then calculated using the following formula:**
+
+```
+opcode = (desired line increment - line_base) + (line_range * operation advance) + opcode_base
+```
+
+If the resulting opcode is greater than 255, a standard opcode must be used instead.
+
+When *maximum_operations_per_instruction* is 1, the *operation advance* is simply the address increment divided by the *minimum_instruction_length*.
+
+**To decode a special opcode**, subtract the opcode_base from the opcode itself to give the adjusted opcode. The operation advance is the result of the adjusted opcode divided by the line_range. The new address and *op_index* values are given by:
+
+```
+adjusted opcode = opcode – opcode_base 
+operation advance = adjusted opcode / line_range
+
+new address = address + 
+			minimum_instruction_length *
+			((op_index + operation advance)/maximum_operations_per_instruction) 
+
+new op_index = (op_index + operation advance) % maximum_operations_per_instruction
+```
+
+When the *maximum_operations_per_instruction* field is 1, *op_index* is always 0 and these calculations simplify to those given for addresses in DWARF Version v3. The amount to increment the line register is the line_base plus the result of the adjusted opcode modulo the line_range. That is:
+
+```
+line increment = line_base + (adjusted opcode % line_range)
+```
+
+As an example, **suppose that the opcode_base is 13, line_base is -3, line_range is 12, minimum_instruction_length is 1 and maximum_operations_per_instruction is 1**. This means that we can use a special opcode whenever two successive rows in the matrix have source line numbers differing by any value within the range [-3, 8] and (because of the limited number of opcodes available) when the difference between addresses is within the range [0, 20], but not all line advances are available for the maximum operation advance (see below).
+
+**The opcode mapping would be:**
+
+<img src="assets/image-20191225005529000.png" alt="image-20191225005529000" style="zoom:50%;" />
+
+#### 5.4.1.5 Examples
+
+Consider the simple source file and the resulting machine code for the Intel 8086 processor in Figure 60.
+
+<img src="assets/image-20191225013022157.png" alt="image-20191225013022157" style="zoom: 50%;" />
+
+Let's try to build the Line Number Table Program step by step. Actually, we compile source code to assembly, then we calculate the increment of instruction address and line number of every successive statements’. 
+
+For example, `2: main()` and `4: printf`, the increment of the statements' first instruction address is `0x23c-0x239=3`, the increment of line number of the statements is `4-2=2`. Then we can use `Special(lineIncr,operationAdvance)` to encode a special opcode, here it is ``Special(2, 3)`.
+
+<img src="assets/image-20191225014102377.png" alt="image-20191225014102377" style="zoom: 50%;" />
+
+Remember the formular:
+
+ `opcode = (desired line increment - line_base) + (line_range * operation advance) + opcode_base`
+
+Suppose the line number program header includes the following (header fields not needed below are not shown):
+
+<img src="assets/image-20191225015459672.png" alt="image-20191225015459672" style="zoom:16%;" />
+
+Then:
+
+```
+opcode = (2 - 1) + (15 * 3) + 10 = 56 = 0x38
+```
+
+Then we handle all the statements, we could get the following program:
+
+<img src="assets/image-20191225015400111.png" alt="image-20191225015400111" style="zoom: 25%;" />
+
+If we want to build the full Line Number Table, we read the Line Number Table first, then the State Machine decode the opcode and get the line increment and operation advance, then we can build the full matrix.
