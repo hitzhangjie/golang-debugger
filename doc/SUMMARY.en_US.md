@@ -24,8 +24,6 @@
         * [5.4.5 Shrinking Dwarf Data](dwarf/4-other-shrink-data.md)
         * [5.4.6 ELF Sections](dwarf/4-other-elf-sections.md)
     * [5.5 Summary](dwarf/5-summary.md)
-    * [5.6 What to get](dwarf/6-what-to-get.md)
-    * [5.7 How to get](dwarf/7-how-to-get.md)
 * [6 Develop Golang Debugger](develop/README.md)
     * [6.1 syscall ptrace](develop/1-ptrace.md)
     * [6.2 Process Control](develop/2-process.md)
