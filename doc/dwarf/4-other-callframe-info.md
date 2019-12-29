@@ -224,6 +224,8 @@ For architectures with constant-length instructions where the return address imm
 
 #### 5.4.3.7 Example
 
+##### 5.4.3.7.1 Target Info
+
 The following example uses a hypothetical RISC machine in the style of the Motorola 88000.
 - Memory is byte addressed.
 
@@ -246,9 +248,13 @@ The following example uses a hypothetical RISC machine in the style of the Motor
 
 - The architectural ABI committee specifies that the stack pointer (R7) is the same as the CFA
 
+##### 5.4.3.7.2 Instruction Fragments of `foo`
+
 The following are two code fragments from a subroutine called foo that uses a frame pointer (in addition to the stack pointer). The first column values are byte addresses. <fs> denotes the stack frame size in bytes, namely 12.
 
 <img src="assets/image-20191229171656174.png" alt="image-20191229171656174" style="zoom:16%;" />
+
+##### 5.4.3.7.3 CFI table of `foo`
 
 An abstract table (see Section 6.4.1) for the foo subroutine is shown in Figure 64. Corresponding fragments from the .debug_frame section are shown in Figure 65.
 The following notations apply in Figure 64:
@@ -262,18 +268,29 @@ The following notations apply in Figure 64:
 
 <img src="assets/image-20191229172236863.png" alt="image-20191229172236863" style="zoom:16%;" />
 
-
+##### 5.4.3.7.4 CIE.initial_instruction creates the 1st row of CFI table
 
 <img src="assets/image-20191229172436047.png" alt="image-20191229172436047" style="zoom:25%;" />
 
+##### 5.4.3.7.5 FDEs.instructions create the following rows of CFI table
+
+**How does FDE.instructions created?**
+
+Actually, after the source code will be transformed to machine instructions by build toolchain, we can analyze instructions. Each instruction has different address, and its effect on registers can be worked out. According to this, we can use `row create rule` to advance the address, and we can use `register unwind rules` to record the changes to registers. All the rules combined fullfill the FDE’s instructions field.
+
+That’s how FDE’s instructions built.
+
+**Now let’s look at the FDE’s instructions.** If you’re interested how FDE’s instructions are built, you can compare the Figure 63 instructions with Figure 65 FDE’s instructions, it’s not difficult to understand the association between them.
+
 The following notations apply in Figure 66:
+
 1. <fs> = frame size
 2. <caf> = code alignment factor
 3. <daf> = data alignment factor
 
 <img src="assets/IMG_0050.JPG" alt="IMG_0050" style="zoom:25%;" />
 
-
+Now I think we have mastered the knowledge and thinks behind Call Frame Information.
 
 ////////////////////////
 
