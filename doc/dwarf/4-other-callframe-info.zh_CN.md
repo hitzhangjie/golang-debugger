@@ -60,6 +60,15 @@ CFA列，定义了计算规范栈帧地址值的规则，它可以是寄存器�
 
 如果按照上述CFI信息表对表结构进行定义、数据编码，则该表将非常大、数据量会非常多。实际情况是，该表中相邻各行，他们在多数列上的值是相同的，因此我们可以只记录它们的差异。通过仅记录程序中各个子例程的起始地址开始的差异，可以非常紧凑地表示整个表。
 
+上述CFI信息表（virtual unwind rules）被编码在 “**.debug_frame**” section 中。 .debug_frame节中的条目相对于该节的开头按地址大小的倍数对齐，并以两种形式出现：
+
+- 公共信息条目（Common Information Entry, CIE）；
+- 帧描述条目（Frame Descriptor Entry, FDE）；
+
+##### 5.4.3.3.1 Common Information Entry
+
+##### 5.4.3.3.2 Frame Descriptor Entry
+
 
 
 /////////////////////////////////////
