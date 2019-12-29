@@ -69,8 +69,6 @@ CFA列，定义了计算规范栈帧地址值的规则，它可以是寄存器�
 
 ##### 5.4.3.3.1 公共信息条目（Common Information Entry）
 
-A Common Information Entry holds information that is shared among many Frame Description Entries. There is at least one CIE in every non-empty .debug_frame section. A CIE contains the following fields, in order:
-
 每个公共信息条目CIE的信息，可能会被很多帧描述条目FDE所共享。每个非空的.debug_frame section中至少包含一个CIE，每个CIE都包含如下字段，按照字段存储顺序依次是：
 
 1. length (初始长度)，常量，指明了该CIE结构的大小（字节数量），不包含该字段本身。length字段所占字节数，加上length的值，必须是按照address size对齐；
@@ -101,8 +99,6 @@ A Common Information Entry holds information that is shared among many Frame Des
   
 
 ##### 5.4.3.3.2 帧描述条目（Frame Descriptor Entry）
-
-An FDE contains the following fields, in order:
 
 一个FDE包含如下字段，按照字段顺序依次如下：
 
@@ -166,11 +162,9 @@ An FDE contains the following fields, in order:
    DW_CFA_def_cfa_offset_sf指令采用带符号的LEB128操作数，表示分解后的偏移量。 该指令与DW_CFA_def_cfa_offset相同，除了该操作数是有符号的因数（signed factored）。 结果偏移量为factored_offset * data_alignment_factor。 仅当当前CFA规则定义为使用寄存器和偏移量时，此操作才有效。
 
 6. DW_CFA_def_cfa_expression
-   The DW_CFA_def_cfa_expression instruction takes a single operand encoded as a DW_FORM_exprloc value representing a DWARF expression. The required action is to establish that expression as the means by which the current CFA is computed.
-   See Section 6.4.2 regarding restrictions on the DWARF expression operators that can be used.
-
+   
    DW_CFA_def_cfa_expression指令采用单个操作数，该操作数编码为表示DWARF表达式的DW_FORM_exprloc值。 所需的操作是建立该表达式作为计算当前CFA的方式。
-   有关可使用的DWARF表达式运算符的限制，请参见第DWARF v4 section 6.4.2。
+有关可使用的DWARF表达式运算符的限制，请参见第DWARF v4 section 6.4.2。
 
 ##### 5.4.3.4.3 CFI表寄存器规则指令（Register Rule Instructions）
 
@@ -222,8 +216,6 @@ An FDE contains the following fields, in order:
     DW_CFA_restore_extended指令采用单个无符号的LEB128操作数来表示寄存器号。 该指令与DW_CFA_restore相同，不同之处在于寄存器操作数的编码和大小。
 
 ##### 5.4.3.4.4 CFI表行状态指令（Row State Instructions）
-
-The next two instructions provide the ability to stack and retrieve complete register states. They may be useful, for example, for a compiler that moves epilogue code into the body of a function.
 
 接下来的两条指令提供了将寄存器状态保存入栈和获取的能力。 比如，对于编译器需要将函数epilogue代码移入函数体中return的地方的时候，它们就很有用。
 
