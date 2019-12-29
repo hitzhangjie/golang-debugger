@@ -225,10 +225,14 @@ An FDE contains the following fields, in order:
 
 The next two instructions provide the ability to stack and retrieve complete register states. They may be useful, for example, for a compiler that moves epilogue code into the body of a function.
 
+接下来的两条指令提供了将寄存器状态保存入栈和获取的能力。 比如，对于编译器需要将函数epilogue代码移入函数体中return的地方的时候，它们就很有用。
+
 1. DW_CFA_remember_state
-   The DW_CFA_remember_state instruction takes no operands. The required action is to push the set of rules for every register onto an implicit stack.
+
+   DW_CFA_remember_state指令不接受任何操作数。 所需的操作是将每个寄存器的规则集压入隐式堆栈。
+
 2. DW_CFA_restore_state
-   The DW_CFA_restore_state instruction takes no operands. The required action is to pop the set of rules off the implicit stack and place them in the current row.
+   DW_CFA_restore_state指令不接受任何操作数。 所需的操作是将规则集从隐式堆栈中弹出，并将其放置在当前行中。
 
 ##### 5.4.3.4.5 CFI表字节填充指令（Padding Instruction）
 
