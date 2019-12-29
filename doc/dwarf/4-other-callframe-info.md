@@ -224,6 +224,57 @@ For architectures with constant-length instructions where the return address imm
 
 #### 5.4.3.7 Example
 
+The following example uses a hypothetical RISC machine in the style of the Motorola 88000.
+- Memory is byte addressed.
+
+- Instructions are all 4 bytes each and word aligned.
+
+- Instruction operands are typically of the form:
+  <destination.reg>, <source.reg>, <constant>
+
+- The address for the load and store instructions is computed by adding the contents of the source register with the constant.
+
+- There are 8 4-byte registers:
+  R0 always 0
+  R1 holds return address on call
+  R2-R3 temp registers (not preserved on call) 
+
+  R4-R6 preserved on call
+  R7 stack pointer.
+
+- The stack grows in the negative direction.
+
+- The architectural ABI committee specifies that the stack pointer (R7) is the same as the CFA
+
+The following are two code fragments from a subroutine called foo that uses a frame pointer (in addition to the stack pointer). The first column values are byte addresses. <fs> denotes the stack frame size in bytes, namely 12.
+
+<img src="assets/image-20191229171656174.png" alt="image-20191229171656174" style="zoom:16%;" />
+
+An abstract table (see Section 6.4.1) for the foo subroutine is shown in Figure 64. Corresponding fragments from the .debug_frame section are shown in Figure 65.
+The following notations apply in Figure 64:
+
+1. R8 is the return address 
+2. s = same_value rule
+3. u = undefined rule
+4. rN = register(N) rule 
+5. cN = offset(N) rule
+6. a = architectural rule
+
+<img src="assets/image-20191229172236863.png" alt="image-20191229172236863" style="zoom:16%;" />
+
+
+
+<img src="assets/image-20191229172436047.png" alt="image-20191229172436047" style="zoom:25%;" />
+
+The following notations apply in Figure 66:
+1. <fs> = frame size
+2. <caf> = code alignment factor
+3. <daf> = data alignment factor
+
+<img src="assets/IMG_0050.JPG" alt="IMG_0050" style="zoom:25%;" />
+
+
+
 ////////////////////////
 
 Every processor has a certain way of determining how to pass parameters and return values, this is defined by the processor’s ABI (Application Binary Interface). In the simplest case, all functions have the same way to pass parameters and return values, and the debuggers know exactly how to get the parameters and return values. 
