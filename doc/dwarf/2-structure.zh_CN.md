@@ -1,4 +1,4 @@
-## 5.2 Structure
+## 5.2 DWARF数据结构
 
 DWARF使用数据结构调试信息条目Debugging Information Entry（DIE）来表示每一个变量、数据类型、函数等。
 

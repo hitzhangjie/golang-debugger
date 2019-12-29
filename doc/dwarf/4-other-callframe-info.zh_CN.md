@@ -2,7 +2,7 @@
 
 #### 5.4.3.0 介绍
 
-DWARF中的调用栈信息（Call Frame Information，简称CFI）为调试器提供了如下信息，函数是如何被调用的，如何找到函数参数，如何找到返回地址，如何找到调用函数（caller）的调用帧信息。 调试器借助CFI可以展开调用栈、查找上一个函数、确定当前函数的被调用位置以及传递的参数值。
+DWARF中的调用栈帧信息（Call Frame Information，简称CFI）为调试器提供了如下信息，函数是如何被调用的，如何找到函数参数，如何找到返回地址，如何找到调用函数（caller）的调用帧信息。 调试器借助CFI可以展开调用栈、查找上一个函数、确定当前函数的被调用位置以及传递的参数值。
 
 与行号表一样，CFI也被编码为一系列字节码指令，这些指令由CFI状态机解释、执行，以创建完整的CFI表。每条机器指令基本都对应CFI表中一行，第一列包含机器地址，而其他列则包含执行该地址处的指令前各个寄存器值对应的unwind操作。 像行号表一样，完整的CFI也非常庞大。 幸运的是，两条指令之间的变化很小，因此CFI编码非常紧凑。
 
@@ -176,7 +176,7 @@ CFA列，定义了计算规范栈帧地址值的规则，它可以是寄存器�
    DW_CFA_def_cfa_offset_sf指令采用带符号的LEB128操作数，表示分解后的偏移量。 该指令与DW_CFA_def_cfa_offset相同，除了该操作数是有符号的因数（signed factored）。 结果偏移量为factored_offset * data_alignment_factor。 仅当当前CFA规则定义为使用寄存器和偏移量时，此操作才有效。
 
 6. DW_CFA_def_cfa_expression
-   
+  
    DW_CFA_def_cfa_expression指令采用单个操作数，该操作数编码为表示DWARF表达式的DW_FORM_exprloc值。 所需的操作是建立该表达式作为计算当前CFA的方式。
 有关可使用的DWARF表达式运算符的限制，请参见第DWARF v4 section 6.4.2。
 
