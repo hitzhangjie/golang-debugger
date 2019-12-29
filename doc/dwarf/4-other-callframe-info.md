@@ -56,6 +56,73 @@ This table would be extremely large if actually constructed as described. Most o
 
 The virtual unwind information is encoded in a self-contained section called .debug_frame. Entries in a .debug_frame section are aligned on a multiple of the address size relative to the start of the section and come in two forms: a Common Information Entry (CIE) and a Frame Description Entry (FDE).
 
+If the range of code addresses for a function is not contiguous, there may be multiple CIEs and FDEs corresponding to the parts of that function.
+
+##### 5.4.3.3.1 Common Information Entry
+
+A Common Information Entry holds information that is shared among many Frame Description Entries. There is at least one CIE in every non-empty .debug_frame section. A CIE contains the following fields, in order:
+
+1. length (initial length)
+   A constant that gives the number of bytes of the CIE structure, not including the length field itself (see Section 7.2.2). The size of the length field plus the value of length must be an integral multiple of the address size.
+
+2. CIE_id (4 or 8 bytes, see Section 7.4)
+   A constant that is used to distinguish CIEs from FDEs.
+
+3. version(ubyte)
+   A version number (see Section 7.23). This number is specific to the call frame information and is independent of the DWARF version number.
+
+4. augmentation (UTF-8 string)
+   A null-terminated UTF-8 string that identifies the augmentation to this CIE or to the FDEs that use it. If a reader encounters an augmentation string that is unexpected, then only the following fields can be read:
+   • CIE: length, CIE_id, version, augmentation
+   • FDE: length, CIE_pointer, initial_location, address_range
+   If there is no augmentation, this value is a zero byte.
+   The augmentation string allows users to indicate that there is additional target-specific information in the CIE or FDE which is needed to unwind a stack frame. For example, this might be information about dynamically allocated data which needs to be freed on exit from the routine.
+   Because the .debug_frame section is useful independently of any .debug_info section, the augmentation string always uses UTF-8 encoding.
+
+5. address_size (ubyte)
+   The size of a target address in this CIE and any FDEs that use it, in bytes. If a compilation
+   unit exists for this frame, its address size must match the address size here.
+
+6. segment_size (ubyte)
+
+   The size of a segment selector in this CIE and any FDEs that use it, in bytes.
+
+7. code_alignment_factor (unsigned LEB128)
+   A constant that is factored out of all advance location instructions (seeSection 6.4.2.1).
+8. data_alignment_factor (signed LEB128)
+   A constant that is factored out of certain offset instructions (see below). The resulting value is (operand * data_alignment_factor).
+9. return_address_register (unsigned LEB128)
+   An unsigned LEB128 constant that indicates which column in the rule table represents the return address of the function. Note that this column might not correspond to an actual machine register.
+10. initial_instructions (array of ubyte)
+    A sequence of rules that are interpreted to create the initial setting of each column in the
+    table.
+    The default rule for all columns before interpretation of the initial instructions is the undefined rule. However, an ABI authoring body or a compilation system authoring body may specify an alternate default value for any or all columns.
+11. padding (array of ubyte)
+    Enough DW_CFA_nop instructions to make the size of this entry match the length value
+    above.
+
+##### 5.4.3.3.2 Frame Descriptor Entry
+
+An FDE contains the following fields, in order:
+
+1. length (initial length)
+   A constant that gives the number of bytes of the header and instruction stream for this function, not including the length field itself (see Section 7.2.2). The size of the length field plus the value of length must be an integral multiple of the address size.
+2. CIE_pointer (4 or 8 bytes, see Section 7.4)
+   A constant offset into the .debug_frame section that denotes the CIE that is associated with
+   this FDE.
+3. initial_location (segment selector and target address)
+   The address of the first location associated with this table entry. If the segment_size field of this FDE's CIE is non-zero, the initial location is preceded by a segment selector of the given length.
+4. address_range (target address)
+   The number of bytes of program instructions described by this entry.
+5. instructions (array of ubyte)
+   A sequence of table defining instructions that are described below.
+6. padding (array of ubyte)
+   Enough DW_CFA_nop instructions to make the size of this entry match the length value above.
+
+#### 5.4.3.4 Call Frame Instructions
+
+
+
 ////////////////////////
 
 Every processor has a certain way of determining how to pass parameters and return values, this is defined by the processor’s ABI (Application Binary Interface). In the simplest case, all functions have the same way to pass parameters and return values, and the debuggers know exactly how to get the parameters and return values. 

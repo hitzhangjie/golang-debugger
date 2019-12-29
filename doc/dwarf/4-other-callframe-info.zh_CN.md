@@ -65,9 +65,59 @@ CFA列，定义了计算规范栈帧地址值的规则，它可以是寄存器�
 - 公共信息条目（Common Information Entry, CIE）；
 - 帧描述条目（Frame Descriptor Entry, FDE）；
 
+> 如果函数的代码段地址范围不是连续的，可能存在多个CIEs和FDEs。
+
 ##### 5.4.3.3.1 Common Information Entry
 
+A Common Information Entry holds information that is shared among many Frame Description Entries. There is at least one CIE in every non-empty .debug_frame section. A CIE contains the following fields, in order:
+
+每个公共信息条目CIE的信息，可能会被很多帧描述条目FDE所共享。每个非空的.debug_frame section中至少包含一个CIE，每个CIE都包含如下字段，按照字段存储顺序依次是：
+
+1. length (初始长度)，常量，指明了该CIE结构的大小（字节数量），不包含该字段本身。length字段所占字节数，加上length的值，必须是按照address size对齐；
+
+2. CIE_id (4字节或8字节)，常量，用语CIEs、FDEs；
+
+3. version(ubyte)，版本号，该值与CFI信息有关，与DWARF版本无关；
+
+4. augmentation (UTF-8字符串)
+
+  null结尾的UTF-8字符串，用于标志当前CIE和使用它的FDEs的扩展信息，如果一个reader遇到一个未知的augmentation字符串，只可以读取如下字段；
+
+  • CIE: length, CIE_id, version, augmentation
+  • FDE: length, CIE_pointer, initial_location, address_range
+
+  如果没有augmentation，该字段值就是0，一个字节。augmentation字符串，允许用户向CIE、FDE添加一些目标机器相关的信息，来指导如何解开一个堆栈。例如，动态分配的数据可在函数退出时进行释放，可以将这些信息作为augmentation信息。.debug_frame只使用UTF-8编码。
+
+5. address_size (ubyte)，该CIE中以及使用该CIE的其他FDEs中，目标机器地址占用几个字节，如果该frame存在一个编译单元，其中的address size必须与这里的address size相同；
+
+6. segment_size (ubyte)，该CIE中以及使用该CIE的其他FDEs中，段选择符占用几个字节；
+
+7. code_alignment_factor (unsigned LEB128)，常量，指令地址偏移量 = operand * code_alignment_factor；
+8. data_alignment_factor (signed LEB128)，常量，偏移量 = operand * data_alignment_factor；
+9. return_address_register (unsigned LEB128)，常量，指示返回地址存储在哪里，可能是物理寄存器或内存
+10. initial_instructions (array of ubyte)，一系列rules，用于指示如何创建CFI信息表的初始设置；
+  在执行initial instructions之前，所有列的默认生成规则都是undefined，不过, ABI authoring body 或者 compilation system authoring body 也可以为某列或者所有列指定其他的默认规则；
+11. padding (array of ubyte)，填充指令，填充CIE结构体，使得CIE结构体大小满足length要求，length值加字段字节数必须按照address size对齐；
+   
+
 ##### 5.4.3.3.2 Frame Descriptor Entry
+
+An FDE contains the following fields, in order:
+1. length (initial length)
+A constant that gives the number of bytes of the header and instruction stream for this function, not including the length field itself (see Section 7.2.2). The size of the length field plus the value of length must be an integral multiple of the address size.
+2. CIE_pointer (4 or 8 bytes, see Section 7.4)
+A constant offset into the .debug_frame section that denotes the CIE that is associated with
+this FDE.
+3. initial_location (segment selector and target address)
+The address of the first location associated with this table entry. If the segment_size field of this FDE's CIE is non-zero, the initial location is preceded by a segment selector of the given length.
+4. address_range (target address)
+The number of bytes of program instructions described by this entry.
+5. instructions (array of ubyte)
+A sequence of table defining instructions that are described below.
+6. padding (array of ubyte)
+Enough DW_CFA_nop instructions to make the size of this entry match the length value above.
+
+#### 5.4.3.4 Call Frame Instructions
 
 
 
