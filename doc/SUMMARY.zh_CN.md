@@ -1,6 +1,6 @@
 # Summary
 
-* [1 介绍](README.zh_CN.md)
+* [1 介绍](README.md)
 * [2 前言](2-preface.zh_CN.md)
 * [3 常用术语](3-terms.zh_CN.md)
 * [4 调试基础](basics/README.zh_CN.md)
@@ -16,6 +16,7 @@
     * [5.3.3 DIE描述可执行代码](dwarf/3-die-desc-code.zh_CN.md)
     * [5.3.4 DIE数据编码](dwarf/3-die-encoding.zh_CN.md)
   * [5.4 其他调试数据](dwarf/4-other-readme.zh_CN.md)
+    * [5.4.0 加速访问](dwarf/4-other-accelerated-access.zh_CN.md)
     * [5.4.1 行号表信息](dwarf/4-other-lineno-table.zh_CN.md)
     * [5.4.2 宏信息](dwarf/4-other-macro-info.zh_CN.md)
     * [5.4.3 调用栈帧信息](dwarf/4-other-callframe-info.zh_CN.md)
@@ -29,7 +30,7 @@
   * [6.1 syscall ptrace](develop/1-ptrace.zh_CN.md)
   * [6.2 Process Control](develop/2-process.zh_CN.md)
   * [6.3 Memory & Register](develop/3-memory-registers.zh_CN.md)
-  * [6.4 Symbol Table](develop/4-symbol-table.zh_CN.md)
+  * [6.4 Symbol Table](develop/4-symtable & linetable.zh_CN.md)
   * [6.5 Call Frame](develop/5-call-frame.zh_CN.md)
   * [6.6 Debug Line](develop/6-debug-line.zh_CN.md)
   * [6.7 gopkg /debug](develop/7-gopkg-debug.zh_CN.md)
