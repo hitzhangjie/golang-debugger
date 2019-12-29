@@ -237,7 +237,8 @@ The next two instructions provide the ability to stack and retrieve complete reg
 ##### 5.4.3.4.5 CFI表字节填充指令（Padding Instruction）
 
 1. DW_CFA_nop
-   The DW_CFA_nop instruction has no operands and no required actions. It is used as padding to make a CIE or FDE an appropriate size.
+
+   DW_CFA_nop指令没有操作数，也没有必需的操作。 它用作填充字节以使CIE或FDE大小合适。
 
 #### 5.4.3.5 Call Frame Instruction Usage
 
