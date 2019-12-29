@@ -7,7 +7,7 @@
     * [4.1 Purposes](basics/1-purposes.md)
     * [4.2 Dependencies](basics/2-dependencies.md)
     * [4.3 Countertactics](basics/3-countertactics.md)
-* [5 Debug Info Format: Dwarf](dwarf/README.md)
+* [5 Debug Info Format: DWARF](dwarf/README.md)
     * [5.1 History](dwarf/1-history.md)
     * [5.2 Structure](dwarf/2-structure.md)
     * [5.3 DIE](dwarf/3-die-readme.md)
