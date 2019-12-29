@@ -146,47 +146,80 @@ An FDE contains the following fields, in order:
 ##### 5.4.3.4.2 CFI表CFA定义指令（CFA Definition Instructions）
 
 1. DW_CFA_def_cfa
-   The DW_CFA_def_cfa instruction takes two unsigned LEB128 operands representing a register number and a (non-factored) offset. The required action is to define the current CFA rule to use the provided register and offset.
+   
+   DW_CFA_def_cfa指令采用两个无符号的LEB128操作数，它们代表寄存器号和（non-factored，非因数）偏移量。 所需的操作是定义当前的CFA规则以使用提供的寄存器和偏移量。
+   
 2. DW_CFA_def_cfa_sf
-   The DW_CFA_def_cfa_sf instruction takes two operands: an unsigned LEB128 value representing a register number and a signed LEB128 factored offset. This instruction is identical to DW_CFA_def_cfa except that the second operand is signed and factored. The resulting offset is factored_offset * data_alignment_factor.
+
+   DW_CFA_def_cfa_sf指令采用两个操作数：代表寄存器号的无符号LEB128值和有符号LEB128因数偏移量。 该指令与DW_CFA_def_cfa相同，不同之处在于第二个操作数是有符号的因数（signed factored）。 结果偏移量为factored_offset * data_alignment_factor。
+
 3. DW_CFA_def_cfa_register
-   The DW_CFA_def_cfa_register instruction takes a single unsigned LEB128 operand representing a register number. The required action is to define the current CFA rule to use the provided register (but to keep the old offset). This operation is valid only if the current CFA rule is defined to use a register and offset.
+
+   DW_CFA_def_cfa_register指令采用表示寄存器编号的单个无符号LEB128操作数。 所需的操作是定义当前的CFA规则以使用提供的寄存器（但保留旧的偏移量）。 仅当当前CFA规则定义为使用寄存器和偏移量时，此操作才有效。
+
 4. DW_CFA_def_cfa_offset
-   The DW_CFA_def_cfa_offset instruction takes a single unsigned LEB128 operand representing a (non-factored) offset. The required action is to define the current CFA rule to use the provided offset (but to keep the old register). This operation is valid only if the current CFA rule is defined to use a register and offset.
+
+   DW_CFA_def_cfa_offset指令采用单个无符号LEB128操作数表示一个（未分解的）偏移量。 所需的操作是定义当前的CFA规则以使用提供的偏移量（但保留旧寄存器）。 仅当当前CFA规则定义为使用寄存器和偏移量时，此操作才有效。
+
 5. DW_CFA_def_cfa_offset_sf
-   The DW_CFA_def_cfa_offset_sf instruction takes a signed LEB128 operand representing a factored offset. This instruction is identical to DW_CFA_def_cfa_offset except that the operand is signed and factored. The resulting offset is factored_offset * data_alignment_factor. This operation is valid only if the current CFA rule is defined to use a register and offset.
+
+   DW_CFA_def_cfa_offset_sf指令采用带符号的LEB128操作数，表示分解后的偏移量。 该指令与DW_CFA_def_cfa_offset相同，除了该操作数是有符号的因数（signed factored）。 结果偏移量为factored_offset * data_alignment_factor。 仅当当前CFA规则定义为使用寄存器和偏移量时，此操作才有效。
+
 6. DW_CFA_def_cfa_expression
    The DW_CFA_def_cfa_expression instruction takes a single operand encoded as a DW_FORM_exprloc value representing a DWARF expression. The required action is to establish that expression as the means by which the current CFA is computed.
    See Section 6.4.2 regarding restrictions on the DWARF expression operators that can be used.
 
+   DW_CFA_def_cfa_expression指令采用单个操作数，该操作数编码为表示DWARF表达式的DW_FORM_exprloc值。 所需的操作是建立该表达式作为计算当前CFA的方式。
+   有关可使用的DWARF表达式运算符的限制，请参见第DWARF v4 section 6.4.2。
+
 ##### 5.4.3.4.3 CFI表寄存器规则指令（Register Rule Instructions）
 
 1. DW_CFA_undefined
-   The DW_CFA_undefined instruction takes a single unsigned LEB128 operand that represents a register number. The required action is to set the rule for the specified register to “undefined.”
+   DW_CFA_undefined指令采用单个无符号LEB128操作数来表示寄存器号。 所需的操作是将指定寄存器的unwind规则设置为“undefined”。
+   
 2. DW_CFA_same_value
-   The DW_CFA_same_value instruction takes a single unsigned LEB128 operand that represents a register number. The required action is to set the rule for the specified register to “same value.”
+   DW_CFA_same_value指令采用单个无符号的LEB128操作数来表示寄存器号。 所需的操作是将指定寄存器的unwind规则设置为“same”。
+   
 3. DW_CFA_offset
-   The DW_CFA_offset instruction takes two operands: a register number (encoded with the opcode) and an unsigned LEB128 constant representing a factored offset. The required action is to change the rule for the register indicated by the register number to be an offset(N) rule where the value of N is factored offset * data_alignment_factor.
+
+   DW_CFA_offset指令采用两个操作数：一个寄存器号（使用操作码编码）和一个无符号的LEB128常量（表示分解后的偏移量）。 所需的操作是将由寄存器号指示的寄存器的unwind规则更改为offset(N)规则，其中N的值是分解后偏移量 * data_alignment_factor。
+
 4. DW_CFA_offset_extended
-   The DW_CFA_offset_extended instruction takes two unsigned LEB128 operands representing a register number and a factored offset. This instruction is identical to DW_CFA_offset except for the encoding and size of the register operand.
+
+   DW_CFA_offset_extended指令采用两个无符号的LEB128操作数，它们表示寄存器号和分解的偏移量。 该指令与DW_CFA_offset相同，不同之处在于寄存器操作数的编码和大小。
+
 5. DW_CFA_offset_extended_sf
-   The DW_CFA_offset_extended_sf instruction takes two operands: an unsigned LEB128 value representing a register number and a signed LEB128 factored offset. This instruction is identical to DW_CFA_offset_extended except that the second operand is signed and factored. The resulting offset is factored_offset * data_alignment_factor.
+
+   DW_CFA_offset_extended_sf指令采用两个操作数：代表寄存器号的无符号LEB128值和有符号LEB128分解后偏移量。 该指令与DW_CFA_offset_extended相同，不同之处在于第二个操作数是有符号factored偏移量。 结果偏移量为factored_offset * data_alignment_factor。
+
 6. DW_CFA_val_offset
-   The DW_CFA_val_offset instruction takes two unsigned LEB128 operands representing a register number and a factored offset. The required action is to change the rule for the register indicated by the register number to be a val_offset(N) rule where the value of N is factored_offset * data_alignment_factor.
+
+   DW_CFA_val_offset指令采用两个无符号的LEB128操作数，它们代表寄存器号和分解的偏移量。 所需的操作是将寄存器编号指示的寄存器规则更改为val_offset(N)规则，其中N的值是factored_offset * data_alignment_factor。
+
 7. DW_CFA_val_offset_sf
-   The DW_CFA_val_offset_sf instruction takes two operands: an unsigned LEB128 value representing a register number and a signed LEB128 factored offset. This instruction is identical to DW_CFA_val_offset except that the second operand is signed and factored. The resulting offset is factored_offset * data_alignment_factor.
+
+   DW_CFA_val_offset_sf指令采用两个操作数：代表寄存器号的无符号LEB128值和有符号LEB128因数偏移量。 该指令与DW_CFA_val_offset相同，不同之处在于第二个操作数是有符号factored偏移量。 结果偏移量为factored_offset * data_alignment_factor。
+
 8. DW_CFA_register
-   The DW_CFA_register instruction takes two unsigned LEB128 operands representing register numbers. The required action is to set the rule for the first register to be register(R) where R is the second register.
+
+   DW_CFA_register指令采用两个无符号的LEB128操作数表示寄存器编号。 所需的操作是将第一个寄存器的规则设置为register(R)，其中R是第二个寄存器。
+
 9. DW_CFA_expression
-   The DW_CFA_expression instruction takes two operands: an unsigned LEB128 value representing a register number, and a DW_FORM_block value representing a DWARF expression. The required action is to change the rule for the register indicated by the register number to be an expression(E) rule where E is the DWARF expression. That is, the DWARF expression computes the address. The value of the CFA is pushed on the DWARF evaluation stack prior to execution of the DWARF expression.
-   See Section 6.4.2 regarding restrictions on the DWARF expression operators that can be used.
+
+   DW_CFA_expression指令采用两个操作数：代表寄存器号的无符号LEB128值和代表DWARF表达式的DW_FORM_block值。 所需的操作是将由寄存器号指示的寄存器的规则更改为expression(E)规则，其中E是DWARF表达式。 即，DWARF表达式计算地址。 在执行DWARF表达式之前，将CFA的值压入DWARF表达式运算堆栈。
+   有关可使用的DWARF表达式运算符的限制，请参见DWARF v4 section 6.4.2。
+
 10. DW_CFA_val_expression
-    The DW_CFA_val_expression instruction takes two operands: an unsigned LEB128 value representing a register number, and a DW_FORM_block value representing a DWARF expression. The required action is to change the rule for the register indicated by the register number to be a val_expression(E) rule where E is the DWARF expression. That is, the DWARF expression computes the value of the given register. The value of the CFA is pushed on the DWARF evaluation stack prior to execution of the DWARF expression.
-    See Section 6.4.2 regarding restrictions on the DWARF expression operators that can be used.
+
+   DW_CFA_val_expression指令采用两个操作数：代表寄存器号的无符号LEB128值和代表DWARF表达式的DW_FORM_block值。 所需的操作是将由寄存器号指示的寄存器的规则更改为val_expression（E）规则，其中E是DWARF表达式。 也就是说，DWARF表达式计算给定寄存器的值。 在执行DWARF表达式之前，将CFA的值压入DWARF表达式运算堆栈。
+   有关可使用的DWARF表达式运算符的限制，请参见DWARF v4 section 6.4.2。
+
 11. DW_CFA_restore
-    The DW_CFA_restore instruction takes a single operand (encoded with the opcode) that represents a register number. The required action is to change the rule for the indicated register to the rule assigned it by the initial_instructions in the CIE.
+
+    DW_CFA_restore指令采用单个操作数（用操作码编码），该操作数表示寄存器号。 所需的操作是将指定寄存器的unwind规则更改为CIE中initial_instructions为其分配的规则。
+
 12. DW_CFA_restore_extended
-    The DW_CFA_restore_extended instruction takes a single unsigned LEB128 operand that represents a register number. This instruction is identical to DW_CFA_restore except for the encoding and size of the register operand.
+    DW_CFA_restore_extended指令采用单个无符号的LEB128操作数来表示寄存器号。 该指令与DW_CFA_restore相同，不同之处在于寄存器操作数的编码和大小。
 
 ##### 5.4.3.4.4 CFI表行状态指令（Row State Instructions）
 
