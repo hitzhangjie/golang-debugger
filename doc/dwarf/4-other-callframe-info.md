@@ -73,11 +73,12 @@ A Common Information Entry holds information that is shared among many Frame Des
 
 4. augmentation (UTF-8 string)
    A null-terminated UTF-8 string that identifies the augmentation to this CIE or to the FDEs that use it. If a reader encounters an augmentation string that is unexpected, then only the following fields can be read:
-   • CIE: length, CIE_id, version, augmentation
-   • FDE: length, CIE_pointer, initial_location, address_range
-   If there is no augmentation, this value is a zero byte.
-   The augmentation string allows users to indicate that there is additional target-specific information in the CIE or FDE which is needed to unwind a stack frame. For example, this might be information about dynamically allocated data which needs to be freed on exit from the routine.
-   Because the .debug_frame section is useful independently of any .debug_info section, the augmentation string always uses UTF-8 encoding.
+
+   - CIE: length, CIE_id, version, augmentation
+   - FDE: length, CIE_pointer, initial_location, address_range
+     If there is no augmentation, this value is a zero byte.
+     The augmentation string allows users to indicate that there is additional target-specific information in the CIE or FDE which is needed to unwind a stack frame. For example, this might be information about dynamically allocated data which needs to be freed on exit from the routine.
+     Because the .debug_frame section is useful independently of any .debug_info section, the augmentation string always uses UTF-8 encoding.
 
 5. address_size (ubyte)
    The size of a target address in this CIE and any FDEs that use it, in bytes. If a compilation
@@ -121,7 +122,89 @@ An FDE contains the following fields, in order:
 
 #### 5.4.3.4 Call Frame Instructions
 
+Each call frame instruction is defined to take 0 or more operands. Some of the operands may be encoded as part of the opcode (see Section 7.23). The instructions are defined in the following sections.
+Some call frame instructions have operands that are encoded as DWARF expressions (see Section 2.5.1). The following DWARF operators cannot be used in such operands:
 
+- DW_OP_call2, DW_OP_call4 and DW_OP_call_ref operators are not meaningful in an operand of these instructions because there is no mapping from call frame information to any corresponding debugging compilation unit information, thus there is no way to interpret the call offset.
+- DW_OP_push_object_address is not meaningful in an operand of these instructions because there is no object context to provide a value to push.
+- DW_OP_call_frame_cfa is not meaningful in an operand of these instructions because its use would be circular.
+
+Call frame instructions to which these restrictions apply include DW_CFA_def_cfa_expression, DW_CFA_expression and DW_CFA_val_expression.
+
+##### 5.4.3.4.1 Row Creation Instructions
+
+1. DW_CFA_set_loc
+The DW_CFA_set_loc instruction takes a single operand that represents a target address. The required action is to create a new table row using the specified address as the location. All other values in the new row are initially identical to the current row. The new location value is always greater than the current one. If the segment_size field of this FDE's CIE is non- zero, the initial location is preceded by a segment selector of the given length.
+2. DW_CFA_advance_loc
+The DW_CFA_advance instruction takes a single operand (encoded with the opcode) that represents a constant delta. The required action is to create a new table row with a location value that is computed by taking the current entry’s location value and adding the value of delta * code_alignment_factor. All other values in the new row are initially identical to the current row.
+3. DW_CFA_advance_loc1
+The DW_CFA_advance_loc1 instruction takes a single ubyte operand that represents a constant delta. This instruction is identical to DW_CFA_advance_loc except for the encoding and size of the delta operand.
+4. DW_CFA_advance_loc2
+The DW_CFA_advance_loc2 instruction takes a single uhalf operand that represents a constant delta. This instruction is identical to DW_CFA_advance_loc except for the encoding and size of the delta operand.
+5. DW_CFA_advance_loc4
+The DW_CFA_advance_loc4 instruction takes a single uword operand that represents a constant delta. This instruction is identical to DW_CFA_advance_loc except for the encoding and size of the delta operand.
+
+##### 5.4.3.4.2 CFA Definition Instructions
+
+1. DW_CFA_def_cfa
+The DW_CFA_def_cfa instruction takes two unsigned LEB128 operands representing a register number and a (non-factored) offset. The required action is to define the current CFA rule to use the provided register and offset.
+2. DW_CFA_def_cfa_sf
+The DW_CFA_def_cfa_sf instruction takes two operands: an unsigned LEB128 value representing a register number and a signed LEB128 factored offset. This instruction is identical to DW_CFA_def_cfa except that the second operand is signed and factored. The resulting offset is factored_offset * data_alignment_factor.
+3. DW_CFA_def_cfa_register
+The DW_CFA_def_cfa_register instruction takes a single unsigned LEB128 operand representing a register number. The required action is to define the current CFA rule to use the provided register (but to keep the old offset). This operation is valid only if the current CFA rule is defined to use a register and offset.
+4. DW_CFA_def_cfa_offset
+The DW_CFA_def_cfa_offset instruction takes a single unsigned LEB128 operand representing a (non-factored) offset. The required action is to define the current CFA rule to use the provided offset (but to keep the old register). This operation is valid only if the current CFA rule is defined to use a register and offset.
+5. DW_CFA_def_cfa_offset_sf
+The DW_CFA_def_cfa_offset_sf instruction takes a signed LEB128 operand representing a factored offset. This instruction is identical to DW_CFA_def_cfa_offset except that the operand is signed and factored. The resulting offset is factored_offset * data_alignment_factor. This operation is valid only if the current CFA rule is defined to use a register and offset.
+6. DW_CFA_def_cfa_expression
+The DW_CFA_def_cfa_expression instruction takes a single operand encoded as a DW_FORM_exprloc value representing a DWARF expression. The required action is to establish that expression as the means by which the current CFA is computed.
+See Section 6.4.2 regarding restrictions on the DWARF expression operators that can be used.
+
+##### 5.4.3.4.3 Register Rule Instructions
+
+1. DW_CFA_undefined
+The DW_CFA_undefined instruction takes a single unsigned LEB128 operand that represents a register number. The required action is to set the rule for the specified register to “undefined.”
+2. DW_CFA_same_value
+The DW_CFA_same_value instruction takes a single unsigned LEB128 operand that represents a register number. The required action is to set the rule for the specified register to “same value.”
+3. DW_CFA_offset
+The DW_CFA_offset instruction takes two operands: a register number (encoded with the opcode) and an unsigned LEB128 constant representing a factored offset. The required action is to change the rule for the register indicated by the register number to be an offset(N) rule where the value of N is factored offset * data_alignment_factor.
+4. DW_CFA_offset_extended
+The DW_CFA_offset_extended instruction takes two unsigned LEB128 operands representing a register number and a factored offset. This instruction is identical to DW_CFA_offset except for the encoding and size of the register operand.
+5. DW_CFA_offset_extended_sf
+The DW_CFA_offset_extended_sf instruction takes two operands: an unsigned LEB128 value representing a register number and a signed LEB128 factored offset. This instruction is identical to DW_CFA_offset_extended except that the second operand is signed and factored. The resulting offset is factored_offset * data_alignment_factor.
+6. DW_CFA_val_offset
+The DW_CFA_val_offset instruction takes two unsigned LEB128 operands representing a register number and a factored offset. The required action is to change the rule for the register indicated by the register number to be a val_offset(N) rule where the value of N is factored_offset * data_alignment_factor.
+7. DW_CFA_val_offset_sf
+The DW_CFA_val_offset_sf instruction takes two operands: an unsigned LEB128 value representing a register number and a signed LEB128 factored offset. This instruction is identical to DW_CFA_val_offset except that the second operand is signed and factored. The resulting offset is factored_offset * data_alignment_factor.
+8. DW_CFA_register
+The DW_CFA_register instruction takes two unsigned LEB128 operands representing register numbers. The required action is to set the rule for the first register to be register(R) where R is the second register.
+9. DW_CFA_expression
+The DW_CFA_expression instruction takes two operands: an unsigned LEB128 value representing a register number, and a DW_FORM_block value representing a DWARF expression. The required action is to change the rule for the register indicated by the register number to be an expression(E) rule where E is the DWARF expression. That is, the DWARF expression computes the address. The value of the CFA is pushed on the DWARF evaluation stack prior to execution of the DWARF expression.
+See Section 6.4.2 regarding restrictions on the DWARF expression operators that can be used.
+10. DW_CFA_val_expression
+The DW_CFA_val_expression instruction takes two operands: an unsigned LEB128 value representing a register number, and a DW_FORM_block value representing a DWARF expression. The required action is to change the rule for the register indicated by the register number to be a val_expression(E) rule where E is the DWARF expression. That is, the DWARF expression computes the value of the given register. The value of the CFA is pushed on the DWARF evaluation stack prior to execution of the DWARF expression.
+See Section 6.4.2 regarding restrictions on the DWARF expression operators that can be used.
+11. DW_CFA_restore
+The DW_CFA_restore instruction takes a single operand (encoded with the opcode) that represents a register number. The required action is to change the rule for the indicated register to the rule assigned it by the initial_instructions in the CIE.
+12. DW_CFA_restore_extended
+The DW_CFA_restore_extended instruction takes a single unsigned LEB128 operand that represents a register number. This instruction is identical to DW_CFA_restore except for the encoding and size of the register operand.
+
+##### 5.4.3.4.4 Row State Instructions
+
+The next two instructions provide the ability to stack and retrieve complete register states. They may be useful, for example, for a compiler that moves epilogue code into the body of a function.
+1. DW_CFA_remember_state
+The DW_CFA_remember_state instruction takes no operands. The required action is to push the set of rules for every register onto an implicit stack.
+2. DW_CFA_restore_state
+The DW_CFA_restore_state instruction takes no operands. The required action is to pop the set of rules off the implicit stack and place them in the current row.
+
+##### 5.4.3.4.5 Padding Instruction
+
+1. DW_CFA_nop
+The DW_CFA_nop instruction has no operands and no required actions. It is used as padding to make a CIE or FDE an appropriate size.
+
+#### 5.4.3.5 Call Frame Instruction Usage
+
+#### 5.4.3.6 Example
 
 ////////////////////////
 

@@ -83,8 +83,8 @@ A Common Information Entry holds information that is shared among many Frame Des
 
   null结尾的UTF-8字符串，用于标志当前CIE和使用它的FDEs的扩展信息，如果一个reader遇到一个未知的augmentation字符串，只可以读取如下字段；
 
-  • CIE: length, CIE_id, version, augmentation
-  • FDE: length, CIE_pointer, initial_location, address_range
+  - CIE: length, CIE_id, version, augmentation
+  - FDE: length, CIE_pointer, initial_location, address_range
 
   如果没有augmentation，该字段值就是0，一个字节。augmentation字符串，允许用户向CIE、FDE添加一些目标机器相关的信息，来指导如何解开一个堆栈。例如，动态分配的数据可在函数退出时进行释放，可以将这些信息作为augmentation信息。.debug_frame只使用UTF-8编码。
 
@@ -114,6 +114,20 @@ An FDE contains the following fields, in order:
 6. padding (array of ubyte)，字节填充，通过DW_CFA_nop指令填充结构体，使FDE结构体大小满足length字段要求；
 
 #### 5.4.3.4 Call Frame Instructions
+
+##### 5.4.3.4.1 Row Creation Instructions
+
+##### 5.4.3.4.2 CFA Definition Instructions
+
+##### 5.4.3.4.3 Register Rule Instructions
+
+##### 5.4.3.4.4 Row State Instructions
+
+##### 5.4.3.4.5 Padding Instruction
+
+#### 5.4.3.5 Call Frame Instruction Usage
+
+#### 5.4.3.6 Example
 
 
 
