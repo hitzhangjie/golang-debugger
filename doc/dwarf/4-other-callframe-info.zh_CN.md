@@ -242,7 +242,7 @@ The next two instructions provide the ability to stack and retrieve complete reg
 
 #### 5.4.3.5 调用帧指令使用（Call Frame Instruction Usage）
 
-为了确定给定位置（L1）的虚拟展开规则集（virtual unwind rule set），可以在FDE headers中进行搜索，通过比较FDE headers中initial_location和address_range值以确定L1是否包含在某个FDE中。
+为了**确定给定位置（L1）的虚拟展开规则集（virtual unwind rule set）**，可以在FDE headers中进行搜索，通过比较FDE headers中initial_location和address_range值以确定L1是否包含在某个FDE中。
 
 如果定位到了这样一个FDE，则继续执行如下操作，确定unwind rule set：
 
@@ -255,7 +255,7 @@ The next two instructions provide the ability to stack and retrieve complete reg
 
 #### 5.4.3.6 调用帧调用地址（Call Frame Calling Address）
 
-当展开调用栈时，DWARF consumers（如调试器）常常希望能够获得该子例程（函数）被调用时的指令地址。这些信息并不是总有提供的。但是，通常，虚拟展开表中有一个寄存器表明了子例程（函数）的返回地址（CIE中指定）。
+当展开调用栈时，DWARF consumers（如调试器）常常希望能够获得**该子例程（函数）被调用时的指令地址**。这些信息并不是总有提供的。但是，通常，虚拟展开表中有一个寄存器表明了子例程（函数）的返回地址（CIE中指定）。
 
 如果在虚拟展开表（CFI表）中定义了返回地址寄存器，并且其规则是undefined（例如，通过DW_CFA_undefined定义），那就没有返回地址，也没有调用地址，并且调用栈的虚拟展开已完成。
 
