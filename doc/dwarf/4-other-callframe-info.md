@@ -204,7 +204,25 @@ The DW_CFA_nop instruction has no operands and no required actions. It is used a
 
 #### 5.4.3.5 Call Frame Instruction Usage
 
-#### 5.4.3.6 Example
+To determine the virtual unwind rule set for a given location (L1), one searches through the FDE headers looking at the initial_location and address_range values to see if L1 is contained in the FDE. If so, then:
+1. Initialize a register set by reading the initial_instructions field of the associated CIE.
+2. Read and process the FDE’s instruction sequence until a DW_CFA_advance_loc,
+DW_CFA_set_loc, or the end of the instruction stream is encountered.
+3. If a DW_CFA_advance_loc or DW_CFA_set_loc instruction is encountered, then compute a new location value (L2). If L1 >= L2 then process the instruction and go back to step 2.
+4. The end of the instruction stream can be thought of as a DW_CFA_set_loc (initial_location + address_range) instruction. Note that the FDE is ill-formed if L2 is less than L1.
+The rules in the register set now apply to location L1. For an example, see Appendix D.6.
+
+#### 5.4.3.6 Call Frame Calling Address
+
+When unwinding frames, consumers frequently wish to obtain the address of the instruction which called a subroutine. This information is not always provided. Typically, however, one of the registers in the virtual unwind table is the Return Address.
+
+If a Return Address register is defined in the virtual unwind table, and its rule is undefined (for example, by DW_CFA_undefined), then there is no return address and no call address, and the virtual unwind of stack activations is complete.
+
+In most cases the return address is in the same context as the calling address, but that need not be the case, especially if the producer knows in some way the call never will return. The context of the 'return address' might be on a different line, in a different lexical block, or past the end of the calling subroutine. If a consumer were to assume that it was in the same context as the calling address, the unwind might fail.
+
+For architectures with constant-length instructions where the return address immediately follows the call instruction, a simple solution is to subtract the length of an instruction from the return address to obtain the calling instruction. For architectures with variable-length instructions (e.g. x86), this is not possible. However, subtracting 1 from the return address, although not guaranteed to provide the exact calling address, generally will produce an address within the same context as the calling address, and that usually is sufficient.
+
+#### 5.4.3.7 Example
 
 ////////////////////////
 

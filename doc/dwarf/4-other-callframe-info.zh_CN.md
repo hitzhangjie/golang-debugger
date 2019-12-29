@@ -242,7 +242,28 @@ The next two instructions provide the ability to stack and retrieve complete reg
 
 #### 5.4.3.5 Call Frame Instruction Usage
 
-#### 5.4.3.6 Example
+为了确定给定位置（L1）的虚拟展开规则集（virtual unwind rule set），可以在FDE headers中进行搜索，通过比较FDE headers中initial_location和address_range值以确定L1是否包含在某个FDE中。
+
+如果定位到了这样一个FDE，则继续执行如下操作，确定unwind rule set：
+
+1. 通过读取FDE关联的CIE的initial_instructions字段来初始化寄存器集合；
+2. 读取并处理FDE的指令序列，直到DW_CFA_advance_loc，DW_CFA_set_loc，或遇到指令流的末尾；
+3. 如果遇到DW_CFA_advance_loc或DW_CFA_set_loc指令，则计算一个新的位置值（L2）。 如果L1 >= L2，则处理该指令并返回步骤2继续执行；
+4. 指令流的末尾可被视为DW_CFA_set_loc（initial_location+address_range）指令。请注意，如果执行到指令流的末尾后，如果L2<L1，则FDE格式不正确；
+
+现在，针对位置L1的寄存器集合对应的虚拟展开规则集（virtual unwind rule set）就确定下来了。有关示例，请参见DWARF v4 2附录D.6。
+
+#### 5.4.3.6 Call Frame Calling Address
+
+When unwinding frames, consumers frequently wish to obtain the address of the instruction which called a subroutine. This information is not always provided. Typically, however, one of the registers in the virtual unwind table is the Return Address.
+
+If a Return Address register is defined in the virtual unwind table, and its rule is undefined (for example, by DW_CFA_undefined), then there is no return address and no call address, and the virtual unwind of stack activations is complete.
+
+In most cases the return address is in the same context as the calling address, but that need not be the case, especially if the producer knows in some way the call never will return. The context of the 'return address' might be on a different line, in a different lexical block, or past the end of the calling subroutine. If a consumer were to assume that it was in the same context as the calling address, the unwind might fail.
+
+For architectures with constant-length instructions where the return address immediately follows the call instruction, a simple solution is to subtract the length of an instruction from the return address to obtain the calling instruction. For architectures with variable-length instructions (e.g. x86), this is not possible. However, subtracting 1 from the return address, although not guaranteed to provide the exact calling address, generally will produce an address within the same context as the calling address, and that usually is sufficient.
+
+#### 5.4.3.7 Example
 
 
 
