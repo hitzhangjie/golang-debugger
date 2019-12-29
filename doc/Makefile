@@ -5,7 +5,7 @@ PHONY: init
 
 .PHONY: english
 .PHONY: chinese
-.PHONY: summary
+.PHONY: stat
 
 .PHONY: clean
 
@@ -24,7 +24,7 @@ chinese:
 	ln -sf ./SUMMARY.zh_CN.md ./SUMMARY.md
 	gitbook serve
 
-summary:
+stat:
 	@echo "Chinese version, words: ${chineseWordsCnt}"
 	@echo "English version, words: ${englishWordsCnt}"
 
