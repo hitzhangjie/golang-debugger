@@ -25,6 +25,35 @@ The unwinding operation needs to know where registers are saved and how to compu
 - Some architectures have special instructions that perform some or all of the register management in one instruction, leaving special information on the stack that indicates how registers are saved.
 - Some architectures treat return address values specially. For example, in one architecture, the call instruction guarantees that the low order two bits will be zero and the return instruction ignores those bits. This leaves two bits of storage that are available to other uses that must be treated specially.
 
+#### 5.4.3.3 Structure of Call Frame Information
+
+DWARF supports virtual unwinding by defining an architecture independent basis for recording how procedures save and restore registers during their lifetimes. This basis must be augmented on some machines with specific information that is defined by an architecture specific ABI authoring committee, a hardware vendor, or a compiler producer. The body defining a specific augmentation is referred to below as the “augmenter.”
+
+Abstractly, this mechanism describes a very large table that has the following structure:
+
+<img src="assets/image-20191229130341692.png" alt="image-20191229130341692" style="zoom:5%;" />
+
+The first column indicates an address for every location that contains code in a program. (In shared objects, this is an object-relative offset.) The remaining columns contain virtual unwinding rules that are associated with the indicated location.
+
+The CFA column defines the rule which computes the Canonical Frame Address value; it may be either a register and a signed offset that are added together, or a DWARF expression that is evaluated.
+
+The remaining columns are labeled by register number. This includes some registers that have special designation on some architectures such as the PC and the stack pointer register. (The actual mapping of registers for a particular architecture is defined by the augmenter.) The register columns contain rules that describe whether a given register has been saved and the rule to find the value for the register in the previous frame.
+
+The register rules are:
+
+- undefined, A register that has this rule has no recoverable value in the previous frame. (By convention, it is not preserved by a callee.)
+- same value, This register has not been modified from the previous frame. (By convention, it is preserved by the callee, but the callee has not modified it.)
+- offset(N), The previous value of this register is saved at the address CFA+N where CFA is the current CFA value and N is a signed offset.
+- val_offset(N), The previous value of this register is the value CFA+N where CFA is the current CFA value and N is a signed offset.
+- register(R), The previous value of this register is stored in another register numbered R.
+- expression(E), The previous value of this register is located at the address produced by
+  executing the DWARF expression E.
+- val_expression(E), The previous value of this register is the value produced by executing the
+  DWARF expression E.
+- architectural, The rule is defined externally to this specification by the augmenter.
+
+This table would be extremely large if actually constructed as described. Most of the entries at any point in the table are identical to the ones above them. The whole table can be represented quite compactly by recording just the differences starting at the beginning address of each subroutine in the program.
+
 ////////////////////////
 
 Every processor has a certain way of determining how to pass parameters and return values, this is defined by the processor’s ABI (Application Binary Interface). In the simplest case, all functions have the same way to pass parameters and return values, and the debuggers know exactly how to get the parameters and return values. 
