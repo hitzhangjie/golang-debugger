@@ -1,8 +1,8 @@
 ### 5.4.6 ELF Sections
 
-While Dwarf is defined in a way that allows it to be used with any object file format, it’s most often used with ELF.  
+While DWARF is defined in a way that allows it to be used with any object file format, it’s most often used with ELF.  
 
-Each of the different kinds of Dwarf data are stored in their own section. The names of these sections all start with prefix ‘.debug_’. For improved efficiency, most references to Dwarf data use an offset from the start of the data for current compilation. This avoids the need to relocate the debugging data, which speeds up program loading and debugging. 
+Each of the different kinds of DWARF data are stored in their own section. The names of these sections all start with prefix ‘.debug_’. For improved efficiency, most references to DWARF data use an offset from the start of the data for current compilation. This avoids the need to relocate the debugging data, which speeds up program loading and debugging. 
 
 The ELF sections and their contents are:
 
