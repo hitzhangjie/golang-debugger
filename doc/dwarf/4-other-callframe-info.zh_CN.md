@@ -97,25 +97,21 @@ A Common Information Entry holds information that is shared among many Frame Des
 9. return_address_register (unsigned LEB128)，常量，指示返回地址存储在哪里，可能是物理寄存器或内存
 10. initial_instructions (array of ubyte)，一系列rules，用于指示如何创建CFI信息表的初始设置；
   在执行initial instructions之前，所有列的默认生成规则都是undefined，不过, ABI authoring body 或者 compilation system authoring body 也可以为某列或者所有列指定其他的默认规则；
-11. padding (array of ubyte)，填充指令，填充CIE结构体，使得CIE结构体大小满足length要求，length值加字段字节数必须按照address size对齐；
+11. padding (array of ubyte)，字节填充，通过DW_CFA_nop指令填充结构体，使CIE结构体大小满足length要求，length值加字段字节数必须按照address size对齐；
    
 
 ##### 5.4.3.3.2 Frame Descriptor Entry
 
 An FDE contains the following fields, in order:
-1. length (initial length)
-A constant that gives the number of bytes of the header and instruction stream for this function, not including the length field itself (see Section 7.2.2). The size of the length field plus the value of length must be an integral multiple of the address size.
-2. CIE_pointer (4 or 8 bytes, see Section 7.4)
-A constant offset into the .debug_frame section that denotes the CIE that is associated with
-this FDE.
-3. initial_location (segment selector and target address)
-The address of the first location associated with this table entry. If the segment_size field of this FDE's CIE is non-zero, the initial location is preceded by a segment selector of the given length.
-4. address_range (target address)
-The number of bytes of program instructions described by this entry.
-5. instructions (array of ubyte)
-A sequence of table defining instructions that are described below.
-6. padding (array of ubyte)
-Enough DW_CFA_nop instructions to make the size of this entry match the length value above.
+
+一个FDE包含如下字段，按照字段顺序依次如下：
+
+1. length (初始长度)，常量，指明该函数对应header以及instruction流的字节数量，不包含该字段本身。length字段大小（字节数），加上length值，必须是address size（FDE引用的CIE中有定义）的整数倍，即按address size对齐；
+2. CIE_pointer (4或8字节），常量，该FDE引用的CIE在.debug_frame的偏移量；
+3. initial_location (段选择符，以及目标地址），该table entry对应第一个指令地址，如果segment_size（引用的CIE中定义）非0, initial_location前还需要加一个段选择符；
+4. address_range (target address)，该FDE描述的程序指令占用的字节数量；
+5. instructions (array of ubyte)，FDE中包含的指令序列，在后面进行描述；
+6. padding (array of ubyte)，字节填充，通过DW_CFA_nop指令填充结构体，使FDE结构体大小满足length字段要求；
 
 #### 5.4.3.4 Call Frame Instructions
 
