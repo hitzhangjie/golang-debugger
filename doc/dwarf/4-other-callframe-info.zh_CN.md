@@ -127,7 +127,7 @@ An FDE contains the following fields, in order:
 ##### 5.4.3.4.1 CFI表行创建指令（Row Creation Instructions）
 
 1. DW_CFA_set_loc
-   
+  
    DW_CFA_set_loc指令采用代表目标地址的单个操作数。 所需的操作是使用指定的地址作为新位置来创建新的表行。新行中的所有其他值最初都与当前行相同。 新位置值始终大于当前位置值。 如果此FDE的CIE的segment_size字段不为零，还需要在在初始位置之前加上段选择器。
    
 2. DW_CFA_advance_loc
@@ -146,7 +146,7 @@ An FDE contains the following fields, in order:
 ##### 5.4.3.4.2 CFI表CFA定义指令（CFA Definition Instructions）
 
 1. DW_CFA_def_cfa
-   
+  
    DW_CFA_def_cfa指令采用两个无符号的LEB128操作数，它们代表寄存器号和（non-factored，非因数）偏移量。 所需的操作是定义当前的CFA规则以使用提供的寄存器和偏移量。
    
 2. DW_CFA_def_cfa_sf
@@ -240,7 +240,7 @@ The next two instructions provide the ability to stack and retrieve complete reg
 
    DW_CFA_nop指令没有操作数，也没有必需的操作。 它用作填充字节以使CIE或FDE大小合适。
 
-#### 5.4.3.5 Call Frame Instruction Usage
+#### 5.4.3.5 调用帧指令使用（Call Frame Instruction Usage）
 
 为了确定给定位置（L1）的虚拟展开规则集（virtual unwind rule set），可以在FDE headers中进行搜索，通过比较FDE headers中initial_location和address_range值以确定L1是否包含在某个FDE中。
 
@@ -253,15 +253,19 @@ The next two instructions provide the ability to stack and retrieve complete reg
 
 现在，针对位置L1的寄存器集合对应的虚拟展开规则集（virtual unwind rule set）就确定下来了。有关示例，请参见DWARF v4 2附录D.6。
 
-#### 5.4.3.6 Call Frame Calling Address
+#### 5.4.3.6 调用帧调用地址（Call Frame Calling Address）
 
-When unwinding frames, consumers frequently wish to obtain the address of the instruction which called a subroutine. This information is not always provided. Typically, however, one of the registers in the virtual unwind table is the Return Address.
+当展开调用栈时，DWARF consumers（如调试器）常常希望能够获得该子例程（函数）被调用时的指令地址。这些信息并不是总有提供的。但是，通常，虚拟展开表中有一个寄存器表明了子例程（函数）的返回地址（CIE中指定）。
 
-If a Return Address register is defined in the virtual unwind table, and its rule is undefined (for example, by DW_CFA_undefined), then there is no return address and no call address, and the virtual unwind of stack activations is complete.
+如果在虚拟展开表（CFI表）中定义了返回地址寄存器，并且其规则是undefined（例如，通过DW_CFA_undefined定义），那就没有返回地址，也没有调用地址，并且调用栈的虚拟展开已完成。
 
-In most cases the return address is in the same context as the calling address, but that need not be the case, especially if the producer knows in some way the call never will return. The context of the 'return address' might be on a different line, in a different lexical block, or past the end of the calling subroutine. If a consumer were to assume that it was in the same context as the calling address, the unwind might fail.
+在大多数情况下，返回地址与调用地址在同一上下文中，但实际上不一定要这样，特别是如果DWARF信息生产者以某种方式知道调用将永远不会返回。 “返回地址”的上下文可能在不同的行中、在不同的词法块中，或在调用子例程的末尾。 如果使用者要假定返回地址与调用地址在同一上下文中，则展开可能会失败。
 
-For architectures with constant-length instructions where the return address immediately follows the call instruction, a simple solution is to subtract the length of an instruction from the return address to obtain the calling instruction. For architectures with variable-length instructions (e.g. x86), this is not possible. However, subtracting 1 from the return address, although not guaranteed to provide the exact calling address, generally will produce an address within the same context as the calling address, and that usually is sufficient.
+> 调用地址与返回地址不在同一个上下文中，这点可能有点费解，但是如果你看过Linux内核启动代码的话，你就非常容易理解这点。Linux内核head.s为了填充BIOS 16位操作模式向Linux 32/64位模式之间的转换，需要做很多工作，如支持32位/64位寻址、重建32位/64位中断向量表、重建GDT等等，最后才是调用Linux内核的main函数，因为这里的main函数永远不会返回，head.s里面其实是通过ret main地址，来模拟的call main。表现就是函数调用地址、返回地址根本不在同一个上下文中。
+>
+> 这里只是举个例子方便大家理解这个点，但也不是说该例子中的情景就完全覆盖了、等同于上面的这个点。
+
+对于具有固定长度指令的体系结构，其中返回地址紧跟在调用指令之后，一种简单的解决方案是从返回地址中减去指令的长度以获得调用指令的地址。对于具有可变长度指令的体系结构（例如x86），这是不可能的。 但是，从返回地址减去1尽管不能保证提供准确的调用地址，但通常会生成一个与在调用地址处于相同上下文中的地址，通常就足够了。
 
 #### 5.4.3.7 Example
 
