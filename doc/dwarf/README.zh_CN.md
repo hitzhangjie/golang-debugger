@@ -5,3 +5,4 @@ DWARF使用DIE（Debugging Information Entry）来描述变量、数据类型、
 DWARF也定义了一些关键的数据结构，如行号表（Line Number Table)、调用栈信息（Call Frame Information）等，有了这些关键数据结构之后，开发者就可以在源代码语句级别添加动态断点，`bt`可以显示完整的调用栈信息，也可以使用`frame N`来选择感兴趣的栈帧查看。
 
 在DWARF标准中可以了解到很多精巧的设计，如果你对调试器、调试原理等感兴趣，就请继续关注、阅读吧。
+
