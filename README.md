@@ -10,6 +10,46 @@ To develop a symbolic debugger need to combine the knowledge of CPU instruction 
 
 I think it's very helpful, So I am really excited to write this documents.
 
+## Read the Book
+
+1. clone the repository
+```
+git clone https://github.com/hitzhangjie/golang-debugger
+```
+
+2. install gitbook or gitbook-cli
+```
+# macOS
+brew install gitbook-cli
+
+# linux
+yum install gitbook-cli
+apt install gitbook-cli
+
+# windows
+...
+```
+
+3. build the book
+```
+cd golang-debugger/doc
+
+# initialize gitbook plugins
+make init 
+
+# build English version
+make english
+
+# build Chinese version
+make chinese
+
+```
+
+4. clean tmpfiles
+```
+make clean
+```
+
 ## Contact
 
 Please email me **hit.zhangjie@gmail.com**, I will respond as soon as possible.

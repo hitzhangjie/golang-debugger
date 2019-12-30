@@ -16,28 +16,45 @@
 
 希望该项目及相关书籍，能顺利完成，也算是我磨练心性、自我救赎的一种方式，最后，如果能对大家确实起到帮助的作用那是再好不过了。
 
-## 开发计划
+## 阅读本书
 
-- ~ - 2018.11.30 完成Linux平台调试器开发
-- ~ - 2018.12.31 完成调试器开发文档撰写
-- ~ - 2019.01.31 完成《从0开发go调试器》相关章节
-- ~ - 2019.02.28 完成《从调试器看go类型系统》相关章节
-- ~ - 2019.03.31 完成《从调试器看go调度系统》相关章节
-- ~ - 2019.04.30 通读全文，理顺各个章节内容
-- ~ - 2019.05.31 与出版社进行沟通，决定是否出版
-    - 能出版就出版
-    - 出版不了就做成免费的电子书分发
+1. 克隆项目
+```
+git clone https://github.com/hitzhangjie/golang-debugger
+```
 
->备注：项目已经成功延期了一年，so sad...  重新制定下项目开发计划
+2. 安装gitbook或gitbook-cli
+```
+# macOS
+brew install gitbook-cli
 
-- ~ - 2019.10.06~2019.10.13 回顾下调试标准Dwarf v4的内容
-- ~ - 2019.10.14~2019.10.20 基于go v1.12.6+linux，开发指令级调试器
-- ~ - 2019.10.21~2019.10.27 熟练掌握go标准库中debug、elf相关操作
-- ~ - 2019.10.28~2019.11.03 基于go v1.12.6+linux，开发符号级调试器
-    - 实现ELF的解析
-    - 实现.debug_info的解析
-    - 实现.debug_line的解析
-    - ...
+# linux
+yum install gitbook-cli
+apt install gitbook-cli
+
+# windows
+...
+```
+
+3. 构建书籍
+```
+cd golang-debugger/doc
+
+# initialize gitbook plugins
+make init 
+
+# build English version
+make english
+
+# build Chinese version
+make chinese
+
+```
+
+4. 清理临时文件
+```
+make clean
+```
 
 # 意见反馈
 

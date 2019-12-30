@@ -3,3 +3,5 @@
 **/*.a
 **/.DS_store
 doc/~$velop-golang-debugger.docx
+doc/SUMMARY.md
+doc/README.md
