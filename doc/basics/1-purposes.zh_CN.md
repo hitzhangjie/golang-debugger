@@ -18,7 +18,6 @@
 
 调试器相关的重要操作，包括：
 
-- Set breakpoint on memory address, function, statement, file line number
 - 设置断点，在指定内存地址、函数、语句、文件和行号处设置断点；
 - 单步执行，单步执行一条指令, 单步执行一条语句, or 一直运行到下个断点处；
 - 获取、设置寄存器信息；
