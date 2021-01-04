@@ -1,3 +1,7 @@
+Please see **hitzhangjie/golang-debugger-book**, **hitzhangjie/golang-debugger-lesson** instead.
+
+This repo is archieved.
+
 # How to develop a (golang) debugger
 
 ## Introduction
